@@ -12,9 +12,6 @@ const galleryData = [
 let currentGalleryIndex = 0;
 let isAnimating = false;
 
-const preloadImage = new Image();
-preloadImage.src = galleryData[0].url;
-
 // Обновление галереи с быстрой анимацией
 function updateGallery() {
     if (isAnimating) return;
