@@ -1,16 +1,19 @@
 // Данные для галереи
 const galleryData = [
-    // { title: 'Основной зал', url: 'images/studio-1.jpg' },
-    // { title: 'Микшерный пульт', url: 'images/studio-2.jpg' },
-    // { title: 'Вокальная комната', url: 'images/studio-3.jpg' },
-    // { title: 'Оборудование', url: 'images/studio-4.jpg' },
-    // { title: 'Зона отдыха', url: 'images/studio-5.jpg' },
-    // { title: 'Акустика', url: 'images/studio-6.jpg' },
-    // { title: 'Барабаны', url: 'images/studio-7.jpg' },
+    { title: 'Основной зал', url: 'images/studio-1.jpg' },
+    { title: 'Микшерный пульт', url: 'images/studio-2.jpg' },
+    { title: 'Вокальная комната', url: 'images/studio-3.jpg' },
+    { title: 'Оборудование', url: 'images/studio-4.jpg' },
+    { title: 'Зона отдыха', url: 'images/studio-5.jpg' },
+    { title: 'Акустика', url: 'images/studio-6.jpg' },
+    { title: 'Барабаны', url: 'images/studio-7.jpg' },
 ];
 
 let currentGalleryIndex = 0;
 let isAnimating = false;
+
+const preloadImage = new Image();
+preloadImage.src = galleryData[0].url;
 
 // Обновление галереи с быстрой анимацией
 function updateGallery() {
