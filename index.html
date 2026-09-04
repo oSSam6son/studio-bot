@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>FL Studio — Студия звукозаписи</title>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- Telegram Web App -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  </head>
+  <body>
+    <!-- Фоновый слой -->
+    <div class="bg-layer" aria-hidden="true">
+      <div class="bg-circle-purple"></div>
+      <div class="bg-circle-pink"></div>
+      <div class="bg-circle-cyan"></div>
+      <div class="bg-ring"></div>
+      <div class="bg-dot bg-dot-1"></div>
+      <div class="bg-dot bg-dot-2"></div>
+      <div class="bg-dot bg-dot-3"></div>
+      <div class="bg-dot bg-dot-4"></div>
+      <div class="bg-dot bg-dot-5"></div>
+    </div>234..237
+
+    <!-- Header -->
+    <header class="header" id="header">
+      <div class="header-top">
+        <a href="#" class="logo" onclick="scrollToTop(event)">
+          <span class="logo-icon">
+            <i class="fas fa-wave-square"></i>
+          </span>
+          <span class="logo-text">FL - <span>studio</span></span>
+        </a>
+      </div>
+      <div class="header-bottom">
+        <div class="container">
+          <nav class="nav" id="nav">
+            <a href="#hero">Главная</a>
+            <a href="#gallery">Галерея</a>
+            <a href="#services">Услуги</a>
+            <a href="#booking">Бронирование</a>
+            <a href="#about">О студии</a>
+            <a href="#map">Карта</a>
+            <a href="#contacts">Контакты</a>
+            <a href="#booking" class="btn-book-now">Забронировать</a>
+          </nav>
+          <button class="burger" id="burger" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero" id="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-overlay"></div>
+
+      <div class="hero-wrapper">
+        <!-- ← новый контейнер -->
+        <div class="hero-content">
+          <h1 class="hero-title">
+            <span>ЗВУК,</span>
+            <span class="outline">КОТОРЫЙ</span>
+            <span>ЗАХОДИТ</span>
+          </h1>
+          <p class="hero-subtitle">Профессиональная студия звукозаписи</p>
+          <div class="hero-buttons">
+            <button class="btn-primary" onclick="scrollToBooking()">
+              <i class="fas fa-calendar"></i> Забронировать
+            </button>
+            <button class="btn-outline" onclick="scrollToGallery()">
+              <i class="fas fa-images"></i> Смотреть галерею
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-number">10+</span>
+            <span class="stat-label">лет опыта</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">500+</span>
+            <span class="stat-label">проектов</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">24/7</span>
+            <span class="stat-label">доступ</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery" id="gallery">
+      <div class="container">
+        <h2 class="section-title">ГАЛЕРЕЯ</h2>
+        <p class="section-subtitle">Пространство, где рождается музыка</p>
+
+        <div class="gallery-slider">
+          <button
+            class="gallery-slider-btn prev"
+            onclick="changeGalleryImage(-1)"
+          >
+            <i class="fas fa-chevron-left"></i>
+          </button>
+
+          <div class="gallery-slider-image" id="gallerySliderImage">
+            <img
+              src="images/studio-1.jpg"
+              alt="Студия"
+              id="galleryImage"
+              onclick="openPhotoModal()"
+            />
+            <div class="gallery-slider-overlay">
+              <span id="galleryImageTitle">Основной зал</span>
+            </div>
+          </div>
+
+          <button
+            class="gallery-slider-btn next"
+            onclick="changeGalleryImage(1)"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
+
+          <div class="gallery-slider-counter" id="galleryCounter">1 / 10</div>
+        </div>
+
+        <button class="btn-view-all" onclick="openAllPhotos()">
+          <i class="fas fa-images"></i> Смотреть все фото
+        </button>
+      </div>
+    </section>
+
+    <!-- All Photos Modal -->
+    <div class="all-photos-modal" id="allPhotosModal">
+      <div class="all-photos-content">
+        <div class="all-photos-header">
+          <h2>Все фото</h2>
+          <button class="all-photos-close" onclick="closeAllPhotos()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="all-photos-grid" id="allPhotosGrid">
+          <!-- Заполняется JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+      <div class="container">
+        <h2 class="section-title">УСЛУГИ</h2>
+        <p class="section-subtitle">Выберите подходящий формат работы</p>
+
+        <div class="services-grid" id="servicesGrid">
+          <!-- Заполняется JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Booking Section -->
+    <section class="booking" id="booking">
+      <div class="container">
+        <h2 class="section-title">БРОНИРОВАНИЕ</h2>
+        <p class="section-subtitle">Аренда студии почасовая</p>
+
+        <div class="booking-wrapper" id="bookingWrapper">
+          <!-- Форма бронирования -->
+          <div class="booking-form" id="bookingForm">
+            <div class="form-group">
+              <label>Выберите услугу</label>
+              <select id="serviceSelect" onchange="onServiceSelect()">
+                <option value="">Выберите услугу...</option>
+                <option value="recording">Запись вокала — 2 500 ₽/час</option>
+                <option value="mixing">Сведение — 5 000 ₽</option>
+                <option value="mastering">Мастеринг — 3 000 ₽</option>
+                <option value="full">Под ключ — от 15 000 ₽</option>
+                <option value="rehearsal">Репетиция — 1 500 ₽/час</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Дата (ДД.ММ.ГГ)</label>
+              <input
+                type="text"
+                id="bookingDate"
+                placeholder="ДД.ММ.ГГ"
+                maxlength="10"
+                oninput="formatDateInput(this)"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Время начала</label>
+              <select id="timeSelect">
+                <option value="">Выберите время...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Количество часов</label>
+              <select id="hoursSelect" onchange="updatePrice()">
+                <option value="1">1 час</option>
+                <option value="2">2 часа</option>
+                <option value="3">3 часа</option>
+                <option value="4">4 часа</option>
+                <option value="5">5 часов</option>
+                <option value="6">6 часов</option>
+                <option value="8">8 часов</option>
+                <option value="10">10 часов</option>
+                <option value="12">12 часов</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Ваше имя</label>
+              <input type="text" id="userName" placeholder="Иван Иванов" />
+            </div>
+
+            <div class="form-group">
+              <label>Телефон</label>
+              <input
+                type="tel"
+                id="userPhone"
+                placeholder="+7 (___) ___-__-__"
+              />
+            </div>
+
+            <div class="price-summary" id="priceSummary">
+              <span>Итого:</span>
+              <strong id="totalPrice">0 ₽</strong>
+            </div>
+
+            <button class="btn-book" onclick="submitBooking()">
+              <i class="fas fa-check"></i> Подтвердить бронирование
+            </button>
+          </div>
+
+          <!-- Календарь (появляется после выбора услуги) -->
+          <div class="calendar-wrapper" id="calendarWrapper">
+            <div class="calendar-header">
+              <button class="calendar-nav" onclick="changeMonth(-1)">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <h3 id="calendarMonthYear">Август 2026</h3>
+              <button class="calendar-nav" onclick="changeMonth(1)">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+
+            <div class="calendar-weekdays">
+              <span>Пн</span>
+              <span>Вт</span>
+              <span>Ср</span>
+              <span>Чт</span>
+              <span>Пт</span>
+              <span>Сб</span>
+              <span>Вс</span>
+            </div>
+
+            <div class="calendar-days" id="calendarDays">
+              <!-- Заполняется JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Блок информации -->
+        <div class="booking-info" id="bookingInfo">
+          <h3>Информация</h3>
+          <ul>
+            <li><i class="fas fa-clock"></i> Работаем ежедневно 24/7</li>
+            <li>
+              <i class="fas fa-map-marker-alt"></i> Москва, ул. Звуковая, 15
+            </li>
+            <li><i class="fas fa-phone"></i> +7 (999) 123-45-67</li>
+            <li><i class="fas fa-envelope"></i> info@firesound.ru</li>
+          </ul>
+          <div class="booking-info-note">
+            <i class="fas fa-info-circle"></i>
+            <p>После бронирования с вами свяжется менеджер для подтверждения</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+      <div class="container">
+        <h2 class="section-title">О СТУДИИ</h2>
+        <div class="about-content">
+          <div class="about-text">
+            <p>
+              FL Studio — это профессиональная студия звукозаписи, оснащённая
+              современным оборудованием мирового уровня.
+            </p>
+            <p>
+              Мы создаём идеальные условия для записи, сведения и мастеринга
+              ваших треков.
+            </p>
+          </div>
+          <div class="about-features">
+            <div class="feature">
+              <i class="fas fa-microphone"></i>
+              <span>Профессиональные микрофоны</span>
+            </div>
+            <div class="feature">
+              <i class="fas fa-sliders"></i>
+              <span>Аналоговые пульты</span>
+            </div>
+            <div class="feature">
+              <i class="fas fa-headphones"></i>
+              <span>Мониторинг высокого класса</span>
+            </div>
+            <div class="feature">
+              <i class="fas fa-volume-up"></i>
+              <span>Акустически обработанные комнаты</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map" id="map">
+      <div class="container">
+        <h2 class="section-title">КАРТА</h2>
+        <div class="map-wrapper">
+          <div class="map-container">
+            <!-- Вставь сюда код из конструктора -->
+            <iframe
+              src="https://yandex.ru/map-widget/v1/?um=constructor%3Aae60f981a2c749c8354a4d79823571d4148a1af4ce5c24639e861c8b1c67a195&amp;source=constructor"
+              width="500"
+              height="400"
+              frameborder="0"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contacts Section -->
+    <section class="contacts" id="contacts">
+      <div class="container">
+        <h2 class="section-title">КОНТАКТЫ</h2>
+        <p class="section-subtitle">Свяжитесь с нами</p>
+
+        <div class="contacts-grid">
+          <a href="tel:+79991234567" class="contact-card">
+            <div class="contact-icon">
+              <i class="fas fa-phone"></i>
+            </div>
+            <div class="contact-info">
+              <span class="contact-label">Телефон</span>
+              <span class="contact-value">+7 (999) 123-45-67</span>
+            </div>
+            <i class="fas fa-arrow-right contact-arrow"></i>
+          </a>
+
+          <a href="https://t.me/firesound" target="_blank" class="contact-card">
+            <div class="contact-icon telegram">
+              <i class="fab fa-telegram-plane"></i>
+            </div>
+            <div class="contact-info">
+              <span class="contact-label">Telegram</span>
+              <span class="contact-value">@firesound</span>
+            </div>
+            <i class="fas fa-arrow-right contact-arrow"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-logo">
+            <i class="fas fa-wave-square"></i>
+            <span>FL Studio</span>
+          </div>
+          <div class="footer-links">
+            <a href="#hero">Главная</a>
+            <a href="#gallery">Галерея</a>
+            <a href="#services">Услуги</a>
+            <a href="#booking">Бронирование</a>
+            <a href="#contacts">Контакты</a>
+          </div>
+          <div class="footer-social">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-telegram"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <p class="footer-copyright">© 2024 FL Studio. Все права защищены.</p>
+      </div>
+    </footer>
+
+    <!-- Photo Modal -->
+    <div class="photo-modal" id="photoModal" onclick="closePhotoModal()">
+      <span class="photo-modal-close" onclick="closePhotoModal()">&times;</span>
+      <img src="" alt="Фото" id="modalImage" />
+      <button
+        class="photo-modal-nav prev"
+        onclick="
+          event.stopPropagation();
+          changeModalImage(-1);
+        "
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button
+        class="photo-modal-nav next"
+        onclick="
+          event.stopPropagation();
+          changeModalImage(1);
+        "
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+      <div class="photo-modal-counter" id="modalCounter">1 / 10</div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/telegram.js"></script>
+    <script src="js/gallery.js"></script>
+    <script src="js/booking.js"></script>
+  </body>
+</html>
