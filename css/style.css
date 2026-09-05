@@ -259,6 +259,7 @@ body {
 }
 
 .hero-content {
+  display: flex;
   text-align: center;
   z-index: 10;
   position: relative;
