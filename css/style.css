@@ -338,13 +338,14 @@ body {
 
 /* ===== Hero ===== */
 .hero {
-  min-height: 100px;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   padding: 120px 20px 60px;
   overflow: hidden;
+  filter: blur(2px);
 }
 
 .hero::after {
@@ -354,8 +355,7 @@ body {
   left: 0;
   right: 0;
   height: 150px;
-  background: yellow;
-  filter: blur(20px);
+  background: inherit;
   opacity: 0.6;
   z-index: 0;
 }
