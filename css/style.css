@@ -345,6 +345,7 @@ body {
   position: relative;
   padding: 120px 20px 60px;
   overflow: hidden;
+  filter: blur(20px);
 }
 
 .hero::after {
