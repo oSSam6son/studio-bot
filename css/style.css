@@ -260,7 +260,7 @@ body {
 
 .hero-content {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   text-align: center;
   z-index: 10;
   position: relative;
