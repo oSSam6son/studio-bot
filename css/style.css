@@ -355,7 +355,7 @@ body {
   right: 0;
   height: 150px;
   background: inherit;
-  filter: blur(200px);
+  filter: blur(2000px);
   opacity: 0.6;
   z-index: 0;
 }
