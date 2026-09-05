@@ -406,8 +406,12 @@ body {
 
 .hero-title .outline {
   color: transparent;
-  -webkit-text-stroke: 2px var(--accent-purple);
-  text-shadow: var(--neon-purple-glow);
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6));
 }
 
 .hero-subtitle {
@@ -1760,6 +1764,18 @@ section {
 
   .hero-title {
     font-size: 28px;
+  }
+
+  .hero-title .outline {
+    background: linear-gradient(
+      135deg,
+      var(--accent-purple),
+      var(--accent-pink)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5));
   }
 
   .hero-subtitle {
