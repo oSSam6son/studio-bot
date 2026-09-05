@@ -736,6 +736,149 @@ section {
   box-shadow: var(--neon-purple-glow);
 }
 
+/* ===== Страница О студии ===== */
+.about-page,
+.gallery-page,
+.clients-page,
+.map-page {
+  padding: 80px 0;
+}
+
+.about-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  align-items: center;
+  margin-top: 50px;
+}
+
+.about-text {
+  position: relative;
+  padding-left: 25px;
+  border-left: 3px solid var(--accent-purple);
+}
+
+.about-text p {
+  color: var(--light-gray);
+  margin-bottom: 20px;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.about-text p:first-child {
+  color: var(--white);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.about-features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.feature {
+  background: var(--dark);
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid var(--medium-gray);
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.feature:hover {
+  border-color: var(--accent-purple);
+  box-shadow: var(--neon-purple-glow);
+  transform: translateY(-5px);
+}
+
+.feature i {
+  font-size: 28px;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5));
+}
+
+.feature span {
+  font-size: 13px;
+  color: var(--light-gray);
+  line-height: 1.4;
+}
+
+/* ===== Стена клиентов ===== */
+.clients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.client-card {
+  background: var(--dark);
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid var(--medium-gray);
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.client-card:hover {
+  border-color: var(--accent-purple);
+  box-shadow: var(--neon-purple-glow);
+  transform: translateY(-3px);
+}
+
+.client-card i {
+  font-size: 40px;
+  color: var(--accent-purple);
+  opacity: 0.7;
+}
+
+.client-card span {
+  font-size: 14px;
+  color: var(--light-gray);
+  letter-spacing: 1px;
+}
+
+/* ===== Мобильная адаптация ===== */
+@media (max-width: 768px) {
+  .about-content {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .about-features {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .clients-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .feature {
+    padding: 15px;
+  }
+
+  .feature i {
+    font-size: 24px;
+  }
+
+  .feature span {
+    font-size: 11px;
+  }
+}
+
 .calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
