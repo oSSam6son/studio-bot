@@ -353,6 +353,8 @@ body {
   background: url("../images/hero-bg.jpg") no-repeat center center;
   background-size: cover;
   animation: heroZoom 20s ease-in-out infinite;
+  -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
 }
 
 .hero-overlay {
