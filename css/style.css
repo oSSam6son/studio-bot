@@ -53,8 +53,8 @@ body {
 }
 
 .hero-wrapper {
-    position: relative;
-    z-index: 10;
+  position: relative;
+  z-index: 10;
 }
 
 .bg-layer::before {
@@ -395,6 +395,9 @@ body {
   line-height: 1.1;
   margin-bottom: 20px;
   text-transform: uppercase;
+  font-family: "Unbounded", "Russo One", sans-serif;
+  font-weight: 900;
+  letter-spacing: 2px;
 }
 
 .hero-title span {
@@ -404,7 +407,10 @@ body {
 .hero-title .outline {
   color: transparent;
   -webkit-text-stroke: 2px var(--accent-purple);
-  text-shadow: var(--neon-purple-glow);
+  text-shadow:
+    0 0 10px var(--accent-purple),
+    0 0 20px var(--accent-pink),
+    0 0 30px var(--accent-purple);
 }
 
 .hero-subtitle {
