@@ -345,19 +345,7 @@ body {
   position: relative;
   padding: 120px 20px 60px;
   overflow: hidden;
-  filter: blur(2px);
-}
-
-.hero::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 150px;
-  background: inherit;
-  opacity: 0.6;
-  z-index: 0;
+  /* убрать filter: blur(2px) полностью */
 }
 
 .hero-bg {
@@ -368,15 +356,9 @@ body {
   animation: heroZoom 20s ease-in-out infinite;
   -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
   mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
-}
-
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  background: url("../images/hero-bg.jpg") no-repeat center center;
-  background-size: cover;
-  animation: heroZoom 20s ease-in-out infinite;
-  box-shadow: 0 0 120px 100px rgba(10, 10, 10, 0.95);
+  box-shadow:
+    inset 0 -150px 120px -60px rgba(10, 10, 10, 0.95),
+    inset 0 -120px 100px -50px rgba(168, 85, 247, 0.4);
 }
 
 .hero-overlay {
@@ -384,10 +366,28 @@ body {
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(10, 10, 10, 0.85) 0%,
-    rgba(10, 10, 10, 0.5) 50%,
-    rgba(10, 10, 10, 0.3) 100%
+    rgba(10, 10, 10, 0.7) 0%,
+    rgba(10, 10, 10, 0.3) 50%,
+    rgba(10, 10, 10, 0.1) 100%
   );
+  z-index: 1;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: url("../images/hero-bg.jpg") no-repeat center bottom;
+  background-size: cover;
+  filter: blur(25px);
+  opacity: 0.6;
+  -webkit-mask-image: linear-gradient(to top, black 50%, transparent 100%);
+  mask-image: linear-gradient(to top, black 50%, transparent 100%);
+  z-index: 2;
+  pointer-events: none;
 }
 
 .hero-content {
