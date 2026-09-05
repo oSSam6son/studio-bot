@@ -345,7 +345,6 @@ body {
   position: relative;
   padding: 120px 20px 60px;
   overflow: hidden;
-  box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.5);
 }
 
 .hero::after {
