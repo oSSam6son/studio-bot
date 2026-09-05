@@ -353,10 +353,7 @@ body {
   background: url("../images/hero-bg.jpg") no-repeat center center;
   background-size: cover;
   animation: heroZoom 20s ease-in-out infinite;
-
-  /* Плавное растворение внизу */
-  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  z-index: 0;
 }
 
 .hero-overlay {
@@ -364,11 +361,11 @@ body {
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(10, 10, 10, 1) 0%,
-    /* Сделали более плотным внизу */ rgba(10, 10, 10, 0.2) 50%,
+    rgba(10, 10, 10, 0.8) 0%,
+    rgba(10, 10, 10, 0.2) 50%,
     rgba(10, 10, 10, 0.1) 100%
   );
-  z-index: 2;
+  z-index: 1; /* Опустили вниз */
 }
 
 .hero::after {
@@ -377,16 +374,16 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 250px; /* высота зоны размытия */
+  height: 350px; /* Увеличили высоту зоны размытия */
   background: url("../images/hero-bg.jpg") no-repeat center bottom;
   background-size: cover;
-  filter: blur(30px);
-  -webkit-mask-image: linear-gradient(to top, black 40%, transparent 100%);
-  mask-image: linear-gradient(to top, black 40%, transparent 100%);
+  filter: blur(40px); /* Усилили размытие */
+  -webkit-mask-image: linear-gradient(to top, black 20%, transparent 100%);
+  mask-image: linear-gradient(to top, black 20%, transparent 100%);
   opacity: 0.9;
-  z-index: 1;
+  z-index: 2; /* Подняли, чтобы он был поверх оверлея */
   pointer-events: none;
-  transform: scaleY(-1); /* если нужно, чтобы размытие шло вниз */
+  /* Убрали transform: scaleY(-1); */
 }
 
 .hero-content {
