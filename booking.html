@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Запись — FL Studio</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script>
+      (function () {
+        const script = document.createElement("script");
+        script.src = "js/telegram-web-app.js";
+        script.onerror = function () {
+          const fallback = document.createElement("script");
+          fallback.src = "https://telegram.org/js/telegram-web-app.js";
+          document.head.appendChild(fallback);
+        };
+        document.head.appendChild(script);
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="bg-layer" aria-hidden="true">
+      <div class="bg-circle-purple"></div>
+      <div class="bg-circle-pink"></div>
+      <div class="bg-circle-cyan"></div>
+      <div class="bg-ring"></div>
+      <div class="bg-dot bg-dot-1"></div>
+      <div class="bg-dot bg-dot-2"></div>
+      <div class="bg-dot bg-dot-3"></div>
+      <div class="bg-dot bg-dot-4"></div>
+      <div class="bg-dot bg-dot-5"></div>
+    </div>
+
+    <a href="services.html" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Назад
+    </a>
+
+    <section class="booking-page">
+      <div class="container">
+        <h2 class="section-title">ЗАПИСЬ</h2>
+        <p class="section-subtitle">Заполните форму бронирования</p>
+
+        <div class="booking-wrapper">
+          <!-- Форма бронирования -->
+          <div class="booking-form">
+            <div class="form-group">
+              <label>Выберите услугу</label>
+              <select id="serviceSelect" onchange="updatePrice()">
+                <option value="">Выберите услугу...</option>
+                <option value="recording">Запись вокала — 2 500 ₽/час</option>
+                <option value="mixing">Сведение — 5 000 ₽</option>
+                <option value="mastering">Мастеринг — 3 000 ₽</option>
+                <option value="full">Под ключ — от 15 000 ₽</option>
+                <option value="rehearsal">Репетиция — 1 500 ₽/час</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Дата (ДД.ММ.ГГ)</label>
+              <div class="date-input-wrapper">
+                <input
+                  type="text"
+                  id="bookingDate"
+                  placeholder="ДД.ММ.ГГ"
+                  maxlength="10"
+                  oninput="formatDateInput(this)"
+                />
+                <button class="calendar-toggle" onclick="toggleCalendar()">
+                  <i class="fas fa-calendar-alt"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Время начала</label>
+              <select id="timeSelect">
+                <option value="">Выберите время...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Количество часов</label>
+              <select id="hoursSelect" onchange="updatePrice()">
+                <option value="1">1 час</option>
+                <option value="2">2 часа</option>
+                <option value="3">3 часа</option>
+                <option value="4">4 часа</option>
+                <option value="5">5 часов</option>
+                <option value="6">6 часов</option>
+                <option value="8">8 часов</option>
+                <option value="10">10 часов</option>
+                <option value="12">12 часов</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Ваше имя</label>
+              <input type="text" id="userName" placeholder="Иван Иванов" />
+            </div>
+
+            <div class="form-group">
+              <label>Телефон</label>
+              <input
+                type="tel"
+                id="userPhone"
+                placeholder="+7 (___) ___-__-__"
+              />
+            </div>
+
+            <div class="price-summary" id="priceSummary" style="display: none">
+              <span>Итого:</span>
+              <strong id="totalPrice">0 ₽</strong>
+            </div>
+
+            <button class="btn-book" onclick="submitBooking()">
+              <i class="fas fa-check"></i> Подтвердить бронирование
+            </button>
+          </div>
+
+          <!-- Календарь -->
+          <div class="calendar-modal" id="calendarModal">
+            <div class="calendar-modal-content">
+              <div class="calendar-header">
+                <button class="calendar-nav" onclick="changeMonth(-1)">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <h3 id="calendarMonthYear"></h3>
+                <button class="calendar-nav" onclick="changeMonth(1)">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+              <div class="calendar-weekdays">
+                <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span
+                ><span>Пт</span><span>Сб</span><span>Вс</span>
+              </div>
+              <div class="calendar-days" id="calendarDays"></div>
+              <button class="calendar-close" onclick="toggleCalendar()">
+                <i class="fas fa-check"></i> Готово
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Блок информации -->
+        <div class="booking-info">
+          <h3>Информация</h3>
+          <ul>
+            <li><i class="fas fa-clock"></i> Работаем ежедневно 24/7</li>
+            <li>
+              <i class="fas fa-map-marker-alt"></i> Москва, ул. Звуковая, 15
+            </li>
+            <li><i class="fas fa-phone"></i> +7 (999) 123-45-67</li>
+            <li><i class="fas fa-envelope"></i> info@firesound.ru</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <script src="js/telegram.js"></script>
+    <script src="js/booking.js"></script>
+  </body>
+</html>
