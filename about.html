@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>О студии — FL Studio</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script>
+      (function () {
+        const script = document.createElement("script");
+        script.src = "js/telegram-web-app.js";
+        script.onerror = function () {
+          const fallback = document.createElement("script");
+          fallback.src = "https://telegram.org/js/telegram-web-app.js";
+          document.head.appendChild(fallback);
+        };
+        document.head.appendChild(script);
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="bg-layer" aria-hidden="true">
+      <div class="bg-circle-purple"></div>
+      <div class="bg-circle-pink"></div>
+      <div class="bg-circle-cyan"></div>
+      <div class="bg-ring"></div>
+      <div class="bg-dot bg-dot-1"></div>
+      <div class="bg-dot bg-dot-2"></div>
+      <div class="bg-dot bg-dot-3"></div>
+      <div class="bg-dot bg-dot-4"></div>
+      <div class="bg-dot bg-dot-5"></div>
+    </div>
+
+    <a href="index.html" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Назад
+    </a>
+
+    <!-- О студии -->
+    <section class="about-page">
+      <div class="container">
+        <h2 class="section-title">О СТУДИИ</h2>
+
+        <div class="about-content">
+          <div class="about-text">
+            <p>
+              FL Studio — это профессиональная студия звукозаписи, оснащённая
+              современным оборудованием мирового уровня.
+            </p>
+            <p>
+              Мы создаём идеальные условия для записи, сведения и мастеринга
+              ваших треков.
+            </p>
+          </div>
+
+          <div class="about-features">
+            <div class="feature">
+              <i class="fas fa-microphone"></i>
+              <span>Профессиональные микрофоны</span>
+            </div>
+            <div class="feature">
+              <i class="fas fa-sliders"></i>
+              <span>Аналоговые пульты</span>
+            </div>
+            <div class="feature">
+              <i class="fas fa-headphones"></i>
+              <span>Мониторинг высокого класса</span>
+            </div>
+            <div class="feature">
+              <i class="fas fa-volume-up"></i>
+              <span>Акустически обработанные комнаты</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Галерея -->
+    <section class="gallery-page">
+      <div class="container">
+        <h2 class="section-title">ГАЛЕРЕЯ</h2>
+        <p class="section-subtitle">Пространство, где рождается музыка</p>
+
+        <div class="gallery-slider">
+          <button
+            class="gallery-slider-btn prev"
+            onclick="changeGalleryImage(-1)"
+          >
+            <i class="fas fa-chevron-left"></i>
+          </button>
+
+          <div class="gallery-slider-image" id="gallerySliderImage">
+            <img
+              src="images/studio-1.jpg"
+              alt="Студия"
+              id="galleryImage"
+              onclick="openPhotoModal()"
+            />
+            <div class="gallery-slider-overlay">
+              <span id="galleryImageTitle">Основной зал</span>
+            </div>
+          </div>
+
+          <button
+            class="gallery-slider-btn next"
+            onclick="changeGalleryImage(1)"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
+
+          <div class="gallery-slider-counter" id="galleryCounter">1 / 7</div>
+        </div>
+
+        <button class="btn-view-all" onclick="openAllPhotos()">
+          <i class="fas fa-images"></i> Смотреть все фото
+        </button>
+      </div>
+    </section>
+
+    <!-- Стена "Мы работали с..." -->
+    <section class="clients-page">
+      <div class="container">
+        <h2 class="section-title">МЫ РАБОТАЛИ С</h2>
+        <p class="section-subtitle">Нам доверяют профессионалы</p>
+
+        <div class="clients-grid">
+          <div class="client-card">
+            <i class="fas fa-user-circle"></i>
+            <span>Артист 1</span>
+          </div>
+          <div class="client-card">
+            <i class="fas fa-user-circle"></i>
+            <span>Артист 2</span>
+          </div>
+          <div class="client-card">
+            <i class="fas fa-user-circle"></i>
+            <span>Артист 3</span>
+          </div>
+          <div class="client-card">
+            <i class="fas fa-user-circle"></i>
+            <span>Артист 4</span>
+          </div>
+          <div class="client-card">
+            <i class="fas fa-user-circle"></i>
+            <span>Артист 5</span>
+          </div>
+          <div class="client-card">
+            <i class="fas fa-user-circle"></i>
+            <span>Артист 6</span>
+          </div>
+          <div class="client-card">
+            <i class="fas fa-user-circle"></i>
+            <span>Артист 7</span>
+          </div>
+          <div class="client-card">
+            <i class="fas fa-user-circle"></i>
+            <span>Артист 8</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Карта -->
+    <section class="map-page">
+      <div class="container">
+        <h2 class="section-title">КАРТА</h2>
+        <div class="map-wrapper">
+          <div class="map-container">
+            <iframe
+              src="https://yandex.ru/map-widget/v1/?um=constructor%3Aae60f981a2c749c8354a4d79823571d4148a1af4ce5c24639e861c8b1c67a195&amp;source=constructor"
+              width="100%"
+              height="400"
+              frameborder="0"
+            >
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Контакты -->
+    <section class="contacts">
+      <div class="container">
+        <h2 class="section-title">КОНТАКТЫ</h2>
+        <p class="section-subtitle">Свяжитесь с нами</p>
+
+        <div class="contacts-grid">
+          <a href="tel:+79991234567" class="contact-card">
+            <div class="contact-icon">
+              <i class="fas fa-phone"></i>
+            </div>
+            <div class="contact-info">
+              <span class="contact-label">Телефон</span>
+              <span class="contact-value">+7 (999) 123-45-67</span>
+            </div>
+            <i class="fas fa-arrow-right contact-arrow"></i>
+          </a>
+
+          <a href="https://t.me/flstudio" target="_blank" class="contact-card">
+            <div class="contact-icon telegram">
+              <i class="fab fa-telegram-plane"></i>
+            </div>
+            <div class="contact-info">
+              <span class="contact-label">Telegram</span>
+              <span class="contact-value">@flstudio</span>
+            </div>
+            <i class="fas fa-arrow-right contact-arrow"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Модалка всех фото -->
+    <div class="all-photos-modal" id="allPhotosModal">
+      <div class="all-photos-content">
+        <div class="all-photos-header">
+          <h2>Все фото</h2>
+          <button class="all-photos-close" onclick="closeAllPhotos()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="all-photos-grid" id="allPhotosGrid"></div>
+      </div>
+    </div>
+
+    <!-- Модалка фото -->
+    <div class="photo-modal" id="photoModal" onclick="closePhotoModal()">
+      <span class="photo-modal-close" onclick="closePhotoModal()">&times;</span>
+      <img src="" alt="Фото" id="modalImage" />
+      <button
+        class="photo-modal-nav prev"
+        onclick="
+          event.stopPropagation();
+          changeModalImage(-1);
+        "
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button
+        class="photo-modal-nav next"
+        onclick="
+          event.stopPropagation();
+          changeModalImage(1);
+        "
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+      <div class="photo-modal-counter" id="modalCounter">1 / 7</div>
+    </div>
+
+    <script src="js/telegram.js"></script>
+    <script src="js/gallery.js"></script>
+  </body>
+</html>
