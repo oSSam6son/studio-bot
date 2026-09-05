@@ -345,7 +345,6 @@ body {
   position: relative;
   padding: 120px 20px 60px;
   overflow: hidden;
-  box-shadow: 0 0 10px 100px rgba(10, 10, 10, 0.95);
 }
 
 .hero-bg {
@@ -356,6 +355,7 @@ body {
   animation: heroZoom 20s ease-in-out infinite;
   -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
   mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
+  box-shadow: 0 0 120px 100px rgba(10, 10, 10, 0.95);
 }
 
 .hero-overlay {
