@@ -347,19 +347,6 @@ body {
   overflow: hidden;
 }
 
-.hero::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 150px;
-  background: inherit;
-  filter: blur(20px);
-  opacity: 0.6;
-  z-index: 0;
-}
-
 .hero-bg {
   position: absolute;
   inset: 0;
