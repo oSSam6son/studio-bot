@@ -353,6 +353,10 @@ body {
   background: url("../images/hero-bg.jpg") no-repeat center center;
   background-size: cover;
   animation: heroZoom 20s ease-in-out infinite;
+
+  /* Плавное растворение внизу */
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
 }
 
 .hero-overlay {
@@ -360,8 +364,8 @@ body {
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(10, 10, 10, 0.8) 0%,
-    rgba(10, 10, 10, 0.2) 50%,
+    rgba(10, 10, 10, 1) 0%,
+    /* Сделали более плотным внизу */ rgba(10, 10, 10, 0.2) 50%,
     rgba(10, 10, 10, 0.1) 100%
   );
   z-index: 2;
