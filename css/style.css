@@ -345,7 +345,6 @@ body {
   position: relative;
   padding: 120px 20px 60px;
   overflow: hidden;
-  /* убрать filter: blur(2px) полностью */
 }
 
 .hero-bg {
@@ -354,8 +353,6 @@ body {
   background: url("../images/hero-bg.jpg") no-repeat center center;
   background-size: cover;
   animation: heroZoom 20s ease-in-out infinite;
-  -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 75%, transparent 100%);
 }
 
 .hero-overlay {
@@ -376,15 +373,16 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 200px;
+  height: 250px; /* высота зоны размытия */
   background: url("../images/hero-bg.jpg") no-repeat center bottom;
   background-size: cover;
-  filter: blur(25px);
-  opacity: 0.6;
-  -webkit-mask-image: linear-gradient(to top, black 50%, transparent 100%);
-  mask-image: linear-gradient(to top, black 50%, transparent 100%);
-  z-index: 2;
+  filter: blur(30px);
+  -webkit-mask-image: linear-gradient(to top, black 40%, transparent 100%);
+  mask-image: linear-gradient(to top, black 40%, transparent 100%);
+  opacity: 0.9;
+  z-index: 1;
   pointer-events: none;
+  transform: scaleY(-1); /* если нужно, чтобы размытие шло вниз */
 }
 
 .hero-content {
