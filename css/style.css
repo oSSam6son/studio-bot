@@ -407,10 +407,7 @@ body {
 .hero-title .outline {
   color: transparent;
   -webkit-text-stroke: 2px var(--accent-purple);
-  text-shadow:
-    0 0 10px var(--accent-purple),
-    0 0 20px var(--accent-pink),
-    0 0 30px var(--accent-purple);
+  text-shadow: var(--neon-purple-glow);
 }
 
 .hero-subtitle {
