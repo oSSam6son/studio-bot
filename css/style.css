@@ -226,6 +226,10 @@ body {
   }
 }
 
+a {
+  text-decoration: none;
+}
+
 /* ===== Hero ===== */
 .hero {
   min-height: 100vh;
