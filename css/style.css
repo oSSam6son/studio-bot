@@ -242,10 +242,11 @@ body {
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: url("../images/hero-bg.jpg") no-repeat center center;
+  background: url("../images/hero-bg1.jpg") no-repeat center center;
   background-size: cover;
   animation: heroZoom 20s ease-in-out infinite;
   z-index: 0;
+  filter: blur(5px);
 }
 
 .hero-overlay {
