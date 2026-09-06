@@ -29,10 +29,10 @@ const services = [
   },
   {
     id: "rehearsal",
-    name: "Репетиция",
-    description: "Аренда студии для репетиции",
+    name: "Аренда студии",
+    description: "Аренда студии для самостоятельной записи",
     price: 1500,
-    icon: "fa-guitar",
+    icon: "fa-desktop",
   },
 ];
 

@@ -50,6 +50,7 @@ body {
   background: #0b0b0f;
   overflow: hidden;
   pointer-events: none;
+  filter: grayscale(100%);
 }
 
 .hero-wrapper {
