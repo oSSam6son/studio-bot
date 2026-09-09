@@ -76,30 +76,43 @@ function toggleMenu() {
   document.getElementById("nav").classList.toggle("active");
 }
 
-// Закрытие промо-уведомления
-function closePromo() {
-  const promo = document.getElementById("promoBanner");
-  promo.classList.add("hidden");
-  setTimeout(() => {
-    promo.style.display = "none";
-  }, 400);
+// Показать промо-уведомление
+function showPromo() {
+  const promo = document.getElementById("promoOverlay");
+  promo.classList.add("active");
+  document.body.style.overflow = "hidden";
 }
 
-// Закрытие при клике в другом месте
-document.addEventListener("click", (e) => {
-  const promo = document.getElementById("promoBanner");
-  const promoContent = promo.querySelector(".promo-content");
+// Закрыть промо-уведомление
+function closePromo() {
+  const promo = document.getElementById("promoOverlay");
+  promo.classList.add("closing");
+  document.body.style.overflow = "";
 
-  if (promo.style.display !== "none" && !promoContent.contains(e.target)) {
+  // Сохраняем в localStorage, что промо уже показано
+  localStorage.setItem("promoShown", "true");
+
+  setTimeout(() => {
+    promo.classList.remove("active");
+    promo.classList.remove("closing");
+  }, 300);
+}
+
+// Закрытие при клике вне модалки
+document.addEventListener("click", (e) => {
+  const promo = document.getElementById("promoOverlay");
+  const promoModal = promo.querySelector(".promo-modal");
+
+  if (promo.classList.contains("active") && !promoModal.contains(e.target)) {
     closePromo();
   }
 });
 
-// Показ уведомления через 1 секунду после загрузки
+// Показ через 1 секунду после загрузки (только если ещё не показывалось)
 document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(() => {
-    const promo = document.getElementById("promoBanner");
-    promo.style.display = "block";
-    promo.classList.remove("hidden");
-  }, 1000);
+  const promoShown = localStorage.getItem("promoShown");
+
+  if (!promoShown) {
+    setTimeout(showPromo, 1000);
+  }
 });

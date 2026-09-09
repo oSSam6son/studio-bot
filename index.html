@@ -74,20 +74,21 @@
         </div>
       </div>
     </section>
-    <!-- Всплывающее уведомление -->
-    <div class="promo-banner" id="promoBanner">
-      <div class="promo-content">
-        <div class="promo-icon">
-          <i class="fas fa-fire"></i>
-        </div>
-        <div class="promo-text">
-          <span class="promo-title">СКИДКА 30%</span>
-          <span class="promo-subtitle">на первый заказ</span>
-        </div>
-        <a href="services.html" class="promo-btn">Выбрать услугу</a>
+    <!-- Модальное уведомление о скидке -->
+    <div class="promo-overlay" id="promoOverlay">
+      <div class="promo-modal">
         <button class="promo-close" onclick="closePromo()">
           <i class="fas fa-times"></i>
         </button>
+
+        <div class="promo-icon">
+          <i class="fas fa-fire"></i>
+        </div>
+
+        <h3 class="promo-title">СКИДКА 30%</h3>
+        <p class="promo-subtitle">на первый заказ</p>
+
+        <a href="services.html" class="promo-btn"> Выбрать услугу </a>
       </div>
     </div>
     <script src="js/telegram.js"></script>
