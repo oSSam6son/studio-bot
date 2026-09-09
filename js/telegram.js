@@ -75,3 +75,31 @@ function scrollToTop(event) {
 function toggleMenu() {
   document.getElementById("nav").classList.toggle("active");
 }
+
+// Закрытие промо-уведомления
+function closePromo() {
+  const promo = document.getElementById("promoBanner");
+  promo.classList.add("hidden");
+  setTimeout(() => {
+    promo.style.display = "none";
+  }, 400);
+}
+
+// Закрытие при клике в другом месте
+document.addEventListener("click", (e) => {
+  const promo = document.getElementById("promoBanner");
+  const promoContent = promo.querySelector(".promo-content");
+
+  if (promo.style.display !== "none" && !promoContent.contains(e.target)) {
+    closePromo();
+  }
+});
+
+// Показ уведомления через 1 секунду после загрузки
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    const promo = document.getElementById("promoBanner");
+    promo.style.display = "block";
+    promo.classList.remove("hidden");
+  }, 1000);
+});
