@@ -48,7 +48,31 @@ let selectedDate = null;
 const urlParams = new URLSearchParams(window.location.search);
 const selectedServiceId = urlParams.get("service");
 
-// Заполнение временных слотов
+// ===== ВАЛИДАЦИЯ =====
+function validateField(fieldId, condition) {
+  const field = document.getElementById(fieldId);
+  const formGroup = field.closest(".form-group");
+
+  if (!condition) {
+    formGroup.classList.add("error");
+    return false;
+  } else {
+    formGroup.classList.remove("error");
+    return true;
+  }
+}
+
+function clearErrorOnInput(fieldId) {
+  const field = document.getElementById(fieldId);
+  field.addEventListener("input", () =>
+    field.closest(".form-group").classList.remove("error"),
+  );
+  field.addEventListener("change", () =>
+    field.closest(".form-group").classList.remove("error"),
+  );
+}
+
+// ===== ЗАПОЛНЕНИЕ ВРЕМЕНИ =====
 function fillTimeSlots() {
   const timeSelect = document.getElementById("timeSelect");
   timeSelect.innerHTML = '<option value="">Выберите время...</option>';
@@ -64,7 +88,7 @@ function fillTimeSlots() {
   }
 }
 
-// Форматирование даты (ДД.ММ.ГГ)
+// ===== ФОРМАТИРОВАНИЕ ДАТЫ =====
 function formatDateInput(input) {
   let value = input.value.replace(/\D/g, "");
   if (value.length > 8) value = value.slice(0, 8);
@@ -74,31 +98,31 @@ function formatDateInput(input) {
   if (value.length === 10) validateManualDate(value);
 }
 
-// Валидация ручного ввода
 function validateManualDate(dateStr) {
   const parts = dateStr.split(".");
   const day = parseInt(parts[0]);
   const month = parseInt(parts[1]) - 1;
-  const year = parseInt("20" + parts[2]);
+  const year = parseInt(parts[2]);
   const date = new Date(year, month, day);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  if (date < today) {
-    showError("Выберите будущую дату");
-    document.getElementById("bookingDate").value = "";
+  if (date < today || date.getFullYear() > 2026) {
+    const field = document.getElementById("bookingDate");
+    field.closest(".form-group").classList.add("error");
+    field.value = "";
     return;
   }
-  if (date.getFullYear() > 2026) {
-    showError("Дата не может быть позже 2026 года");
-    document.getElementById("bookingDate").value = "";
-    return;
-  }
+
   selectedDate = date;
+  document
+    .getElementById("bookingDate")
+    .closest(".form-group")
+    .classList.remove("error");
   renderCalendar();
 }
 
-// Рендер календаря
+// ===== КАЛЕНДАРЬ =====
 function renderCalendar() {
   const calendarDays = document.getElementById("calendarDays");
   const calendarMonthYear = document.getElementById("calendarMonthYear");
@@ -163,18 +187,27 @@ function renderCalendar() {
   }
 }
 
-// Выбор даты
 function selectDate(date) {
   selectedDate = date;
   const day = date.getDate().toString().padStart(2, "0");
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const year = date.getFullYear().toString().slice(2);
-  document.getElementById("bookingDate").value = `${day}.${month}.${year}`;
+  const year = date.getFullYear().toString(); // ← УБЕРИ .slice(2)
+
+  const dateInput = document.getElementById("bookingDate");
+  dateInput.value = `${day}.${month}.${year}`;
+
+  dateInput.closest(".form-group").classList.remove("error");
+
   renderCalendar();
+
+  const modal = document.getElementById("calendarModal");
+  if (modal.classList.contains("active")) {
+    modal.classList.remove("active");
+  }
+
   if (telegramApp) telegramApp.hapticFeedback("light");
 }
 
-// Переключение месяца
 function changeMonth(direction) {
   currentDate.setMonth(currentDate.getMonth() + direction);
   if (currentDate.getFullYear() > 2026) currentDate = new Date(2026, 11, 1);
@@ -183,7 +216,6 @@ function changeMonth(direction) {
   renderCalendar();
 }
 
-// Показать/скрыть календарь (мобильные)
 function toggleCalendar() {
   const modal = document.getElementById("calendarModal");
   modal.classList.toggle("active");
@@ -192,7 +224,7 @@ function toggleCalendar() {
   }
 }
 
-// Обновление цены
+// ===== ЦЕНА =====
 function updatePrice() {
   const serviceSelect = document.getElementById("serviceSelect");
   const hoursSelect = document.getElementById("hoursSelect");
@@ -211,7 +243,7 @@ function updatePrice() {
   }
 }
 
-// Отправка бронирования
+// ===== ОТПРАВКА =====
 async function submitBooking() {
   const date = document.getElementById("bookingDate").value;
   const time = document.getElementById("timeSelect").value;
@@ -220,24 +252,20 @@ async function submitBooking() {
   const phone = document.getElementById("userPhone").value;
   const serviceId = document.getElementById("serviceSelect").value;
 
-  if (!serviceId) {
-    showError("Выберите услугу");
-    return;
-  }
-  if (!date || date.length < 10) {
-    showError("Выберите дату");
-    return;
-  }
-  if (!time) {
-    showError("Выберите время");
-    return;
-  }
-  if (!name || name.length < 2) {
-    showError("Введите ваше имя");
-    return;
-  }
-  if (!phone || phone.length < 10) {
-    showError("Введите корректный номер телефона");
+  // Валидация
+  let isValid = true;
+  if (!validateField("serviceSelect", serviceId)) isValid = false;
+  if (!validateField("bookingDate", date && date.length === 10))
+    isValid = false;
+  if (!validateField("timeSelect", time)) isValid = false;
+  if (!validateField("userName", name && name.length >= 2)) isValid = false;
+  if (!validateField("userPhone", phone && phone.length >= 10)) isValid = false;
+
+  if (!isValid) {
+    const firstError = document.querySelector(".form-group.error");
+    if (firstError)
+      firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (telegramApp) telegramApp.hapticFeedback("error");
     return;
   }
 
@@ -277,7 +305,6 @@ async function submitBooking() {
   }
 }
 
-// Отправка в Telegram
 async function sendToTelegram(bookingData) {
   const message =
     `🎵 <b>НОВАЯ ЗАЯВКА — FL STUDIO</b>\n\n` +
@@ -329,7 +356,7 @@ function clearForm() {
   updatePrice();
 }
 
-// Инициализация
+// ===== ИНИЦИАЛИЗАЦИЯ =====
 document.addEventListener("DOMContentLoaded", () => {
   fillTimeSlots();
   renderCalendar();
@@ -339,6 +366,16 @@ document.addEventListener("DOMContentLoaded", () => {
     updatePrice();
   }
 
+  // Очистка ошибок при вводе
+  [
+    "serviceSelect",
+    "bookingDate",
+    "timeSelect",
+    "userName",
+    "userPhone",
+  ].forEach(clearErrorOnInput);
+
+  // Маска телефона
   const phoneInput = document.getElementById("userPhone");
   phoneInput.addEventListener("input", (e) => {
     let value = e.target.value.replace(/\D/g, "");

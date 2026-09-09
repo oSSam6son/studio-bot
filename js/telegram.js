@@ -80,17 +80,14 @@ function toggleMenu() {
 function showPromo() {
   const promo = document.getElementById("promoOverlay");
   promo.classList.add("active");
-  document.body.style.overflow = "hidden";
+  document.body.style.overflow = "hidden"; // Блокируем скролл
 }
 
 // Закрыть промо-уведомление
 function closePromo() {
   const promo = document.getElementById("promoOverlay");
   promo.classList.add("closing");
-  document.body.style.overflow = "";
-
-  // Сохраняем в localStorage, что промо уже показано
-  localStorage.setItem("promoShown", "true");
+  document.body.style.overflow = ""; // Возвращаем скролл
 
   setTimeout(() => {
     promo.classList.remove("active");
@@ -108,11 +105,7 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// Показ через 1 секунду после загрузки (только если ещё не показывалось)
+// Показ через 1 секунду после загрузки
 document.addEventListener("DOMContentLoaded", () => {
-  const promoShown = localStorage.getItem("promoShown");
-
-  if (!promoShown) {
-    setTimeout(showPromo, 1000);
-  }
+  setTimeout(showPromo, 1000);
 });
