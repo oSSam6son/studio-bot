@@ -844,7 +844,7 @@ section {
 .gallery-slider {
   position: relative;
   width: 100%;
-  height: 600px;
+  height: 700px;
   margin: 0 auto;
   overflow: hidden;
   display: flex;
@@ -885,7 +885,7 @@ section {
 }
 
 .gallery-slide.pos-center {
-  transform: translate(-50%, -50%) scale(1);
+  transform: translate(-50%, -50%) scale(1.1);
   filter: brightness(1) grayscale(0%);
   opacity: 1;
   z-index: 10;
@@ -2041,4 +2041,46 @@ section {
 /* ===== Telegram Web App ===== */
 .telegram-app .hero {
   padding-top: 60px;
+}
+
+/* Карусель на мобильных */
+.gallery-slider {
+  height: 340px;
+  padding: 0;
+  overflow: visible;
+}
+
+.gallery-slide {
+  width: 82vw; /* почти на всю ширину экрана */
+  height: 82vw;
+}
+
+.gallery-slide.pos-left {
+  transform: translate(calc(-50% - 68vw), -50%) scale(0.65);
+}
+
+.gallery-slide.pos-right {
+  transform: translate(calc(-50% + 68vw), -50%) scale(0.65);
+}
+
+.gallery-slide.pos-hidden-left {
+  transform: translate(calc(-50% - 90vw), -50%) scale(0.45);
+}
+
+.gallery-slide.pos-hidden-right {
+  transform: translate(calc(-50% + 90vw), -50%) scale(0.45);
+}
+
+.gallery-slide-title {
+  font-size: 13px;
+  padding: 15px;
+}
+
+.gallery-dot {
+  width: 8px;
+  height: 8px;
+}
+
+.gallery-dot.active {
+  width: 24px;
 }
