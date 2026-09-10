@@ -2051,8 +2051,8 @@ section {
 }
 
 .gallery-slide {
-  width: 82vw; /* почти на всю ширину экрана */
-  height: 82vw;
+  width: 75vw; /* почти на всю ширину экрана */
+  height: 75vw;
 }
 
 .gallery-slide.pos-left {
