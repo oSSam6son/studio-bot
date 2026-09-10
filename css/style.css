@@ -11,8 +11,7 @@
   --accent-dark: #9333ea;
   --neon-purple-glow: 0 0 20px rgba(168, 85, 247, 0.5);
   --neon-pink-glow: 0 0 20px rgba(236, 72, 153, 0.5);
-  --neon-mixed-glow:
-    0 0 25px rgba(168, 85, 247, 0.4), 0 0 50px rgba(236, 72, 153, 0.3);
+  --neon-mixed-glow: 0 0 25px rgba(168, 85, 247, 0.4), 0 0 50px rgba(236, 72, 153, 0.3);
   --transition: 0.3s;
 }
 
@@ -23,13 +22,7 @@
 }
 
 body {
-  font-family:
-    "Inter",
-    "Manrope",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  font-family: "Inter", "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--black);
   color: var(--white);
   line-height: 1.6;
@@ -69,12 +62,7 @@ a {
   left: -300px;
   width: 800px;
   height: 800px;
-  background: radial-gradient(
-    circle,
-    rgba(139, 92, 246, 0.4) 0%,
-    rgba(139, 92, 246, 0.1) 40%,
-    transparent 70%
-  );
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, rgba(139, 92, 246, 0.1) 40%, transparent 70%);
   filter: blur(100px);
   animation: floatSlow 20s ease-in-out infinite;
 }
@@ -88,10 +76,7 @@ a {
   height: 600px;
   border-radius: 50%;
   border: 2px solid rgba(217, 70, 239, 0.3);
-  box-shadow:
-    0 0 40px rgba(217, 70, 239, 0.3),
-    0 0 80px rgba(217, 70, 239, 0.2),
-    inset 0 0 40px rgba(217, 70, 239, 0.1);
+  box-shadow: 0 0 40px rgba(217, 70, 239, 0.3), 0 0 80px rgba(217, 70, 239, 0.2), inset 0 0 40px rgba(217, 70, 239, 0.1);
   filter: blur(2px);
   animation: floatSlowReverse 25s ease-in-out infinite;
 }
@@ -110,11 +95,7 @@ a {
   left: 15%;
   width: 400px;
   height: 400px;
-  background: radial-gradient(
-    circle,
-    rgba(139, 92, 246, 0.25) 0%,
-    transparent 70%
-  );
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%);
   filter: blur(90px);
 }
 
@@ -123,11 +104,7 @@ a {
   right: 10%;
   width: 500px;
   height: 500px;
-  background: radial-gradient(
-    circle,
-    rgba(217, 70, 239, 0.2) 0%,
-    transparent 70%
-  );
+  background: radial-gradient(circle, rgba(217, 70, 239, 0.2) 0%, transparent 70%);
   filter: blur(110px);
   animation-name: floatSlowReverse;
 }
@@ -137,11 +114,7 @@ a {
   left: -100px;
   width: 300px;
   height: 300px;
-  background: radial-gradient(
-    circle,
-    rgba(6, 182, 212, 0.3) 0%,
-    transparent 70%
-  );
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%);
   filter: blur(80px);
 }
 
@@ -152,10 +125,7 @@ a {
   height: 250px;
   border-radius: 50%;
   border: 1px solid rgba(139, 92, 246, 0.4);
-  box-shadow:
-    0 0 20px rgba(139, 92, 246, 0.4),
-    0 0 60px rgba(139, 92, 246, 0.2),
-    inset 0 0 20px rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.4), 0 0 60px rgba(139, 92, 246, 0.2), inset 0 0 20px rgba(139, 92, 246, 0.1);
 }
 
 .bg-dot {
@@ -165,71 +135,25 @@ a {
   animation: twinkle 4s ease-in-out infinite;
 }
 
-.bg-dot-1 {
-  top: 15%;
-  left: 30%;
-  width: 4px;
-  height: 4px;
-}
-.bg-dot-2 {
-  top: 40%;
-  left: 70%;
-  width: 3px;
-  height: 3px;
-  animation-delay: 1s;
-}
-.bg-dot-3 {
-  bottom: 25%;
-  left: 50%;
-  width: 5px;
-  height: 5px;
-  animation-delay: 2s;
-}
-.bg-dot-4 {
-  top: 60%;
-  left: 20%;
-  width: 3px;
-  height: 3px;
-  animation-delay: 3s;
-}
-.bg-dot-5 {
-  bottom: 15%;
-  right: 30%;
-  width: 4px;
-  height: 4px;
-  animation-delay: 0.5s;
-}
+.bg-dot-1 { top: 15%; left: 30%; width: 4px; height: 4px; }
+.bg-dot-2 { top: 40%; left: 70%; width: 3px; height: 3px; animation-delay: 1s; }
+.bg-dot-3 { bottom: 25%; left: 50%; width: 5px; height: 5px; animation-delay: 2s; }
+.bg-dot-4 { top: 60%; left: 20%; width: 3px; height: 3px; animation-delay: 3s; }
+.bg-dot-5 { bottom: 15%; right: 30%; width: 4px; height: 4px; animation-delay: 0.5s; }
 
 @keyframes floatSlow {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(30px, -20px);
-  }
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(30px, -20px); }
 }
 
 @keyframes floatSlowReverse {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(-25px, 15px);
-  }
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-25px, 15px); }
 }
 
 @keyframes twinkle {
-  0%,
-  100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.5);
-  }
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.5); }
 }
 
 /* ===== Hero ===== */
@@ -258,11 +182,7 @@ a {
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to top,
-    transparent 0%,
-    rgba(10, 10, 10, 0.7) 100%
-  );
+  background: linear-gradient(to top, transparent 0%, rgba(10, 10, 10, 0.7) 100%);
   z-index: 1;
   pointer-events: none;
 }
@@ -585,19 +505,10 @@ section {
 }
 
 @keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-8px);
-  }
-  50% {
-    transform: translateX(8px);
-  }
-  75% {
-    transform: translateX(-4px);
-  }
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  50% { transform: translateX(8px); }
+  75% { transform: translateX(-4px); }
 }
 
 /* ===== Цена ===== */
@@ -844,7 +755,7 @@ section {
 .gallery-slider {
   position: relative;
   width: 100%;
-  height: 700px;
+  height: 600px;
   margin: 0 auto;
   overflow: hidden;
   display: flex;
@@ -877,26 +788,25 @@ section {
 
 /* Позиции */
 .gallery-slide.pos-left {
-  transform: translate(calc(-50% - 370px), -50%) scale(0.7);
+  transform: translate(calc(-50% - 420px), -50%) scale(0.7);
   filter: brightness(0.4) grayscale(50%);
-  border-radius: 10px;
-  opacity: 1;
+  opacity: 0.8;
   z-index: 1;
 }
 
 .gallery-slide.pos-center {
-  transform: translate(-50%, -50%) scale(1.1);
+  transform: translate(-50%, -50%) scale(1);
   filter: brightness(1) grayscale(0%);
   opacity: 1;
   z-index: 10;
   border-color: var(--accent-purple);
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
 }
 
 .gallery-slide.pos-right {
-  transform: translate(calc(-50% + 370px), -50%) scale(0.7);
-  filter: brightness(0.4) grayscale(0%);
-  border-radius: 10px;
-  opacity: 1;
+  transform: translate(calc(-50% + 420px), -50%) scale(0.7);
+  filter: brightness(0.4) grayscale(50%);
+  opacity: 0.8;
   z-index: 1;
 }
 
@@ -1134,12 +1044,8 @@ section {
   box-shadow: var(--neon-mixed-glow);
 }
 
-.photo-modal-nav.prev {
-  left: 20px;
-}
-.photo-modal-nav.next {
-  right: 20px;
-}
+.photo-modal-nav.prev { left: 20px; }
+.photo-modal-nav.next { right: 20px; }
 
 .photo-modal-counter {
   position: absolute;
@@ -1585,9 +1491,7 @@ section {
   width: 100%;
   max-width: 400px;
   position: relative;
-  box-shadow:
-    0 0 40px rgba(168, 85, 247, 0.4),
-    0 20px 60px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.4), 0 20px 60px rgba(0, 0, 0, 0.6);
   animation: promoSlideDown 0.4s ease;
 }
 
@@ -1675,61 +1579,33 @@ section {
 }
 
 @keyframes promoFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes promoFadeOut {
-  to {
-    opacity: 0;
-  }
+  to { opacity: 0; }
 }
 
 @keyframes promoSlideDown {
-  from {
-    transform: translateY(-50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(-50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes promoPulse {
-  0%,
-  100% {
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(236, 72, 153, 0.8);
-  }
+  0%, 100% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
+  50% { box-shadow: 0 0 30px rgba(236, 72, 153, 0.8); }
 }
 
 /* ===== Анимации ===== */
 @keyframes heroZoom {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
 @keyframes slideUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* ===== Десктоп: календарь справа ===== */
@@ -1781,40 +1657,19 @@ section {
     filter: blur(1px);
   }
 
-  .bg-circle-purple {
-    width: 200px;
-    height: 200px;
-    filter: blur(50px);
-  }
-  .bg-circle-pink {
-    width: 250px;
-    height: 250px;
-    filter: blur(60px);
-  }
-  .bg-circle-cyan {
-    width: 150px;
-    height: 150px;
-    filter: blur(40px);
-  }
-  .bg-ring {
-    width: 150px;
-    height: 150px;
-  }
+  .bg-circle-purple { width: 200px; height: 200px; filter: blur(50px); }
+  .bg-circle-pink { width: 250px; height: 250px; filter: blur(60px); }
+  .bg-circle-cyan { width: 150px; height: 150px; filter: blur(40px); }
+  .bg-ring { width: 150px; height: 150px; }
 
   .bg-dot-3,
-  .bg-dot-4 {
-    display: none;
-  }
+  .bg-dot-4 { display: none; }
 
   .bg-layer *,
   .bg-layer::before,
-  .bg-layer::after {
-    animation: none !important;
-  }
+  .bg-layer::after { animation: none !important; }
 
-  .hero {
-    padding: 80px 15px 40px;
-  }
+  .hero { padding: 80px 15px 40px; }
 
   .hero-content,
   .hero-stats {
@@ -1822,18 +1677,14 @@ section {
     background: rgba(10, 10, 10, 0.65);
   }
 
-  .hero-content {
-    padding: 25px 15px;
-  }
+  .hero-content { padding: 25px 15px; }
 
   .hero-stats {
     padding: 15px;
     gap: 15px;
   }
 
-  .hero-title {
-    font-size: 28px;
-  }
+  .hero-title { font-size: 28px; }
 
   .hero-title .outline {
     filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5));
@@ -1852,9 +1703,7 @@ section {
     justify-content: center;
   }
 
-  .stat-number {
-    font-size: 22px;
-  }
+  .stat-number { font-size: 22px; }
 
   .booking-wrapper {
     grid-template-columns: 1fr;
@@ -1862,51 +1711,23 @@ section {
     max-width: 100%;
   }
 
-  .booking-form {
-    padding: 20px 15px;
-  }
-  .calendar-day {
-    font-size: 12px;
-  }
-  .booking-info {
-    padding: 15px;
-  }
-  .booking-info ul {
-    grid-template-columns: 1fr;
-  }
+  .booking-form { padding: 20px 15px; }
+  .calendar-day { font-size: 12px; }
+  .booking-info { padding: 15px; }
+  .booking-info ul { grid-template-columns: 1fr; }
 
-  .contacts {
-    padding: 50px 0;
-  }
-  .contacts-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  .contact-card {
-    padding: 18px;
-  }
-  .contact-icon {
-    width: 40px;
-    height: 40px;
-  }
-  .contact-icon i {
-    font-size: 16px;
-  }
-  .contact-value {
-    font-size: 15px;
-  }
+  .contacts { padding: 50px 0; }
+  .contacts-grid { grid-template-columns: 1fr; gap: 12px; }
+  .contact-card { padding: 18px; }
+  .contact-icon { width: 40px; height: 40px; }
+  .contact-icon i { font-size: 16px; }
+  .contact-value { font-size: 15px; }
 
-  section {
-    padding: 60px 0;
-  }
-  .section-title {
-    font-size: 28px;
-  }
+  section { padding: 60px 0; }
+  .section-title { font-size: 28px; }
 
   /* Карусель на мобильных */
-  .gallery-slider {
-    height: 380px;
-  }
+  .gallery-slider { height: 380px; }
 
   .gallery-slide {
     width: 320px;
@@ -1934,100 +1755,50 @@ section {
     padding: 15px;
   }
 
-  .gallery-dot {
-    width: 8px;
-    height: 8px;
-  }
-  .gallery-dot.active {
-    width: 24px;
-  }
+  .gallery-dot { width: 8px; height: 8px; }
+  .gallery-dot.active { width: 24px; }
 
-  .promo-overlay {
-    padding-top: 60px;
-  }
+  .promo-overlay { padding-top: 60px; }
 
   .promo-modal {
     padding: 25px 20px;
     border-radius: 15px;
   }
 
-  .promo-icon {
-    width: 55px;
-    height: 55px;
-  }
-  .promo-icon i {
-    font-size: 24px;
-  }
-  .promo-title {
-    font-size: 22px;
-  }
-  .promo-subtitle {
-    font-size: 12px;
-  }
-  .promo-btn {
-    padding: 12px 25px;
-    font-size: 12px;
-  }
+  .promo-icon { width: 55px; height: 55px; }
+  .promo-icon i { font-size: 24px; }
+  .promo-title { font-size: 22px; }
+  .promo-subtitle { font-size: 12px; }
+  .promo-btn { padding: 12px 25px; font-size: 12px; }
 
-  .about-content {
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-  .about-features {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-  .clients-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
+  .about-content { grid-template-columns: 1fr; gap: 30px; }
+  .about-features { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .clients-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
-  .feature {
-    padding: 15px;
-  }
-  .feature i {
-    font-size: 24px;
-  }
-  .feature span {
-    font-size: 11px;
-  }
+  .feature { padding: 15px; }
+  .feature i { font-size: 24px; }
+  .feature span { font-size: 11px; }
 
   .about-text-wrapper {
     padding: 20px 15px;
     border-radius: 15px;
   }
 
-  .about-text-wrapper p {
-    font-size: 14px;
-  }
+  .about-text-wrapper p { font-size: 14px; }
 
-  .about-artists {
-    padding: 15px;
-  }
-  .about-artists-label {
-    font-size: 12px;
-    letter-spacing: 1px;
-  }
-  .about-artists-names {
-    gap: 8px;
-  }
-  .about-artists-names span {
-    padding: 8px 15px;
-    font-size: 11px;
-  }
+  .about-artists { padding: 15px; }
+  .about-artists-label { font-size: 12px; letter-spacing: 1px; }
+  .about-artists-names { gap: 8px; }
+  .about-artists-names span { padding: 8px 15px; font-size: 11px; }
 }
 
 @media (max-width: 480px) {
   .bg-circle-pink,
   .bg-circle-cyan,
   .bg-ring,
-  .bg-dot {
-    display: none;
-  }
+  .bg-dot { display: none; }
 
-  .bg-layer::before {
-    filter: blur(40px);
-  }
+  .bg-layer::before { filter: blur(40px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
