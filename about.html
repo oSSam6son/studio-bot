@@ -31,11 +31,6 @@
       <div class="bg-circle-pink"></div>
       <div class="bg-circle-cyan"></div>
       <div class="bg-ring"></div>
-      <div class="bg-dot bg-dot-1"></div>
-      <div class="bg-dot bg-dot-2"></div>
-      <div class="bg-dot bg-dot-3"></div>
-      <div class="bg-dot bg-dot-4"></div>
-      <div class="bg-dot bg-dot-5"></div>
     </div>
 
     <a href="index.html" class="back-btn">
@@ -94,41 +89,16 @@
       </div>
     </section>
 
-    <!-- Галерея -->
     <section class="gallery-page">
       <div class="container">
         <h2 class="section-title">ГАЛЕРЕЯ</h2>
         <p class="section-subtitle">Пространство, где рождается музыка</p>
 
         <div class="gallery-slider">
-          <button
-            class="gallery-slider-btn prev"
-            onclick="changeGalleryImage(-1)"
-          >
-            <i class="fas fa-chevron-left"></i>
-          </button>
-
-          <div class="gallery-slider-image" id="gallerySliderImage">
-            <img
-              src="images/studio-1.jpg"
-              alt="Студия"
-              id="galleryImage"
-              onclick="openPhotoModal()"
-            />
-            <div class="gallery-slider-overlay">
-              <span id="galleryImageTitle">Основной зал</span>
-            </div>
-          </div>
-
-          <button
-            class="gallery-slider-btn next"
-            onclick="changeGalleryImage(1)"
-          >
-            <i class="fas fa-chevron-right"></i>
-          </button>
-
-          <div class="gallery-slider-counter" id="galleryCounter">1 / 7</div>
+          <div class="gallery-track" id="galleryTrack"></div>
         </div>
+
+        <div class="gallery-dots" id="galleryDots"></div>
 
         <button class="btn-view-all" onclick="openAllPhotos()">
           <i class="fas fa-images"></i> Смотреть все фото

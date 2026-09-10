@@ -8,48 +8,161 @@ const galleryData = [
   { title: "Барабаны", url: "images/studio-7.jpg" },
 ];
 
-let currentGalleryIndex = 0;
+let currentSlide = 0;
 let isAnimating = false;
+const N = galleryData.length;
 
-function updateGallery() {
-  if (isAnimating) return;
-  isAnimating = true;
+// Все слайды в DOM
+let slides = [];
 
-  const galleryImage = document.getElementById("galleryImage");
-  const galleryImageTitle = document.getElementById("galleryImageTitle");
-  const galleryCounter = document.getElementById("galleryCounter");
+function initGallery() {
+  const track = document.getElementById("galleryTrack");
+  const dotsContainer = document.getElementById("galleryDots");
 
-  galleryImage.classList.add("fade-out");
+  track.innerHTML = "";
+  slides = [];
 
-  setTimeout(() => {
-    galleryImage.src = galleryData[currentGalleryIndex].url;
-    galleryImageTitle.textContent = galleryData[currentGalleryIndex].title;
-    galleryCounter.textContent = `${currentGalleryIndex + 1} / ${galleryData.length}`;
-    galleryImage.classList.remove("fade-out");
+  galleryData.forEach((image, index) => {
+    const slide = document.createElement("div");
+    slide.className = "gallery-slide";
+    slide.dataset.index = index;
+    slide.onclick = () => handleSlideClick(index);
+    slide.innerHTML = `
+            <img src="${image.url}" alt="${image.title}" loading="lazy">
+            <div class="gallery-slide-title">${image.title}</div>
+        `;
+    track.appendChild(slide);
+    slides.push(slide);
+  });
 
-    setTimeout(() => {
-      isAnimating = false;
-    }, 150);
-  }, 150);
+  dotsContainer.innerHTML = "";
+  galleryData.forEach((_, index) => {
+    const dot = document.createElement("button");
+    dot.className = "gallery-dot";
+    dot.onclick = () => goToSlide(index);
+    dotsContainer.appendChild(dot);
+  });
+
+  updatePositions();
 }
 
-function changeGalleryImage(direction) {
-  const newIndex =
-    (currentGalleryIndex + direction + galleryData.length) % galleryData.length;
-  if (newIndex === currentGalleryIndex) return;
-  currentGalleryIndex = newIndex;
-  updateGallery();
+// Расстановка позиций: кому какой класс
+function updatePositions() {
+  // Определяем индексы
+  const prevIndex = (currentSlide - 1 + N) % N;
+  const nextIndex = (currentSlide + 1) % N;
+  const prevPrevIndex = (currentSlide - 2 + N) % N;
+  const nextNextIndex = (currentSlide + 2) % N;
+
+  slides.forEach((slide, index) => {
+    // Сбрасываем классы
+    slide.classList.remove(
+      "pos-left",
+      "pos-center",
+      "pos-right",
+      "pos-hidden-left",
+      "pos-hidden-right",
+    );
+
+    if (index === currentSlide) {
+      slide.classList.add("pos-center");
+    } else if (index === prevIndex) {
+      slide.classList.add("pos-left");
+    } else if (index === nextIndex) {
+      slide.classList.add("pos-right");
+    } else if (index === prevPrevIndex) {
+      slide.classList.add("pos-hidden-left");
+    } else if (index === nextNextIndex) {
+      slide.classList.add("pos-hidden-right");
+    } else {
+      // Все остальные — далеко скрыты
+      slide.classList.add("pos-hidden-right");
+    }
+  });
+
+  // Обновляем точки
+  document.querySelectorAll(".gallery-dot").forEach((dot, index) => {
+    dot.classList.toggle("active", index === currentSlide);
+  });
+}
+
+function handleSlideClick(index) {
+  if (index === currentSlide) {
+    openPhotoModal();
+  } else {
+    goToSlide(index);
+  }
+}
+
+function goToSlide(index) {
+  if (isAnimating) return;
+
+  // Зацикливание
+  index = ((index % N) + N) % N;
+
+  if (index === currentSlide) return;
+
+  isAnimating = true;
+  currentSlide = index;
+  updatePositions();
+
+  setTimeout(() => {
+    isAnimating = false;
+  }, 600);
+
   if (telegramApp) telegramApp.hapticFeedback("light");
 }
 
+function slideGallery(direction) {
+  goToSlide(currentSlide + direction);
+}
+
+// Свайпы
+let touchStartX = 0;
+
+document.addEventListener("DOMContentLoaded", () => {
+  initGallery();
+
+  const slider = document.querySelector(".gallery-slider");
+
+  slider.addEventListener(
+    "touchstart",
+    (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    },
+    { passive: true },
+  );
+
+  slider.addEventListener(
+    "touchend",
+    (e) => {
+      const diff = touchStartX - e.changedTouches[0].screenX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) slideGallery(1);
+        else slideGallery(-1);
+      }
+    },
+    { passive: true },
+  );
+});
+
+// Клавиатура
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowLeft") slideGallery(-1);
+  if (e.key === "ArrowRight") slideGallery(1);
+});
+
+// Модалка
 function openPhotoModal() {
-  if (isAnimating) return;
   const modal = document.getElementById("photoModal");
   const modalImage = document.getElementById("modalImage");
   const modalCounter = document.getElementById("modalCounter");
+
+  if (!modal) return;
+
   modal.classList.add("active");
-  modalImage.src = galleryData[currentGalleryIndex].url;
-  modalCounter.textContent = `${currentGalleryIndex + 1} / ${galleryData.length}`;
+  modalImage.src = galleryData[currentSlide].url;
+  modalCounter.textContent = `${currentSlide + 1} / ${N}`;
 }
 
 function closePhotoModal() {
@@ -57,29 +170,32 @@ function closePhotoModal() {
 }
 
 function changeModalImage(direction) {
-  currentGalleryIndex =
-    (currentGalleryIndex + direction + galleryData.length) % galleryData.length;
+  currentSlide = (currentSlide + direction + N) % N;
+
   const modalImage = document.getElementById("modalImage");
   const modalCounter = document.getElementById("modalCounter");
+
   modalImage.style.opacity = "0";
   setTimeout(() => {
-    modalImage.src = galleryData[currentGalleryIndex].url;
-    modalCounter.textContent = `${currentGalleryIndex + 1} / ${galleryData.length}`;
+    modalImage.src = galleryData[currentSlide].url;
+    modalCounter.textContent = `${currentSlide + 1} / ${N}`;
     modalImage.style.opacity = "1";
-  }, 100);
+    updatePositions();
+  }, 150);
 }
 
 function openAllPhotos() {
   const modal = document.getElementById("allPhotosModal");
   const grid = document.getElementById("allPhotosGrid");
-  grid.innerHTML = "";
+  if (!modal) return;
 
+  grid.innerHTML = "";
   galleryData.forEach((image, index) => {
     const item = document.createElement("div");
     item.className = "gallery-item";
     item.onclick = () => {
       closeAllPhotos();
-      currentGalleryIndex = index;
+      goToSlide(index);
       openPhotoModal();
     };
     item.innerHTML = `<img src="${image.url}" alt="${image.title}" loading="lazy">`;
@@ -94,5 +210,3 @@ function closeAllPhotos() {
   document.getElementById("allPhotosModal").classList.remove("active");
   document.body.style.overflow = "";
 }
-
-document.addEventListener("DOMContentLoaded", updateGallery);
