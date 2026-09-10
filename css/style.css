@@ -2055,6 +2055,10 @@ section {
   height: 75vw;
 }
 
+.gallery-slider {
+  touch-action: pan-y; /* отключает задержку браузера на горизонтальные жесты */
+}
+
 .gallery-slide.pos-left {
   transform: translate(calc(-50% - 68vw), -50%) scale(0.65);
 }
