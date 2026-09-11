@@ -572,7 +572,6 @@ section {
   color: var(--light-gray);
 }
 
-/* ===== Валидация ===== */
 .form-group.error input,
 .form-group.error select {
   border-color: #ff4444;
@@ -840,7 +839,7 @@ section {
   width: 20px;
 }
 
-/* ===== ГАЛЕРЕЯ-КАРУСЕЛЬ (финальная версия) ===== */
+/* ===== ГАЛЕРЕЯ-КАРУСЕЛЬ ===== */
 .gallery-slider {
   position: relative;
   width: 100%;
@@ -875,7 +874,6 @@ section {
   will-change: transform, opacity, filter;
 }
 
-/* Позиции */
 .gallery-slide.pos-left {
   transform: translate(calc(-50% - 420px), -50%) scale(0.7);
   filter: brightness(0.4) grayscale(50%);
@@ -945,7 +943,6 @@ section {
   opacity: 1;
 }
 
-/* Точки */
 .gallery-dots {
   display: flex;
   justify-content: center;
@@ -1856,15 +1853,19 @@ section {
     justify-content: center;
   }
 
+  .stat-number {
+    font-size: 22px;
+  }
+
   /* Карусель на мобильных */
   .gallery-slider {
-    height: 100vw; /* высота = ширине экрана */
+    height: 100vw;
     padding: 0;
     overflow: visible;
   }
 
   .gallery-slide {
-    width: 100vw; /* фото = вся ширина экрана */
+    width: 100vw;
     height: 100vw;
   }
 
@@ -1899,13 +1900,8 @@ section {
     width: 8px;
     height: 8px;
   }
-
   .gallery-dot.active {
     width: 24px;
-  }
-
-  .stat-number {
-    font-size: 22px;
   }
 
   .booking-wrapper {
@@ -1953,45 +1949,6 @@ section {
   }
   .section-title {
     font-size: 28px;
-  }
-
-  /* Карусель на мобильных */
-  .gallery-slider {
-    height: 380px;
-  }
-
-  .gallery-slide {
-    width: 320px;
-    height: 320px;
-  }
-
-  .gallery-slide.pos-left {
-    transform: translate(calc(-50% - 200px), -50%) scale(0.7);
-  }
-
-  .gallery-slide.pos-right {
-    transform: translate(calc(-50% + 200px), -50%) scale(0.7);
-  }
-
-  .gallery-slide.pos-hidden-left {
-    transform: translate(calc(-50% - 400px), -50%) scale(0.5);
-  }
-
-  .gallery-slide.pos-hidden-right {
-    transform: translate(calc(-50% + 400px), -50%) scale(0.5);
-  }
-
-  .gallery-slide-title {
-    font-size: 13px;
-    padding: 15px;
-  }
-
-  .gallery-dot {
-    width: 8px;
-    height: 8px;
-  }
-  .gallery-dot.active {
-    width: 24px;
   }
 
   .promo-overlay {
