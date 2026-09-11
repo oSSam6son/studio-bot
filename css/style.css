@@ -879,7 +879,7 @@ section {
 .gallery-slide.pos-left {
   transform: translate(calc(-50% - 420px), -50%) scale(0.7);
   filter: brightness(0.4) grayscale(50%);
-  opacity: 0.8;
+  opacity: 1;
   z-index: 1;
   border-radius: 20px;
 }
@@ -895,7 +895,7 @@ section {
 .gallery-slide.pos-right {
   transform: translate(calc(-50% + 420px), -50%) scale(0.7);
   filter: brightness(0.4) grayscale(50%);
-  opacity: 0.8;
+  opacity: 1;
   border-radius: 20px;
   z-index: 1;
 }
