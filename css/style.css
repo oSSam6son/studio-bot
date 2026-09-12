@@ -2390,6 +2390,7 @@ section {
 }
 
 .admin-logout {
+  margin-top: 20px;
   padding: 12px 25px;
   background: transparent;
   border: 2px solid var(--medium-gray);
@@ -2457,6 +2458,7 @@ section {
 
 /* Кнопка "На главную" в админке */
 .admin-back {
+  margin-bottom: 20px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
