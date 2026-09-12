@@ -174,18 +174,23 @@
     </section>
 
     <!-- Карта -->
-    <section class="map-page">
+    <section class="map-page" id="map">
       <div class="container">
         <h2 class="section-title">КАРТА</h2>
-        <div class="map-wrapper">
-          <div class="map-container">
-            <iframe
-              src="https://yandex.ru/map-widget/v1/?um=constructor%3Aae60f981a2c749c8354a4d79823571d4148a1af4ce5c24639e861c8b1c67a195&amp;source=constructor"
-              width="100%"
-              height="400"
-              frameborder="0"
-            >
-            </iframe>
+        <div class="map-container" id="mapContainer">
+          <!-- Превью-заглушка -->
+          <div class="map-preview" id="mapPreview" onclick="activateMap()">
+            <img
+              src="images/map-preview.jpg"
+              alt="Карта студии"
+              class="map-preview-img"
+            />
+            <div class="map-preview-overlay">
+              <div class="map-preview-btn">
+                <i class="fas fa-hand-pointer"></i>
+                <span>Нажмите, чтобы открыть карту</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
