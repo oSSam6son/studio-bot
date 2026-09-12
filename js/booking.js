@@ -348,6 +348,30 @@ function showError(message) {
   }
 }
 
+function toggleCalendar() {
+  const modal = document.getElementById("calendarModal");
+  modal.classList.toggle("active");
+  if (modal.classList.contains("active")) {
+    renderCalendar();
+  }
+}
+
+document.addEventListener("click", (e) => {
+  const modal = document.getElementById("calendarModal");
+  if (!modal || !modal.classList.contains("active")) return;
+
+  const modalContent = modal.querySelector(".calendar-modal-content");
+  if (!modalContent) return;
+
+  // Если клик НЕ внутри содержимого и НЕ по кнопке открытия календаря
+  const isClickOutside = !modalContent.contains(e.target);
+  const isToggleBtn = e.target.closest(".calendar-toggle");
+
+  if (isClickOutside && !isToggleBtn) {
+    modal.classList.remove("active");
+  }
+});
+
 function clearForm() {
   document.getElementById("serviceSelect").value = "";
   document.getElementById("bookingDate").value = "";
