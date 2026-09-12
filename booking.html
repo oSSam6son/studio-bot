@@ -53,7 +53,9 @@
                 <option value="mixing">Сведение — 5 000 ₽</option>
                 <option value="mastering">Мастеринг — 3 000 ₽</option>
                 <option value="full">Под ключ — от 15 000 ₽</option>
-                <option value="rehearsal">Аренда студии без звукорежиссера — 1 500 ₽/час</option>
+                <option value="rehearsal">
+                  Аренда студии без звукорежиссера — 1 500 ₽/час
+                </option>
               </select>
             </div>
 
@@ -149,7 +151,8 @@
           <ul>
             <li><i class="fas fa-clock"></i> Работаем ежедневно 24/7</li>
             <li>
-              <i class="fas fa-map-marker-alt"></i> Москва, Ленинградский проспект., 45, корп. 2
+              <i class="fas fa-map-marker-alt"></i> Москва, Ленинградский
+              проспект., 45, корп. 2
             </li>
             <li><i class="fas fa-phone"></i> +7 (985) 851 12-63</li>
           </ul>
@@ -159,5 +162,21 @@
 
     <script src="js/telegram.js"></script>
     <script src="js/booking.js"></script>
+
+    <!-- Уведомление об успехе -->
+    <div class="success-overlay" id="successOverlay">
+      <div class="success-modal">
+        <div class="success-icon">
+          <i class="fas fa-check"></i>
+        </div>
+        <h3 class="success-title">Заявка отправлена!</h3>
+        <p class="success-text">
+          Мы получили вашу заявку на <strong id="successDate"></strong>.<br />
+          Ожидайте подтверждения от администратора — мы свяжемся с вами в
+          ближайшее время.
+        </p>
+        <button class="success-btn" onclick="closeSuccess()">Понятно</button>
+      </div>
+    </div>
   </body>
 </html>

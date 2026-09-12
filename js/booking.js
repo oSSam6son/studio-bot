@@ -1,4 +1,4 @@
-// Данные услуг
+// ===== ДАННЫЕ =====
 const services = [
   {
     id: "recording",
@@ -37,14 +37,14 @@ const services = [
   },
 ];
 
-// Настройки бота
-const BOT_TOKEN = "ТВОЙ_ТОКЕН_СЮДА";
-const ADMIN_CHAT_ID = "ТВОЙ_CHAT_ID_СЮДА";
+// ===== НАСТРОЙКИ =====
+const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
+const DISCOUNT_PERCENT = 30;
 
 let currentDate = new Date();
 let selectedDate = null;
+let bookedDates = [];
 
-// Получаем выбранную услугу из URL
 const urlParams = new URLSearchParams(window.location.search);
 const selectedServiceId = urlParams.get("service");
 
@@ -52,31 +52,25 @@ const selectedServiceId = urlParams.get("service");
 function validateField(fieldId, condition) {
   const field = document.getElementById(fieldId);
   const formGroup = field.closest(".form-group");
-
   if (!condition) {
     formGroup.classList.add("error");
     return false;
-  } else {
-    formGroup.classList.remove("error");
-    return true;
   }
+  formGroup.classList.remove("error");
+  return true;
 }
 
 function clearErrorOnInput(fieldId) {
   const field = document.getElementById(fieldId);
-  field.addEventListener("input", () =>
-    field.closest(".form-group").classList.remove("error"),
-  );
-  field.addEventListener("change", () =>
-    field.closest(".form-group").classList.remove("error"),
-  );
+  const clear = () => field.closest(".form-group").classList.remove("error");
+  field.addEventListener("input", clear);
+  field.addEventListener("change", clear);
 }
 
-// ===== ЗАПОЛНЕНИЕ ВРЕМЕНИ =====
+// ===== ВРЕМЯ =====
 function fillTimeSlots() {
   const timeSelect = document.getElementById("timeSelect");
   timeSelect.innerHTML = '<option value="">Выберите время...</option>';
-
   for (let hour = 10; hour <= 22; hour++) {
     for (let minute = 0; minute < 60; minute += 30) {
       const time = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
@@ -88,7 +82,7 @@ function fillTimeSlots() {
   }
 }
 
-// ===== ФОРМАТИРОВАНИЕ ДАТЫ =====
+// ===== ДАТА =====
 function formatDateInput(input) {
   let value = input.value.replace(/\D/g, "");
   if (value.length > 8) value = value.slice(0, 8);
@@ -99,26 +93,25 @@ function formatDateInput(input) {
 }
 
 function validateManualDate(dateStr) {
-  const parts = dateStr.split(".");
-  const day = parseInt(parts[0]);
-  const month = parseInt(parts[1]) - 1;
-  const year = parseInt(parts[2]);
-  const date = new Date(year, month, day);
+  const [day, month, year] = dateStr.split(".").map(Number);
+  const date = new Date(year, month - 1, day);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  if (date < today || date.getFullYear() > 2026) {
-    const field = document.getElementById("bookingDate");
+  const field = document.getElementById("bookingDate");
+  if (date < today || year > 2026) {
     field.closest(".form-group").classList.add("error");
     field.value = "";
     return;
   }
-
+  if (bookedDates.includes(dateStr)) {
+    field.closest(".form-group").classList.add("error");
+    field.value = "";
+    showError("Эта дата уже занята");
+    return;
+  }
   selectedDate = date;
-  document
-    .getElementById("bookingDate")
-    .closest(".form-group")
-    .classList.remove("error");
+  field.closest(".form-group").classList.remove("error");
   renderCalendar();
 }
 
@@ -165,9 +158,14 @@ function renderCalendar() {
     dayElement.className = "calendar-day";
     dayElement.textContent = day;
 
-    if (date < today) dayElement.classList.add("disabled");
-    if (year > 2026 || (year === 2026 && month > 11))
+    const dateStr = `${day.toString().padStart(2, "0")}.${(month + 1).toString().padStart(2, "0")}.${year}`;
+    const isBooked = bookedDates.includes(dateStr);
+    const isPast = date < today;
+    const isFutureLimit = year > 2026 || (year === 2026 && month > 11);
+
+    if (isPast || isFutureLimit || isBooked)
       dayElement.classList.add("disabled");
+    if (isBooked) dayElement.classList.add("booked");
     if (date.getTime() === today.getTime()) dayElement.classList.add("today");
 
     if (
@@ -191,19 +189,16 @@ function selectDate(date) {
   selectedDate = date;
   const day = date.getDate().toString().padStart(2, "0");
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const year = date.getFullYear().toString(); // ← УБЕРИ .slice(2)
+  const year = date.getFullYear().toString();
 
   const dateInput = document.getElementById("bookingDate");
   dateInput.value = `${day}.${month}.${year}`;
-
   dateInput.closest(".form-group").classList.remove("error");
 
   renderCalendar();
 
   const modal = document.getElementById("calendarModal");
-  if (modal.classList.contains("active")) {
-    modal.classList.remove("active");
-  }
+  if (modal.classList.contains("active")) modal.classList.remove("active");
 
   if (telegramApp) telegramApp.hapticFeedback("light");
 }
@@ -219,9 +214,7 @@ function changeMonth(direction) {
 function toggleCalendar() {
   const modal = document.getElementById("calendarModal");
   modal.classList.toggle("active");
-  if (modal.classList.contains("active")) {
-    renderCalendar();
-  }
+  if (modal.classList.contains("active")) renderCalendar();
 }
 
 // ===== ЦЕНА =====
@@ -235,7 +228,17 @@ function updatePrice() {
   const service = services.find((s) => s.id === selectedId);
 
   if (service) {
-    totalPriceElement.textContent = `${(service.price * hours).toLocaleString()} ₽`;
+    const originalPrice = service.price * hours;
+    const discountActive = localStorage.getItem("discountActive") === "true";
+
+    if (discountActive) {
+      const discountedPrice = Math.round(
+        originalPrice * (1 - DISCOUNT_PERCENT / 100),
+      );
+      totalPriceElement.textContent = `${discountedPrice.toLocaleString()} ₽`;
+    } else {
+      totalPriceElement.textContent = `${originalPrice.toLocaleString()} ₽`;
+    }
     priceSummary.style.display = "flex";
   } else {
     totalPriceElement.textContent = "0 ₽";
@@ -244,6 +247,31 @@ function updatePrice() {
 }
 
 // ===== ОТПРАВКА =====
+async function sendToTelegram(bookingData) {
+  try {
+    const response = await fetch(`${WORKER_URL}/api/booking`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(bookingData),
+    });
+    const data = await response.json();
+    return data.ok;
+  } catch (error) {
+    console.error("Ошибка:", error);
+    return false;
+  }
+}
+
+async function loadBookedDates() {
+  try {
+    const response = await fetch(`${WORKER_URL}/api/booked-dates`);
+    const data = await response.json();
+    return data.dates || [];
+  } catch (error) {
+    return [];
+  }
+}
+
 async function submitBooking() {
   const date = document.getElementById("bookingDate").value;
   const time = document.getElementById("timeSelect").value;
@@ -252,7 +280,6 @@ async function submitBooking() {
   const phone = document.getElementById("userPhone").value;
   const serviceId = document.getElementById("serviceSelect").value;
 
-  // Валидация
   let isValid = true;
   if (!validateField("serviceSelect", serviceId)) isValid = false;
   if (!validateField("bookingDate", date && date.length === 10))
@@ -270,6 +297,13 @@ async function submitBooking() {
   }
 
   const service = services.find((s) => s.id === serviceId);
+  const hoursNum = parseInt(hours);
+  const originalPrice = service.price * hoursNum;
+  const discountActive = localStorage.getItem("discountActive") === "true";
+  const finalPrice = discountActive
+    ? Math.round(originalPrice * (1 - DISCOUNT_PERCENT / 100))
+    : originalPrice;
+
   const bookingData = {
     name,
     phone,
@@ -277,7 +311,9 @@ async function submitBooking() {
     date,
     time,
     hours,
-    totalPrice: document.getElementById("totalPrice").textContent,
+    totalPrice: `${finalPrice.toLocaleString()} ₽`,
+    originalPrice: `${originalPrice.toLocaleString()} ₽`,
+    discountApplied: discountActive ? `-${DISCOUNT_PERCENT}%` : "Нет",
     timestamp: new Date().toISOString(),
   };
 
@@ -294,46 +330,12 @@ async function submitBooking() {
   if (sent) {
     if (telegramApp && telegramApp.isTelegram) {
       telegramApp.hapticFeedback("success");
-      telegramApp.showAlert("Заявка успешно отправлена!");
-    } else {
-      alert("Заявка успешно отправлена!");
     }
+    showSuccess(date);
     clearForm();
   } else {
     showError("Не удалось отправить. Попробуйте позже.");
     localStorage.setItem("lastBooking", JSON.stringify(bookingData));
-  }
-}
-
-async function sendToTelegram(bookingData) {
-  const message =
-    `🎵 <b>НОВАЯ ЗАЯВКА — FL STUDIO</b>\n\n` +
-    `👤 <b>Имя:</b> ${bookingData.name}\n` +
-    `📞 <b>Телефон:</b> ${bookingData.phone}\n\n` +
-    `🎤 <b>Услуга:</b> ${bookingData.serviceName}\n` +
-    `💰 <b>Стоимость:</b> ${bookingData.totalPrice}\n\n` +
-    `📅 <b>Дата:</b> ${bookingData.date}\n` +
-    `⏰ <b>Время:</b> ${bookingData.time}\n` +
-    `⏱ <b>Часов:</b> ${bookingData.hours}\n\n` +
-    `🕐 <b>Отправлено:</b> ${new Date().toLocaleString("ru-RU")}`;
-
-  const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: ADMIN_CHAT_ID,
-        text: message,
-        parse_mode: "HTML",
-      }),
-    });
-    const data = await response.json();
-    return data.ok;
-  } catch (error) {
-    console.error("Ошибка отправки:", error);
-    return false;
   }
 }
 
@@ -357,8 +359,10 @@ function clearForm() {
 }
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   fillTimeSlots();
+
+  bookedDates = await loadBookedDates();
   renderCalendar();
 
   if (selectedServiceId) {
@@ -366,7 +370,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updatePrice();
   }
 
-  // Очистка ошибок при вводе
   [
     "serviceSelect",
     "bookingDate",
@@ -375,7 +378,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "userPhone",
   ].forEach(clearErrorOnInput);
 
-  // Маска телефона
   const phoneInput = document.getElementById("userPhone");
   phoneInput.addEventListener("input", (e) => {
     let value = e.target.value.replace(/\D/g, "");
@@ -388,3 +390,21 @@ document.addEventListener("DOMContentLoaded", () => {
     e.target.value = formatted;
   });
 });
+
+// ===== УВЕДОМЛЕНИЕ ОБ УСПЕХЕ =====
+function showSuccess(date) {
+  const overlay = document.getElementById("successOverlay");
+  const dateSpan = document.getElementById("successDate");
+  if (!overlay) return;
+
+  if (dateSpan) dateSpan.textContent = date;
+  overlay.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeSuccess() {
+  const overlay = document.getElementById("successOverlay");
+  if (!overlay) return;
+  overlay.classList.remove("active");
+  document.body.style.overflow = "";
+}

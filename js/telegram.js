@@ -14,7 +14,6 @@ class TelegramIntegration {
     this.tg.expand();
     this.setupTheme();
     this.getUserData();
-
     document.body.classList.add("telegram-app");
   }
 
@@ -26,7 +25,6 @@ class TelegramIntegration {
 
   getUserData() {
     const user = this.tg.initDataUnsafe?.user;
-
     if (user) {
       const nameInput = document.getElementById("userName");
       if (nameInput && user.first_name) {
@@ -59,12 +57,15 @@ class TelegramIntegration {
 
 const telegramApp = new TelegramIntegration();
 
+// ===== НАВИГАЦИЯ =====
 function scrollToBooking() {
-  document.getElementById("booking").scrollIntoView({ behavior: "smooth" });
+  const el = document.getElementById("booking");
+  if (el) el.scrollIntoView({ behavior: "smooth" });
 }
 
 function scrollToGallery() {
-  document.getElementById("gallery").scrollIntoView({ behavior: "smooth" });
+  const el = document.getElementById("gallery");
+  if (el) el.scrollIntoView({ behavior: "smooth" });
 }
 
 function scrollToTop(event) {
@@ -73,21 +74,23 @@ function scrollToTop(event) {
 }
 
 function toggleMenu() {
-  document.getElementById("nav").classList.toggle("active");
+  const nav = document.getElementById("nav");
+  if (nav) nav.classList.toggle("active");
 }
 
-// Показать промо-уведомление
+// ===== ПРОМО-УВЕДОМЛЕНИЕ =====
 function showPromo() {
   const promo = document.getElementById("promoOverlay");
+  if (!promo) return;
   promo.classList.add("active");
-  document.body.style.overflow = "hidden"; // Блокируем скролл
+  document.body.style.overflow = "hidden";
 }
 
-// Закрыть промо-уведомление
 function closePromo() {
   const promo = document.getElementById("promoOverlay");
+  if (!promo) return;
   promo.classList.add("closing");
-  document.body.style.overflow = ""; // Возвращаем скролл
+  document.body.style.overflow = "";
 
   setTimeout(() => {
     promo.classList.remove("active");
@@ -95,17 +98,26 @@ function closePromo() {
   }, 300);
 }
 
-// Закрытие при клике вне модалки
+// Закрытие при клике вне модалки (только если промо есть на странице)
 document.addEventListener("click", (e) => {
   const promo = document.getElementById("promoOverlay");
+  if (!promo) return; // ← ключевая проверка
+
   const promoModal = promo.querySelector(".promo-modal");
+  if (!promoModal) return;
 
   if (promo.classList.contains("active") && !promoModal.contains(e.target)) {
     closePromo();
   }
 });
 
-// Показ через 1 секунду после загрузки
+// Показ через 1 секунду (только если промо есть и не показывали раньше)
 document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(showPromo, 1000);
+  const promo = document.getElementById("promoOverlay");
+  if (!promo) return;
+
+  const promoShown = localStorage.getItem("promoShown");
+  if (!promoShown) {
+    setTimeout(showPromo, 1000);
+  }
 });
