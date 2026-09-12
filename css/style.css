@@ -2454,3 +2454,75 @@ section {
 .admin-lock i {
   pointer-events: none;
 }
+
+/* Кнопка "На главную" в админке */
+.admin-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding: 10px 20px;
+  background: rgba(10, 10, 10, 0.7);
+  border: 1px solid var(--medium-gray);
+  border-radius: 30px;
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.admin-back:hover {
+  border-color: var(--accent-purple);
+  color: var(--accent-purple);
+  transform: translateX(-3px);
+}
+
+@media (max-width: 768px) {
+  .admin-back {
+    font-size: 11px;
+    padding: 8px 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Обёртка поля даты */
+  .date-input-wrapper {
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+
+  .date-input-wrapper input {
+    width: 100%;
+    padding: 12px 45px 12px 15px; /* справа отступ под иконку */
+    font-size: 14px;
+  }
+
+  /* Иконка календаря */
+  .calendar-toggle {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 38px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--accent-purple);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .calendar-toggle:hover,
+  .calendar-toggle:active {
+    background: rgba(168, 85, 247, 0.15);
+  }
+}
