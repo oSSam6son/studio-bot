@@ -844,24 +844,6 @@ section {
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-.calendar-day.partially-booked {
-  background: rgba(236, 72, 153, 0.15);
-  border-color: rgba(236, 72, 153, 0.4);
-}
-
-.calendar-day.partially-booked::before {
-  content: "";
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent-pink);
-  box-shadow: 0 0 8px var(--accent-pink);
-  z-index: 2;
-}
-
 /* ===== Легенда календаря ===== */
 .calendar-legend {
   display: flex;
@@ -893,23 +875,6 @@ section {
 .calendar-legend-dot.free {
   background: var(--medium-gray);
   border: 1px solid #333;
-}
-
-.calendar-legend-dot.partial {
-  background: rgba(236, 72, 153, 0.15);
-  border: 1px solid rgba(236, 72, 153, 0.4);
-}
-
-.calendar-legend-dot.partial::before {
-  content: "";
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--accent-pink);
-  box-shadow: 0 0 6px var(--accent-pink);
 }
 
 .calendar-legend-dot.full {
