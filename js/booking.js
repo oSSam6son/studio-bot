@@ -46,16 +46,84 @@ const services = [
 // ===== НАСТРОЙКИ =====
 const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
 const DISCOUNT_PERCENT = 30;
-const TOTAL_HOURS = 24; // 00:00 - 23:00
+const TOTAL_HOURS = 24;
 
 let currentDate = new Date();
 let selectedDate = null;
 let selectedTime = "";
-let bookedSlots = {}; // { "23.09.2026": ["12:00", "13:00"] }
-let currentBookingType = "hourly"; // hourly | none
+let bookedSlots = {};
+let currentBookingType = "hourly";
 
 const urlParams = new URLSearchParams(window.location.search);
 const selectedServiceId = urlParams.get("service");
+
+// ===== УТИЛИТЫ ДЛЯ РАБОТЫ С ДАТАМИ =====
+// Разбирает "20.09.2026" → Date
+function parseDate(dateStr) {
+  const [day, month, year] = dateStr.split(".").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+// Форматирует Date → "20.09.2026"
+function formatDate(date) {
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}.${month}.${year}`;
+}
+
+// Добавляет дни к дате
+function addDays(date, days) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+/**
+ * ⭐ Расчёт занятых слотов с переходом через полночь
+ * @param {string} startDateStr — "20.09.2026"
+ * @param {number} startHour — 23
+ * @param {number} hoursCount — 5
+ * @returns {object} — { "20.09.2026": ["23:00"], "21.09.2026": ["00:00", "01:00", "02:00", "03:00"] }
+ */
+function calculateOccupiedSlots(startDateStr, startHour, hoursCount) {
+  const result = {};
+  const startDate = parseDate(startDateStr);
+
+  for (let i = 0; i < hoursCount; i++) {
+    const totalHour = startHour + i;
+    const dayOffset = Math.floor(totalHour / 24);
+    const hourInDay = totalHour % 24;
+
+    const targetDate = addDays(startDate, dayOffset);
+    const targetDateStr = formatDate(targetDate);
+    const hourStr = `${hourInDay.toString().padStart(2, "0")}:00`;
+
+    if (!result[targetDateStr]) result[targetDateStr] = [];
+    result[targetDateStr].push(hourStr);
+  }
+
+  return result;
+}
+
+/**
+ * ⭐ Проверка, свободны ли все нужные слоты
+ * @returns {object} — { ok: true/false, conflict: { date, hour } | null }
+ */
+function checkSlotsAvailability(startDateStr, startHour, hoursCount) {
+  const slots = calculateOccupiedSlots(startDateStr, startHour, hoursCount);
+
+  for (const date in slots) {
+    const occupiedHours = bookedSlots[date] || [];
+    for (const hour of slots[date]) {
+      if (occupiedHours.includes(hour)) {
+        return { ok: false, conflict: { date, hour } };
+      }
+    }
+  }
+
+  return { ok: true, conflict: null };
+}
 
 // ===== ВАЛИДАЦИЯ =====
 function validateField(fieldId, condition) {
@@ -78,19 +146,8 @@ function clearErrorOnInput(fieldId) {
   field.addEventListener("change", clear);
 }
 
-// ===== ВРЕМЯ =====
-function getAllHoursRange() {
-  const hours = [];
-  for (let h = 0; h < 24; h++) {
-    hours.push(`${h.toString().padStart(2, "0")}:00`);
-  }
-  return hours;
-}
-
 // ===== ДАТА =====
 function openCalendar() {
-  // На мобильном — открывает модалку
-  // На десктопе — модалка уже показана (справа)
   if (window.innerWidth <= 768) {
     const modal = document.getElementById("calendarModal");
     if (modal) {
@@ -149,14 +206,12 @@ function renderCalendar() {
     const dateStr = `${day.toString().padStart(2, "0")}.${(month + 1).toString().padStart(2, "0")}.${year}`;
     const occupiedHours = bookedSlots[dateStr] || [];
     const isFullyBooked = occupiedHours.length >= TOTAL_HOURS;
-    const isPartiallyBooked = occupiedHours.length > 0 && !isFullyBooked;
     const isPast = date < today;
     const isFutureLimit = year > 2026 || (year === 2026 && month > 11);
 
     if (isPast || isFutureLimit || isFullyBooked)
       dayElement.classList.add("disabled");
     if (isFullyBooked) dayElement.classList.add("booked");
-    if (isPartiallyBooked) dayElement.classList.add("partially-booked");
     if (date.getTime() === today.getTime()) dayElement.classList.add("today");
 
     if (
@@ -178,25 +233,18 @@ function renderCalendar() {
 
 function selectDate(date) {
   selectedDate = date;
-  const day = date.getDate().toString().padStart(2, "0");
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const year = date.getFullYear().toString();
+  const dateStr = formatDate(date);
 
-  const dateStr = `${day}.${month}.${year}`;
   const dateInput = document.getElementById("bookingDate");
   dateInput.value = dateStr;
   dateInput.closest(".form-group").classList.remove("error");
 
-  // Сбрасываем выбранное время при смене даты
   resetSelectedTime();
-
   renderCalendar();
 
   const modal = document.getElementById("calendarModal");
-  if (modal && modal.classList.contains("active")) {
-    if (window.innerWidth <= 768) {
-      modal.classList.remove("active");
-    }
+  if (modal && modal.classList.contains("active") && window.innerWidth <= 768) {
+    modal.classList.remove("active");
   }
 
   if (telegramApp) telegramApp.hapticFeedback("light");
@@ -215,15 +263,13 @@ function toggleCalendar(event) {
   const modal = document.getElementById("calendarModal");
   if (!modal) return;
 
-  // На мобильном — переключаем модалку
   if (window.innerWidth <= 768) {
     modal.classList.toggle("active");
     if (modal.classList.contains("active")) renderCalendar();
   }
-  // На десктопе — ничего (календарь уже справа)
 }
 
-// Закрытие по клику вне календаря (только на мобильном)
+// Закрытие по клику вне
 document.addEventListener("click", (e) => {
   if (window.innerWidth > 768) return;
   const modal = document.getElementById("calendarModal");
@@ -256,10 +302,7 @@ function openTimePicker() {
     return;
   }
 
-  // Рисуем селектор часов
   renderDurationOptions();
-
-  // Рисуем сетку часов
   renderTimePicker(dateStr);
 
   const overlay = document.getElementById("timePickerOverlay");
@@ -278,7 +321,6 @@ function renderDurationOptions() {
   const serviceId = document.getElementById("serviceSelect").value;
   const service = services.find((s) => s.id === serviceId);
 
-  // Если defaultHours — скрываем селектор, ставим значение
   if (service && service.defaultHours) {
     wrapper.style.display = "none";
     document.getElementById("hoursSelect").value = service.defaultHours;
@@ -303,10 +345,8 @@ function renderDurationOptions() {
 }
 
 function selectDuration(hours) {
-  const hoursInput = document.getElementById("hoursSelect");
-  hoursInput.value = hours;
+  document.getElementById("hoursSelect").value = hours;
 
-  // Обновляем активную кнопку
   document.querySelectorAll(".duration-btn").forEach((btn) => {
     btn.classList.remove("active");
   });
@@ -315,15 +355,10 @@ function selectDuration(hours) {
   );
   if (activeBtn) activeBtn.classList.add("active");
 
-  // Сбрасываем выбранное время
-  if (selectedTime) {
-    resetSelectedTime();
-  }
+  if (selectedTime) resetSelectedTime();
 
-  // Обновляем цену
   updatePrice();
 
-  // Перерисовываем сетку часов
   const dateStr = document.getElementById("bookingDate").value;
   if (dateStr && dateStr.length === 10) {
     renderTimePicker(dateStr);
@@ -345,11 +380,9 @@ function renderTimePicker(dateStr) {
   const grid = document.getElementById("timePickerGrid");
   if (!grid) return;
 
-  const occupiedHours = bookedSlots[dateStr] || [];
   const hoursSelect = document.getElementById("hoursSelect");
   const requestedHours = parseInt(hoursSelect.value) || 1;
 
-  // Обновляем дату в шапке
   const dateInfo = document.getElementById("timePickerDate");
   if (dateInfo) dateInfo.textContent = dateStr;
 
@@ -358,21 +391,9 @@ function renderTimePicker(dateStr) {
   for (let hour = 0; hour < 24; hour++) {
     const time = `${hour.toString().padStart(2, "0")}:00`;
 
-    // Проверяем, можно ли забронировать
-    let canBook = true;
-
-    // Хватает ли времени до конца суток
-    if (hour + requestedHours > 24) {
-      canBook = false;
-    } else {
-      for (let i = 0; i < requestedHours; i++) {
-        const checkHour = (hour + i).toString().padStart(2, "0") + ":00";
-        if (occupiedHours.includes(checkHour)) {
-          canBook = false;
-          break;
-        }
-      }
-    }
+    // ⭐ Проверка с учётом перехода через полночь
+    const availability = checkSlotsAvailability(dateStr, hour, requestedHours);
+    const canBook = availability.ok;
 
     const slot = document.createElement("div");
     slot.className = "time-slot " + (canBook ? "free" : "busy");
@@ -437,7 +458,6 @@ function updatePrice() {
     return;
   }
 
-  // Для услуги без выбора часов — цена фиксированная
   let hours = parseInt(hoursSelect.value) || 1;
   if (service.bookingType === "none") hours = 1;
   if (service.defaultHours) hours = service.defaultHours;
@@ -495,8 +515,6 @@ async function loadBookedDatesInBackground() {
 
     localStorage.setItem("bookedSlots", JSON.stringify(bookedSlots));
     renderCalendar();
-
-    console.log("bookedSlots загружен:", bookedSlots);
   } catch (error) {
     console.warn("Ошибка загрузки дат:", error.message);
 
@@ -520,26 +538,17 @@ async function submitBooking() {
 
   const service = services.find((s) => s.id === serviceId);
 
-  // ===== ВАЛИДАЦИЯ =====
   let isValid = true;
 
   if (!validateField("serviceSelect", serviceId)) isValid = false;
 
-  // Если услуга требует дату (hourly)
   if (service && service.bookingType !== "none") {
     const date = document.getElementById("bookingDate").value;
     if (!validateField("bookingDate", date && date.length === 10))
       isValid = false;
   }
 
-  // Если услуга hourly и БЕЗ defaultHours — требуется время
-  if (service && service.bookingType === "hourly" && !service.defaultHours) {
-    const time = document.getElementById("timeSelect").value;
-    if (!validateField("timeField", time && time.length > 0)) isValid = false;
-  }
-
-  // Если услуга hourly с defaultHours — время НЕ требуется, но занимается 2ч с указанного времени
-  if (service && service.bookingType === "hourly" && service.defaultHours) {
+  if (service && service.bookingType === "hourly") {
     const time = document.getElementById("timeSelect").value;
     if (!validateField("timeField", time && time.length > 0)) isValid = false;
   }
@@ -564,7 +573,6 @@ async function submitBooking() {
     return;
   }
 
-  // ===== СОБИРАЕМ ДАННЫЕ =====
   const date = document.getElementById("bookingDate").value || "";
   const time = document.getElementById("timeSelect").value || "";
 
@@ -575,6 +583,25 @@ async function submitBooking() {
     hours = String(service.defaultHours);
   } else {
     hours = document.getElementById("hoursSelect").value;
+  }
+
+  // ⭐ Финальная проверка перед отправкой (могли поменяться данные)
+  if (service.bookingType === "hourly" && date && time) {
+    const startHour = parseInt(time.split(":")[0]);
+    const availability = checkSlotsAvailability(
+      date,
+      startHour,
+      parseInt(hours),
+    );
+
+    if (!availability.ok) {
+      const c = availability.conflict;
+      showError(
+        `Конфликт: ${c.date} в ${c.hour} уже занято. Выберите другое время.`,
+      );
+      loadBookedDatesInBackground();
+      return;
+    }
   }
 
   const hoursNum = parseInt(hours);
@@ -648,11 +675,15 @@ function clearForm() {
   selectedDate = null;
   updatePrice();
 
-  // Скрываем поля даты/времени
   const dateField = document.getElementById("dateField");
   const timeField = document.getElementById("timeField");
   if (dateField) dateField.style.display = "none";
   if (timeField) timeField.style.display = "none";
+
+  const wrapper = document.getElementById("bookingWrapper");
+  if (wrapper) {
+    wrapper.classList.remove("has-calendar", "no-calendar");
+  }
 }
 
 function onServiceSelect() {
@@ -665,9 +696,7 @@ function onServiceSelect() {
   if (!bookingWrapper) return;
 
   if (!serviceId) {
-    // Ничего не выбрано — скрываем всё
-    bookingWrapper.classList.remove("has-calendar");
-    bookingWrapper.classList.remove("no-calendar");
+    bookingWrapper.classList.remove("has-calendar", "no-calendar");
     if (dateField) dateField.style.display = "none";
     if (timeField) timeField.style.display = "none";
     resetSelectedTime();
@@ -680,25 +709,21 @@ function onServiceSelect() {
 
   currentBookingType = service.bookingType;
 
-  // Сбрасываем выбранные дату/время при смене услуги
   document.getElementById("bookingDate").value = "";
   resetSelectedTime();
   selectedDate = null;
 
   if (service.bookingType === "none") {
-    // ⭐ Услуга без даты/времени — скрываем форму и календарь
     bookingWrapper.classList.remove("has-calendar");
-    bookingWrapper.classList.add("no-calendar"); // ⭐ НОВЫЙ КЛАСС
+    bookingWrapper.classList.add("no-calendar");
     if (dateField) dateField.style.display = "none";
     if (timeField) timeField.style.display = "none";
   } else if (service.bookingType === "hourly") {
-    // Показываем дату и время
     bookingWrapper.classList.remove("no-calendar");
     if (dateField) dateField.style.display = "block";
     if (timeField) timeField.style.display = "block";
     bookingWrapper.classList.add("has-calendar");
 
-    // Если есть defaultHours — ставим их
     if (service.defaultHours) {
       hoursSelect.value = service.defaultHours;
     } else {
@@ -743,14 +768,11 @@ function isDiscountActive() {
 document.addEventListener("DOMContentLoaded", async () => {
   renderCalendar();
 
-  // ===== ИМЯ ИЗ TELEGRAM =====
   const nameField = document.getElementById("nameField");
   const userNameInput = document.getElementById("userName");
 
   if (telegramApp && telegramApp.isTelegram) {
     const tgName = telegramApp.getUserName();
-    console.log("Telegram user:", telegramApp.tg.initDataUnsafe?.user);
-    console.log("Полученное имя:", tgName);
 
     if (tgName && nameField && userNameInput) {
       nameField.classList.add("hidden-in-tg");
@@ -766,7 +788,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Если услуга пришла в URL
   if (selectedServiceId) {
     document.getElementById("serviceSelect").value = selectedServiceId;
     onServiceSelect();
@@ -776,7 +797,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     clearErrorOnInput,
   );
 
-  // ===== МАСКА ТЕЛЕФОНА =====
   const phoneInput = document.getElementById("userPhone");
 
   if (phoneInput) {
@@ -809,6 +829,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Фоновая загрузка дат
   loadBookedDatesInBackground();
 });
