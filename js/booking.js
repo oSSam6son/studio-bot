@@ -362,6 +362,9 @@ function selectDuration(hours) {
   const dateStr = document.getElementById("bookingDate").value;
   if (dateStr && dateStr.length === 10) {
     renderTimePicker(dateStr);
+  } else {
+    // ⭐ Обновляем заголовок даже без даты
+    updateTimePickerHeader(hours);
   }
 
   if (telegramApp) telegramApp.hapticFeedback("light");
@@ -386,12 +389,14 @@ function renderTimePicker(dateStr) {
   const dateInfo = document.getElementById("timePickerDate");
   if (dateInfo) dateInfo.textContent = dateStr;
 
+  // ⭐ Обновляем заголовок с промежутком
+  updateTimePickerHeader(requestedHours);
+
   grid.innerHTML = "";
 
   for (let hour = 0; hour < 24; hour++) {
     const time = `${hour.toString().padStart(2, "0")}:00`;
 
-    // ⭐ Проверка с учётом перехода через полночь
     const availability = checkSlotsAvailability(dateStr, hour, requestedHours);
     const canBook = availability.ok;
 
@@ -405,6 +410,26 @@ function renderTimePicker(dateStr) {
     }
 
     grid.appendChild(slot);
+  }
+}
+
+// ⭐ Обновление заголовка попапа
+function updateTimePickerHeader(hours) {
+  const titleEl = document.querySelector(".time-picker-header h3");
+  if (!titleEl) return;
+
+  if (selectedTime) {
+    // Показываем диапазон: 16:00 — 19:00
+    const startHour = parseInt(selectedTime.split(":")[0]);
+    const endHour = startHour + hours;
+
+    const startStr = `${startHour.toString().padStart(2, "0")}:00`;
+    const endStr = `${endHour.toString().padStart(2, "0")}:00`;
+
+    titleEl.innerHTML = `Выберите время <span class="time-picker-hours-badge">${startStr} — ${endStr}</span>`;
+  } else {
+    // Просто часы
+    titleEl.innerHTML = `Выберите время <span class="time-picker-hours-badge">${hours} ч</span>`;
   }
 }
 
@@ -423,6 +448,11 @@ function selectTime(time) {
   const timeField = document.getElementById("timeField");
   if (timeField) timeField.classList.remove("error");
 
+  // ⭐ Обновляем заголовок с диапазоном перед закрытием
+  const hoursSelect = document.getElementById("hoursSelect");
+  const requestedHours = parseInt(hoursSelect.value) || 1;
+  updateTimePickerHeader(requestedHours);
+
   closeTimePicker(null, true);
 
   if (telegramApp) telegramApp.hapticFeedback("light");
@@ -437,6 +467,16 @@ function resetSelectedTime() {
   }
   const timeInput = document.getElementById("timeSelect");
   if (timeInput) timeInput.value = "";
+
+  // ⭐ Возвращаем заголовок к "N ч"
+  const hoursSelect = document.getElementById("hoursSelect");
+  if (hoursSelect) {
+    const requestedHours = parseInt(hoursSelect.value) || 1;
+    const titleEl = document.querySelector(".time-picker-header h3");
+    if (titleEl) {
+      titleEl.innerHTML = `Выберите время <span class="time-picker-hours-badge">${requestedHours} ч</span>`;
+    }
+  }
 }
 
 // ===== ЦЕНА =====
