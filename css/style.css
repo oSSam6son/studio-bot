@@ -3481,6 +3481,58 @@ section {
     background: transparent;
     z-index: auto;
   }
+}
 
-  /* ... остальное без изменений */
+/* ===== Кнопка "Готово" в попапе выбора времени ===== */
+.time-picker-done {
+  width: 100%;
+  padding: 16px;
+  margin-top: 18px;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  color: var(--white);
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-shrink: 0;
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.5);
+}
+
+.time-picker-done:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent-pink));
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(168, 85, 247, 0.7);
+}
+
+.time-picker-done:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.time-picker-done:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+  background: var(--medium-gray);
+}
+
+.time-picker-done i {
+  font-size: 14px;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  .time-picker-done {
+    padding: 14px;
+    font-size: 14px;
+    margin-top: 14px;
+    border-radius: 12px;
+  }
 }

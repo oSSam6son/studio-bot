@@ -293,6 +293,12 @@ function openTimePicker() {
   renderDurationOptions();
   renderTimePicker(dateStr);
 
+  // ⭐ Если время уже выбрано — кнопка активна, иначе отключена
+  const doneBtn = document.getElementById("timePickerDone");
+  if (doneBtn) {
+    doneBtn.disabled = !selectedTime;
+  }
+
   const overlay = document.getElementById("timePickerOverlay");
   if (!overlay) return;
   overlay.classList.add("active");
@@ -363,19 +369,17 @@ function selectDuration(hours) {
   );
   if (activeBtn) activeBtn.classList.add("active");
 
-  // ⭐ Если время уже выбрано — пересчитываем диапазон с новой длительностью
-  if (selectedTime) {
-    const startHour = parseInt(selectedTime.split(":")[0]);
-    const endHour = (startHour + hours) % 24;
-
-    const startStr = `${startHour.toString().padStart(2, "0")}:00`;
-    const endStr = `${endHour.toString().padStart(2, "0")}:00`;
-
-    const timeDisplay = document.getElementById("timeDisplay");
-    if (timeDisplay) {
-      timeDisplay.textContent = `${startStr} — ${endStr}`;
-    }
+  // ⭐ Сброс времени при смене часов + сброс кнопки Готово
+  selectedTime = "";
+  const timeInput = document.getElementById("timeSelect");
+  if (timeInput) timeInput.value = "";
+  const timeDisplay = document.getElementById("timeDisplay");
+  if (timeDisplay) {
+    timeDisplay.textContent = "Выберите время...";
+    timeDisplay.classList.remove("has-value");
   }
+  const doneBtn = document.getElementById("timePickerDone");
+  if (doneBtn) doneBtn.disabled = true;
 
   updatePrice();
 
@@ -435,7 +439,7 @@ function renderTimePicker(dateStr) {
 function selectTime(time) {
   selectedTime = time;
 
-  // ⭐ Считаем диапазон
+  // Считаем диапазон
   const hoursSelect = document.getElementById("hoursSelect");
   const requestedHours = parseInt(hoursSelect.value) || 1;
 
@@ -446,14 +450,14 @@ function selectTime(time) {
   const endStr = `${endHour.toString().padStart(2, "0")}:00`;
   const rangeText = `${startStr} — ${endStr}`;
 
-  // ⭐ Пишем в поле формы диапазон
+  // Пишем в поле формы диапазон
   const timeDisplay = document.getElementById("timeDisplay");
   if (timeDisplay) {
     timeDisplay.textContent = rangeText;
     timeDisplay.classList.add("has-value");
   }
 
-  // ⭐ В hidden input пишем только время начала (для сервера)
+  // В hidden input пишем только время начала
   const timeInput = document.getElementById("timeSelect");
   if (timeInput) timeInput.value = time;
 
@@ -463,13 +467,17 @@ function selectTime(time) {
   // Обновляем заголовок попапа
   updateTimePickerHeader(requestedHours);
 
-  // Помечаем выбранный слот в сетке
+  // Помечаем выбранный слот
   document.querySelectorAll(".time-slot").forEach((slot) => {
     slot.classList.remove("selected");
     if (slot.textContent === time && slot.classList.contains("free")) {
       slot.classList.add("selected");
     }
   });
+
+  // ⭐ Активируем кнопку "Готово"
+  const doneBtn = document.getElementById("timePickerDone");
+  if (doneBtn) doneBtn.disabled = false;
 
   if (telegramApp) telegramApp.hapticFeedback("light");
 }
@@ -489,6 +497,15 @@ function resetSelectedTime() {
     const requestedHours = parseInt(hoursSelect.value) || 1;
     updateTimePickerHeader(requestedHours);
   }
+}
+
+// ⭐ Подтверждение выбора времени
+function confirmTimePicker() {
+  if (!selectedTime) return;
+
+  closeTimePicker(null, true);
+
+  if (telegramApp) telegramApp.hapticFeedback("success");
 }
 
 // ===== ЦЕНА =====

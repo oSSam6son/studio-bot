@@ -67,7 +67,7 @@
 
             <!-- Время (только для hourly) -->
             <div class="form-group" id="timeField" style="display: none">
-              <label>Время начала</label>
+              <label>Время бронирования</label>
               <div class="custom-time-picker" onclick="openTimePicker()">
                 <span id="timeDisplay">Выберите время...</span>
                 <i class="fas fa-clock"></i>
@@ -172,7 +172,6 @@
       </div>
     </section>
 
-    <!-- Попап выбора времени -->
     <div
       class="time-picker-overlay"
       id="timePickerOverlay"
@@ -194,14 +193,11 @@
           <span>Дата: <strong id="timePickerDate">—</strong></span>
         </div>
 
-        <!-- Селектор количества часов -->
         <div class="time-picker-duration" id="durationWrapper">
           <span class="time-picker-duration-label">
             <i class="fas fa-hourglass-half"></i> Сколько часов:
           </span>
-          <div class="time-picker-duration-options" id="durationOptions">
-            <!-- Заполняется через JS -->
-          </div>
+          <div class="time-picker-duration-options" id="durationOptions"></div>
         </div>
 
         <div class="time-picker-legend">
@@ -216,6 +212,16 @@
         </div>
 
         <div class="time-picker-grid" id="timePickerGrid"></div>
+
+        <!-- ⭐ Кнопка Готово -->
+        <button
+          class="time-picker-done"
+          id="timePickerDone"
+          onclick="confirmTimePicker()"
+          disabled
+        >
+          <i class="fas fa-check"></i> Готово
+        </button>
       </div>
     </div>
 
