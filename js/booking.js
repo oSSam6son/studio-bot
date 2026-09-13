@@ -407,6 +407,7 @@ function updatePrice() {
   const totalPriceElement = document.getElementById("totalPrice");
   const priceSummary = document.getElementById("priceSummary");
   const priceDiscount = document.getElementById("priceDiscount");
+  const priceOld = document.getElementById("priceOld");
   const service = services.find((s) => s.id === selectedId);
 
   if (service) {
@@ -414,6 +415,10 @@ function updatePrice() {
     const discountActive = isDiscountActive();
 
     if (discountActive) {
+      if (priceOld) {
+        priceOld.textContent = `${originalPrice.toLocaleString()} ₽`;
+        priceOld.style.display = "block";
+      }
       const discountedPrice = Math.round(
         originalPrice * (1 - DISCOUNT_PERCENT / 100),
       );
@@ -433,6 +438,9 @@ function updatePrice() {
 
     priceSummary.style.display = "flex";
   } else {
+    if (priceOld) {
+      priceOld.style.display = "none";
+    }
     totalPriceElement.textContent = "0 ₽";
     priceSummary.style.display = "none";
     if (priceDiscount) {

@@ -3678,3 +3678,10 @@ section {
     font-size: 9px;
   }
 }
+
+.price-old {
+  font-size: 14px;
+  color: var(--light-gray);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
