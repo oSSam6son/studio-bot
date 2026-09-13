@@ -1,4 +1,4 @@
-// Инициализация Telegram Web App
+// ===== ИНИЦИАЛИЗАЦИЯ TELEGRAM WEB APP =====
 class TelegramIntegration {
   constructor() {
     this.tg = window.Telegram?.WebApp;
@@ -34,24 +34,25 @@ class TelegramIntegration {
     }
   }
 
-  getUserId() {
-    if (!this.isTelegram) return null;
-    const user = this.tg.initDataUnsafe?.user;
-    return user?.id || null;
-  }
-
+  // Возвращает @username или имя
   getUserName() {
     if (!this.isTelegram) return null;
     const user = this.tg.initDataUnsafe?.user;
     if (!user) return null;
 
-    // Приоритет: @username → иначе имя + фамилия
     if (user.username) return `@${user.username}`;
 
     const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
     if (fullName) return fullName;
 
     return "Клиент";
+  }
+
+  // Возвращает ID юзера
+  getUserId() {
+    if (!this.isTelegram) return null;
+    const user = this.tg.initDataUnsafe?.user;
+    return user?.id || null;
   }
 
   sendData(data) {
@@ -71,8 +72,6 @@ class TelegramIntegration {
   hapticFeedback(type = "success") {
     if (!this.isTelegram || !this.tg.HapticFeedback) return;
 
-    // "light", "medium", "heavy", "rigid", "soft" — это impact
-    // "success", "error", "warning" — это notification
     const impactStyles = ["light", "medium", "heavy", "rigid", "soft"];
     const notificationTypes = ["success", "error", "warning"];
 
@@ -82,16 +81,17 @@ class TelegramIntegration {
       } else if (notificationTypes.includes(type)) {
         this.tg.HapticFeedback.notificationOccurred(type);
       } else {
-        // fallback
         this.tg.HapticFeedback.impactOccurred("light");
       }
     } catch (e) {
-      // тихо игнорируем, если что-то не так
+      // тихо игнорируем
     }
   }
 }
 
 const telegramApp = new TelegramIntegration();
+
+const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
 
 // ===== НАВИГАЦИЯ =====
 function scrollToBooking() {
@@ -114,12 +114,15 @@ function toggleMenu() {
   if (nav) nav.classList.toggle("active");
 }
 
-// ===== ПРОМО =====
+// ===== ПРОМО-УВЕДОМЛЕНИЕ =====
 function showPromo() {
   const promo = document.getElementById("promoOverlay");
   if (!promo) return;
   promo.classList.add("active");
   document.body.style.overflow = "hidden";
+
+  // Fallback: запоминаем для браузера
+  localStorage.setItem("promoShown", "true");
 }
 
 function closePromo() {
@@ -134,6 +137,7 @@ function closePromo() {
   }, 300);
 }
 
+// Закрытие при клике вне модалки
 document.addEventListener("click", (e) => {
   const promo = document.getElementById("promoOverlay");
   if (!promo) return;
@@ -146,12 +150,43 @@ document.addEventListener("click", (e) => {
   }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+// ⭐ Логика показа промо: показываем только тем, кто НЕ ПОДТВЕРЖДЁН админом
+document.addEventListener("DOMContentLoaded", async () => {
   const promo = document.getElementById("promoOverlay");
-  if (!promo) return;
+  const userId = telegramApp?.getUserId();
 
-  const promoShown = localStorage.getItem("promoShown");
-  if (!promoShown) {
-    setTimeout(showPromo, 1000);
+  // Не в Telegram — работаем через localStorage
+  if (!userId) {
+    if (promo && !localStorage.getItem("promoShown")) {
+      setTimeout(showPromo, 1000);
+    }
+    return;
+  }
+
+  // ⭐ В Telegram — проверяем через Worker
+  try {
+    const response = await fetch(`${WORKER_URL}/api/check-promo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    const data = await response.json();
+
+    if (data.show) {
+      // Юзер новый — показываем промо, ставим флаг «не подтверждён»
+      localStorage.setItem(`user_confirmed_${userId}`, "false");
+      if (promo) {
+        setTimeout(showPromo, 1000);
+      }
+    } else {
+      // Юзер уже подтверждён — не показываем, помечаем как подтверждённого
+      localStorage.setItem(`user_confirmed_${userId}`, "true");
+    }
+  } catch (error) {
+    console.warn("Проверка промо не удалась:", error);
+    // Fallback
+    if (promo && !localStorage.getItem("promoShown")) {
+      setTimeout(showPromo, 1000);
+    }
   }
 });

@@ -660,37 +660,47 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (phoneInput) {
     phoneInput.addEventListener("input", (e) => {
       const input = e.target;
-      const cursorPos = input.selectionStart;
-      const oldValue = input.value;
       const isDeleting = e.inputType && e.inputType.startsWith("delete");
 
+      // Оставляем только цифры
       let digits = input.value.replace(/\D/g, "");
+
+      // Убираем ведущую 7 или 8
       if (digits.startsWith("7") || digits.startsWith("8")) {
         digits = digits.slice(1);
       }
+
+      // Ограничиваем 10 цифрами
       digits = digits.slice(0, 10);
 
-      let formatted = "";
-      if (digits.length > 0) {
-        formatted = "+7";
-        if (digits.length > 0) formatted += " (" + digits.slice(0, 3);
-        if (digits.length >= 3) formatted += ")";
-        if (digits.length > 3) formatted += " " + digits.slice(3, 6);
-        if (digits.length > 6) formatted += "-" + digits.slice(6, 8);
-        if (digits.length > 8) formatted += "-" + digits.slice(8, 10);
+      // Если цифр нет — оставляем пустое поле
+      if (digits.length === 0) {
+        input.value = "";
+        input.closest(".form-group")?.classList.remove("error");
+        return;
       }
 
-      if (digits.length === 0 && isDeleting) {
-        formatted = "";
+      // Форматируем
+      let formatted = "+7";
+
+      if (digits.length > 0) {
+        formatted += " (" + digits.slice(0, 3);
+      }
+      if (digits.length >= 3) {
+        formatted += ")";
+      }
+      if (digits.length > 3) {
+        formatted += " " + digits.slice(3, 6);
+      }
+      if (digits.length > 6) {
+        formatted += "-" + digits.slice(6, 8);
+      }
+      if (digits.length > 8) {
+        formatted += "-" + digits.slice(8, 10);
       }
 
       input.value = formatted;
-
-      if (!isDeleting && cursorPos < oldValue.length) {
-        input.setSelectionRange(cursorPos, cursorPos);
-      } else {
-        input.setSelectionRange(formatted.length, formatted.length);
-      }
+      input.setSelectionRange(formatted.length, formatted.length);
 
       input.closest(".form-group")?.classList.remove("error");
     });
