@@ -363,9 +363,18 @@ function selectDuration(hours) {
   );
   if (activeBtn) activeBtn.classList.add("active");
 
-  // Сбрасываем время при смене длительности
+  // ⭐ Если время уже выбрано — пересчитываем диапазон с новой длительностью
   if (selectedTime) {
-    selectedTime = "";
+    const startHour = parseInt(selectedTime.split(":")[0]);
+    const endHour = (startHour + hours) % 24;
+
+    const startStr = `${startHour.toString().padStart(2, "0")}:00`;
+    const endStr = `${endHour.toString().padStart(2, "0")}:00`;
+
+    const timeDisplay = document.getElementById("timeDisplay");
+    if (timeDisplay) {
+      timeDisplay.textContent = `${startStr} — ${endStr}`;
+    }
   }
 
   updatePrice();
@@ -426,21 +435,32 @@ function renderTimePicker(dateStr) {
 function selectTime(time) {
   selectedTime = time;
 
+  // ⭐ Считаем диапазон
+  const hoursSelect = document.getElementById("hoursSelect");
+  const requestedHours = parseInt(hoursSelect.value) || 1;
+
+  const startHour = parseInt(time.split(":")[0]);
+  const endHour = (startHour + requestedHours) % 24;
+
+  const startStr = `${startHour.toString().padStart(2, "0")}:00`;
+  const endStr = `${endHour.toString().padStart(2, "0")}:00`;
+  const rangeText = `${startStr} — ${endStr}`;
+
+  // ⭐ Пишем в поле формы диапазон
   const timeDisplay = document.getElementById("timeDisplay");
   if (timeDisplay) {
-    timeDisplay.textContent = time;
+    timeDisplay.textContent = rangeText;
     timeDisplay.classList.add("has-value");
   }
 
+  // ⭐ В hidden input пишем только время начала (для сервера)
   const timeInput = document.getElementById("timeSelect");
   if (timeInput) timeInput.value = time;
 
   const timeField = document.getElementById("timeField");
   if (timeField) timeField.classList.remove("error");
 
-  // ⭐ Обновляем заголовок с диапазоном
-  const hoursSelect = document.getElementById("hoursSelect");
-  const requestedHours = parseInt(hoursSelect.value) || 1;
+  // Обновляем заголовок попапа
   updateTimePickerHeader(requestedHours);
 
   // Помечаем выбранный слот в сетке
@@ -464,7 +484,6 @@ function resetSelectedTime() {
   const timeInput = document.getElementById("timeSelect");
   if (timeInput) timeInput.value = "";
 
-  // ⭐ Возвращаем заголовок к "N ч"
   const hoursSelect = document.getElementById("hoursSelect");
   if (hoursSelect) {
     const requestedHours = parseInt(hoursSelect.value) || 1;
