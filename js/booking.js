@@ -517,7 +517,6 @@ async function submitBooking() {
     : originalPrice;
 
   const bookingData = {
-    userId: telegramApp?.getUserId() || null,
     name: name || (telegramApp ? telegramApp.getUserName() : "Клиент"),
     phone,
     serviceName: service.name,

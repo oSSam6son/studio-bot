@@ -99,27 +99,12 @@ function toggleMenu() {
   if (nav) nav.classList.toggle("active");
 }
 
-// ===== ПРОМО-УВЕДОМЛЕНИЕ =====
-const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
-
+// ===== ПРОМО =====
 function showPromo() {
   const promo = document.getElementById("promoOverlay");
   if (!promo) return;
   promo.classList.add("active");
   document.body.style.overflow = "hidden";
-
-  // ⭐ Отмечаем, что показали
-  const userId = telegramApp?.getUserId();
-  if (userId) {
-    fetch(`${WORKER_URL}/api/mark-promo-shown`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    }).catch(() => {});
-  }
-
-  // Фallback для браузера (не в Telegram)
-  localStorage.setItem("promoShown", "true");
 }
 
 function closePromo() {
@@ -134,7 +119,6 @@ function closePromo() {
   }, 300);
 }
 
-// Закрытие при клике вне модалки
 document.addEventListener("click", (e) => {
   const promo = document.getElementById("promoOverlay");
   if (!promo) return;
@@ -147,37 +131,12 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// ⭐ Показ промо — только 1 раз за всё время
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const promo = document.getElementById("promoOverlay");
   if (!promo) return;
 
-  const userId = telegramApp?.getUserId();
-
-  // Если не в Telegram — проверяем localStorage
-  if (!userId) {
-    if (!localStorage.getItem("promoShown")) {
-      setTimeout(showPromo, 1000);
-    }
-    return;
-  }
-
-  // В Telegram — проверяем через Worker
-  try {
-    const response = await fetch(`${WORKER_URL}/api/check-promo`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    });
-    const data = await response.json();
-
-    if (data.show) {
-      setTimeout(showPromo, 1000);
-    }
-  } catch (error) {
-    // Если сеть упала — fallback на localStorage
-    if (!localStorage.getItem("promoShown")) {
-      setTimeout(showPromo, 1000);
-    }
+  const promoShown = localStorage.getItem("promoShown");
+  if (!promoShown) {
+    setTimeout(showPromo, 1000);
   }
 });
