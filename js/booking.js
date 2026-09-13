@@ -667,6 +667,7 @@ function onServiceSelect() {
   if (!serviceId) {
     // Ничего не выбрано — скрываем всё
     bookingWrapper.classList.remove("has-calendar");
+    bookingWrapper.classList.remove("no-calendar");
     if (dateField) dateField.style.display = "none";
     if (timeField) timeField.style.display = "none";
     resetSelectedTime();
@@ -685,12 +686,14 @@ function onServiceSelect() {
   selectedDate = null;
 
   if (service.bookingType === "none") {
-    // Услуга без даты/времени — скрываем всё
+    // ⭐ Услуга без даты/времени — скрываем форму и календарь
     bookingWrapper.classList.remove("has-calendar");
+    bookingWrapper.classList.add("no-calendar"); // ⭐ НОВЫЙ КЛАСС
     if (dateField) dateField.style.display = "none";
     if (timeField) timeField.style.display = "none";
   } else if (service.bookingType === "hourly") {
     // Показываем дату и время
+    bookingWrapper.classList.remove("no-calendar");
     if (dateField) dateField.style.display = "block";
     if (timeField) timeField.style.display = "block";
     bookingWrapper.classList.add("has-calendar");

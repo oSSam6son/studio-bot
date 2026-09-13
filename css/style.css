@@ -3456,3 +3456,31 @@ section {
 .telegram-app .hero {
   padding-top: 60px;
 }
+
+@media (min-width: 769px) {
+  .booking-wrapper {
+    grid-template-columns: 1fr 1fr;
+    max-width: 1000px;
+    align-items: start;
+  }
+
+  /* ⭐ Если услуга без календаря — форма на всю ширину */
+  .booking-wrapper.no-calendar {
+    grid-template-columns: 1fr;
+    max-width: 600px;
+  }
+
+  /* Скрываем календарь полностью */
+  .booking-wrapper.no-calendar .calendar-modal {
+    display: none;
+  }
+
+  .calendar-modal {
+    display: block;
+    position: static;
+    background: transparent;
+    z-index: auto;
+  }
+
+  /* ... остальное без изменений */
+}
