@@ -410,7 +410,7 @@ function updatePrice() {
 
   if (service) {
     const originalPrice = service.price * hours;
-    const discountActive = localStorage.getItem("discountActive") === "true";
+    const discountActive = isDiscountActive();
 
     if (discountActive) {
       const discountedPrice = Math.round(
@@ -617,6 +617,17 @@ function closeSuccess() {
   document.body.style.overflow = "";
 }
 
+function isDiscountActive() {
+  const userId = telegramApp?.getUserId();
+
+  if (userId) {
+    const confirmed = localStorage.getItem(`user_confirmed_${userId}`);
+    return confirmed !== "true";
+  }
+
+  return localStorage.getItem("discountActive") === "true";
+}
+
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 document.addEventListener("DOMContentLoaded", async () => {
   renderCalendar();
@@ -660,7 +671,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (phoneInput) {
     phoneInput.addEventListener("input", (e) => {
       const input = e.target;
-      const isDeleting = e.inputType && e.inputType.startsWith("delete");
 
       // Оставляем только цифры
       let digits = input.value.replace(/\D/g, "");
@@ -670,10 +680,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         digits = digits.slice(1);
       }
 
-      // Ограничиваем 10 цифрами
       digits = digits.slice(0, 10);
 
-      // Если цифр нет — оставляем пустое поле
+      // Если цифр нет — поле пустое
       if (digits.length === 0) {
         input.value = "";
         input.closest(".form-group")?.classList.remove("error");
@@ -682,27 +691,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Форматируем
       let formatted = "+7";
-
-      if (digits.length > 0) {
-        formatted += " (" + digits.slice(0, 3);
-      }
-      if (digits.length >= 3) {
-        formatted += ")";
-      }
-      if (digits.length > 3) {
-        formatted += " " + digits.slice(3, 6);
-      }
-      if (digits.length > 6) {
-        formatted += "-" + digits.slice(6, 8);
-      }
-      if (digits.length > 8) {
-        formatted += "-" + digits.slice(8, 10);
-      }
+      if (digits.length > 0) formatted += " (" + digits.slice(0, 3);
+      if (digits.length >= 3) formatted += ")";
+      if (digits.length > 3) formatted += " " + digits.slice(3, 6);
+      if (digits.length > 6) formatted += "-" + digits.slice(6, 8);
+      if (digits.length > 8) formatted += "-" + digits.slice(8, 10);
 
       input.value = formatted;
       input.setSelectionRange(formatted.length, formatted.length);
-
       input.closest(".form-group")?.classList.remove("error");
+    });
+
+    // ⭐ При Backspace — стираем цифру принудительно
+    phoneInput.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace") {
+        const input = e.target;
+        const cursorPos = input.selectionStart;
+
+        // Если курсор стоит сразу после скобки или дефиса — сдвигаем на 1 назад
+        const charBefore = input.value[cursorPos - 1];
+        if (charBefore && /[\s\-\(\)]/.test(charBefore)) {
+          e.preventDefault();
+          // Удаляем символ перед курсором
+          input.value =
+            input.value.slice(0, cursorPos - 2) +
+            input.value.slice(cursorPos - 1);
+          // Триггерим input для переформатирования
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      }
     });
   }
 
