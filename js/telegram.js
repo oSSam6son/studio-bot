@@ -91,8 +91,6 @@ class TelegramIntegration {
 
 const telegramApp = new TelegramIntegration();
 
-const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
-
 // ===== НАВИГАЦИЯ =====
 function scrollToBooking() {
   const el = document.getElementById("booking");
@@ -154,8 +152,8 @@ document.addEventListener("click", (e) => {
 document.addEventListener("DOMContentLoaded", async () => {
   const promo = document.getElementById("promoOverlay");
   const userId = telegramApp?.getUserId();
+  const WORKER = "https://flstudio-bot.flstudio.workers.dev"; // ← локальная константа
 
-  // Не в Telegram — работаем через localStorage
   if (!userId) {
     if (promo && !localStorage.getItem("promoShown")) {
       setTimeout(showPromo, 1000);
@@ -163,9 +161,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // ⭐ В Telegram — проверяем через Worker
   try {
-    const response = await fetch(`${WORKER_URL}/api/check-promo`, {
+    const response = await fetch(`${WORKER}/api/check-promo`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId }),
@@ -173,18 +170,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await response.json();
 
     if (data.show) {
-      // Юзер новый — показываем промо, ставим флаг «не подтверждён»
       localStorage.setItem(`user_confirmed_${userId}`, "false");
       if (promo) {
         setTimeout(showPromo, 1000);
       }
     } else {
-      // Юзер уже подтверждён — не показываем, помечаем как подтверждённого
       localStorage.setItem(`user_confirmed_${userId}`, "true");
     }
   } catch (error) {
     console.warn("Проверка промо не удалась:", error);
-    // Fallback
     if (promo && !localStorage.getItem("promoShown")) {
       setTimeout(showPromo, 1000);
     }
