@@ -58,13 +58,11 @@ const urlParams = new URLSearchParams(window.location.search);
 const selectedServiceId = urlParams.get("service");
 
 // ===== УТИЛИТЫ ДЛЯ РАБОТЫ С ДАТАМИ =====
-// Разбирает "20.09.2026" → Date
 function parseDate(dateStr) {
   const [day, month, year] = dateStr.split(".").map(Number);
   return new Date(year, month - 1, day);
 }
 
-// Форматирует Date → "20.09.2026"
 function formatDate(date) {
   const day = date.getDate().toString().padStart(2, "0");
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -72,20 +70,13 @@ function formatDate(date) {
   return `${day}.${month}.${year}`;
 }
 
-// Добавляет дни к дате
 function addDays(date, days) {
   const result = new Date(date);
   result.setDate(result.getDate() + days);
   return result;
 }
 
-/**
- * ⭐ Расчёт занятых слотов с переходом через полночь
- * @param {string} startDateStr — "20.09.2026"
- * @param {number} startHour — 23
- * @param {number} hoursCount — 5
- * @returns {object} — { "20.09.2026": ["23:00"], "21.09.2026": ["00:00", "01:00", "02:00", "03:00"] }
- */
+// ⭐ Расчёт занятых слотов с переходом через полночь
 function calculateOccupiedSlots(startDateStr, startHour, hoursCount) {
   const result = {};
   const startDate = parseDate(startDateStr);
@@ -106,10 +97,7 @@ function calculateOccupiedSlots(startDateStr, startHour, hoursCount) {
   return result;
 }
 
-/**
- * ⭐ Проверка, свободны ли все нужные слоты
- * @returns {object} — { ok: true/false, conflict: { date, hour } | null }
- */
+// ⭐ Проверка доступности всех слотов
 function checkSlotsAvailability(startDateStr, startHour, hoursCount) {
   const slots = calculateOccupiedSlots(startDateStr, startHour, hoursCount);
 
@@ -269,7 +257,7 @@ function toggleCalendar(event) {
   }
 }
 
-// Закрытие по клику вне
+// Закрытие по клику вне календаря
 document.addEventListener("click", (e) => {
   if (window.innerWidth > 768) return;
   const modal = document.getElementById("calendarModal");
@@ -311,6 +299,26 @@ function openTimePicker() {
   document.body.style.overflow = "hidden";
 
   if (telegramApp) telegramApp.hapticFeedback("light");
+}
+
+// ⭐ Обновление заголовка попапа выбора времени
+function updateTimePickerHeader(hours) {
+  const titleEl = document.querySelector(".time-picker-header h3");
+  if (!titleEl) return;
+
+  if (selectedTime) {
+    // Показываем диапазон: 16:00 — 19:00
+    const startHour = parseInt(selectedTime.split(":")[0]);
+    const endHour = startHour + hours;
+
+    const startStr = `${startHour.toString().padStart(2, "0")}:00`;
+    const endHourInDay = endHour % 24;
+    const endStr = `${endHourInDay.toString().padStart(2, "0")}:00`;
+
+    titleEl.innerHTML = `Выберите время <span class="time-picker-hours-badge">${startStr} — ${endStr}</span>`;
+  } else {
+    titleEl.innerHTML = `Выберите время <span class="time-picker-hours-badge">${hours} ч</span>`;
+  }
 }
 
 function renderDurationOptions() {
@@ -355,7 +363,10 @@ function selectDuration(hours) {
   );
   if (activeBtn) activeBtn.classList.add("active");
 
-  if (selectedTime) resetSelectedTime();
+  // Сбрасываем время при смене длительности
+  if (selectedTime) {
+    selectedTime = "";
+  }
 
   updatePrice();
 
@@ -363,7 +374,6 @@ function selectDuration(hours) {
   if (dateStr && dateStr.length === 10) {
     renderTimePicker(dateStr);
   } else {
-    // ⭐ Обновляем заголовок даже без даты
     updateTimePickerHeader(hours);
   }
 
@@ -389,7 +399,7 @@ function renderTimePicker(dateStr) {
   const dateInfo = document.getElementById("timePickerDate");
   if (dateInfo) dateInfo.textContent = dateStr;
 
-  // ⭐ Обновляем заголовок с промежутком
+  // ⭐ Обновляем заголовок с диапазоном (если выбрано время)
   updateTimePickerHeader(requestedHours);
 
   grid.innerHTML = "";
@@ -413,26 +423,6 @@ function renderTimePicker(dateStr) {
   }
 }
 
-// ⭐ Обновление заголовка попапа
-function updateTimePickerHeader(hours) {
-  const titleEl = document.querySelector(".time-picker-header h3");
-  if (!titleEl) return;
-
-  if (selectedTime) {
-    // Показываем диапазон: 16:00 — 19:00
-    const startHour = parseInt(selectedTime.split(":")[0]);
-    const endHour = startHour + hours;
-
-    const startStr = `${startHour.toString().padStart(2, "0")}:00`;
-    const endStr = `${endHour.toString().padStart(2, "0")}:00`;
-
-    titleEl.innerHTML = `Выберите время <span class="time-picker-hours-badge">${startStr} — ${endStr}</span>`;
-  } else {
-    // Просто часы
-    titleEl.innerHTML = `Выберите время <span class="time-picker-hours-badge">${hours} ч</span>`;
-  }
-}
-
 function selectTime(time) {
   selectedTime = time;
 
@@ -448,12 +438,18 @@ function selectTime(time) {
   const timeField = document.getElementById("timeField");
   if (timeField) timeField.classList.remove("error");
 
-  // ⭐ Обновляем заголовок с диапазоном перед закрытием
+  // ⭐ Обновляем заголовок с диапазоном
   const hoursSelect = document.getElementById("hoursSelect");
   const requestedHours = parseInt(hoursSelect.value) || 1;
   updateTimePickerHeader(requestedHours);
 
-  closeTimePicker(null, true);
+  // Помечаем выбранный слот в сетке
+  document.querySelectorAll(".time-slot").forEach((slot) => {
+    slot.classList.remove("selected");
+    if (slot.textContent === time && slot.classList.contains("free")) {
+      slot.classList.add("selected");
+    }
+  });
 
   if (telegramApp) telegramApp.hapticFeedback("light");
 }
@@ -472,10 +468,7 @@ function resetSelectedTime() {
   const hoursSelect = document.getElementById("hoursSelect");
   if (hoursSelect) {
     const requestedHours = parseInt(hoursSelect.value) || 1;
-    const titleEl = document.querySelector(".time-picker-header h3");
-    if (titleEl) {
-      titleEl.innerHTML = `Выберите время <span class="time-picker-hours-badge">${requestedHours} ч</span>`;
-    }
+    updateTimePickerHeader(requestedHours);
   }
 }
 
@@ -625,7 +618,7 @@ async function submitBooking() {
     hours = document.getElementById("hoursSelect").value;
   }
 
-  // ⭐ Финальная проверка перед отправкой (могли поменяться данные)
+  // Финальная проверка
   if (service.bookingType === "hourly" && date && time) {
     const startHour = parseInt(time.split(":")[0]);
     const availability = checkSlotsAvailability(
