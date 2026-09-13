@@ -388,27 +388,45 @@ a {
 }
 
 /* ===== Кнопки ===== */
-.back-btn {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  z-index: 100;
+.back-btn,
+.admin-back {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   color: var(--white);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   padding: 10px 20px;
   background: rgba(10, 10, 10, 0.7);
   border-radius: 30px;
   border: 1px solid var(--medium-gray);
   transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-decoration: none;
 }
 
-.back-btn:hover {
+.back-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  font-size: 14px;
+}
+
+.back-btn:hover,
+.admin-back:hover {
   border-color: var(--accent-purple);
   color: var(--accent-purple);
+}
+
+.admin-back {
+  margin-bottom: 20px;
+  align-self: flex-start;
+}
+
+.admin-back:hover {
+  transform: translateX(-3px);
 }
 
 .btn-book-service {
@@ -561,7 +579,6 @@ section {
   transition: all 0.3s;
 }
 
-/* ВАЖНО: белый текст в селектах */
 .form-group select,
 .form-group select option {
   color: var(--white);
@@ -623,12 +640,64 @@ section {
   border: 1px solid var(--accent-purple);
 }
 
-.price-summary strong {
+.price-summary > strong,
+.price-line strong {
   font-size: 24px;
   background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.price-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.price-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.price-old {
+  font-size: 14px;
+  color: var(--light-gray);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.price-discount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent-pink);
+  background: rgba(236, 72, 153, 0.12);
+  border: 1px solid rgba(236, 72, 153, 0.35);
+  padding: 4px 10px;
+  border-radius: 20px;
+  animation: discountPulse 2s ease-in-out infinite;
+}
+
+.price-discount i {
+  font-size: 10px;
+  color: var(--accent-pink);
+}
+
+@keyframes discountPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(236, 72, 153, 0);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
+  }
 }
 
 .btn-book {
@@ -757,7 +826,6 @@ section {
   box-shadow: var(--neon-mixed-glow);
 }
 
-/* ⭐ Полностью занятая дата */
 .calendar-day.booked {
   background: rgba(255, 68, 68, 0.15);
   border-color: rgba(255, 68, 68, 0.4);
@@ -776,7 +844,6 @@ section {
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-/* ⭐ Частично занятая дата (точка в правом верхнем углу) */
 .calendar-day.partially-booked {
   background: rgba(236, 72, 153, 0.15);
   border-color: rgba(236, 72, 153, 0.4);
@@ -1156,6 +1223,119 @@ section {
   letter-spacing: 1px;
 }
 
+/* Легенда времени */
+.time-picker-legend {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--medium-gray);
+}
+
+.time-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--light-gray);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.time-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+
+.time-legend-dot.free {
+  background: rgba(0, 200, 100, 0.15);
+  border: 1px solid #00c864;
+}
+
+.time-legend-dot.busy {
+  background: rgba(255, 68, 68, 0.15);
+  border: 1px solid #ff4444;
+}
+
+/* Селектор количества часов в попапе */
+.time-picker-duration {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 15px;
+  background: rgba(168, 85, 247, 0.06);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 14px;
+  margin-bottom: 16px;
+}
+
+.time-picker-duration-label {
+  font-size: 12px;
+  color: var(--light-gray);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-picker-duration-label i {
+  color: var(--accent-purple);
+  font-size: 14px;
+}
+
+.time-picker-duration-options {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-purple) transparent;
+}
+
+.time-picker-duration-options::-webkit-scrollbar {
+  height: 4px;
+}
+
+.time-picker-duration-options::-webkit-scrollbar-thumb {
+  background: var(--accent-purple);
+  border-radius: 2px;
+}
+
+.duration-btn {
+  flex-shrink: 0;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  color: var(--light-gray);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  min-width: 55px;
+  text-align: center;
+}
+
+.duration-btn:hover {
+  border-color: rgba(168, 85, 247, 0.4);
+  color: var(--white);
+  background: rgba(168, 85, 247, 0.08);
+}
+
+.duration-btn.active {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  border-color: transparent;
+  color: var(--white);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+  transform: scale(1.05);
+}
+
+/* Сетка часов */
 .time-picker-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
@@ -1170,10 +1350,12 @@ section {
 .time-picker-grid::-webkit-scrollbar {
   width: 5px;
 }
+
 .time-picker-grid::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.03);
   border-radius: 3px;
 }
+
 .time-picker-grid::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, var(--accent-purple), var(--accent-pink));
   border-radius: 3px;
@@ -1185,18 +1367,21 @@ section {
   font-size: 15px;
   font-weight: 700;
   text-align: center;
-  cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid transparent;
   letter-spacing: 1px;
   position: relative;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
 }
 
 .time-slot.free {
   background: rgba(0, 200, 100, 0.08);
   border-color: rgba(0, 200, 100, 0.25);
   color: #00e676;
+  cursor: pointer;
 }
 
 .time-slot.free:hover {
@@ -1209,6 +1394,27 @@ section {
 
 .time-slot.free:active {
   transform: translateY(-1px) scale(0.98);
+}
+
+.time-slot.busy {
+  background: rgba(255, 68, 68, 0.06);
+  border-color: rgba(255, 68, 68, 0.25);
+  color: #ff6666;
+  cursor: not-allowed;
+  opacity: 0.65;
+  position: relative;
+}
+
+.time-slot.busy::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 15%;
+  right: 15%;
+  height: 1.5px;
+  background: #ff4444;
+  transform: translateY(-50%) rotate(-6deg);
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
 }
 
 .time-slot.selected {
@@ -1996,6 +2202,7 @@ section {
 .promo-overlay.active {
   display: flex;
 }
+
 .promo-overlay.closing {
   animation: promoFadeOut 0.3s ease forwards;
 }
@@ -2106,11 +2313,13 @@ section {
     opacity: 1;
   }
 }
+
 @keyframes promoFadeOut {
   to {
     opacity: 0;
   }
 }
+
 @keyframes promoSlideDown {
   from {
     transform: translateY(-50px);
@@ -2121,6 +2330,7 @@ section {
     opacity: 1;
   }
 }
+
 @keyframes promoPulse {
   0%,
   100% {
@@ -2331,11 +2541,12 @@ section {
 
 .admin-date-input {
   display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 
 .admin-date-input input {
-  flex: 1;
+  width: 100%;
   padding: 12px 15px;
   background: var(--medium-gray);
   border: 1px solid #333;
@@ -2348,25 +2559,32 @@ section {
 .admin-date-input input:focus {
   outline: none;
   border-color: var(--accent-purple);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
 }
 
 .admin-date-input button {
-  padding: 12px 25px;
+  width: 100%;
+  padding: 14px;
   background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
   color: var(--white);
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   transition: all 0.3s;
-  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .admin-date-input button:hover {
   background: linear-gradient(135deg, var(--accent-dark), var(--accent-pink));
+  box-shadow: var(--neon-mixed-glow);
+  transform: translateY(-2px);
 }
 
 .admin-dates-list {
@@ -2539,7 +2757,7 @@ section {
   color: var(--accent-pink);
 }
 
-/* ===== Скрытая кнопка админа ===== */
+/* Скрытая кнопка админа */
 .admin-lock {
   display: inline-flex;
   align-items: center;
@@ -2568,29 +2786,37 @@ section {
   pointer-events: none;
 }
 
-.admin-back {
-  margin-bottom: 20px;
-  display: inline-flex;
+/* Кнопка удаления даты (корзина) */
+.admin-remove {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 68, 68, 0.12);
+  border: 1px solid rgba(255, 68, 68, 0.35);
+  color: #ff4444;
+  cursor: pointer;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  align-self: flex-start;
-  padding: 10px 20px;
-  background: rgba(10, 10, 10, 0.7);
-  border: 1px solid var(--medium-gray);
-  border-radius: 30px;
-  color: var(--white);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  text-decoration: none;
-  transition: all 0.3s;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
 }
 
-.admin-back:hover {
-  border-color: var(--accent-purple);
-  color: var(--accent-purple);
-  transform: translateX(-3px);
+.admin-remove:hover {
+  background: #ff4444;
+  border-color: #ff4444;
+  color: var(--white);
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+}
+
+.admin-remove:active {
+  transform: scale(0.95);
+}
+
+.admin-remove i {
+  pointer-events: none;
 }
 
 /* ===== Карта ===== */
@@ -2840,32 +3066,32 @@ section {
     font-size: 22px;
   }
 
-  /* Карусель на мобильных — уменьшена */
+  /* ⭐ Карусель на мобильных — УМЕНЬШЕНА */
   .gallery-slider {
-    height: 85vw;
+    height: 75vw;
     padding: 0;
     overflow: visible;
   }
 
   .gallery-slide {
-    width: 85vw;
-    height: 85vw;
+    width: 75vw;
+    height: 75vw;
   }
 
   .gallery-slide.pos-left {
-    transform: translate(calc(-50% - 60vw), -50%) scale(0.6);
+    transform: translate(calc(-50% - 52vw), -50%) scale(0.55);
   }
 
   .gallery-slide.pos-right {
-    transform: translate(calc(-50% + 60vw), -50%) scale(0.6);
+    transform: translate(calc(-50% + 52vw), -50%) scale(0.55);
   }
 
   .gallery-slide.pos-hidden-left {
-    transform: translate(calc(-50% - 85vw), -50%) scale(0.4);
+    transform: translate(calc(-50% - 75vw), -50%) scale(0.4);
   }
 
   .gallery-slide.pos-hidden-right {
-    transform: translate(calc(-50% + 85vw), -50%) scale(0.4);
+    transform: translate(calc(-50% + 75vw), -50%) scale(0.4);
   }
 
   .gallery-slide.pos-hidden-left,
@@ -2878,7 +3104,6 @@ section {
     font-size: 13px;
     padding: 15px;
   }
-
   .gallery-dot {
     width: 8px;
     height: 8px;
@@ -2911,7 +3136,6 @@ section {
     margin-top: 15px;
     padding-top: 12px;
   }
-
   .calendar-legend-item {
     font-size: 10px;
     gap: 6px;
@@ -2952,7 +3176,6 @@ section {
   .promo-overlay {
     padding-top: 60px;
   }
-
   .promo-modal {
     padding: 25px 20px;
     border-radius: 15px;
@@ -3074,6 +3297,11 @@ section {
     font-size: 11px;
     padding: 8px 15px;
   }
+  .admin-remove {
+    width: 34px;
+    height: 34px;
+    font-size: 13px;
+  }
 
   /* Поле даты на телефоне */
   .date-input-wrapper {
@@ -3112,7 +3340,7 @@ section {
     background: rgba(168, 85, 247, 0.15);
   }
 
-  /* Модалка выбора времени на телефоне */
+  /* Модалка выбора времени */
   .time-picker-overlay {
     padding: 15px;
     align-items: flex-end;
@@ -3161,6 +3389,7 @@ section {
     padding: 14px 6px;
     font-size: 14px;
     border-radius: 10px;
+    min-height: 46px;
   }
   .time-picker-empty i {
     font-size: 38px;
@@ -3170,6 +3399,45 @@ section {
   }
   .time-picker-empty span {
     font-size: 11px;
+  }
+
+  .time-picker-legend {
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+  }
+  .time-legend-item {
+    font-size: 10px;
+  }
+
+  .time-picker-duration {
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+  .time-picker-duration-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+  .duration-btn {
+    padding: 9px 14px;
+    font-size: 13px;
+    min-width: 48px;
+  }
+
+  /* Цена */
+  .price-line {
+    gap: 8px;
+  }
+  .price-old {
+    font-size: 13px;
+  }
+  .price-discount {
+    font-size: 10px;
+    padding: 3px 8px;
+    gap: 4px;
+  }
+  .price-discount i {
+    font-size: 9px;
   }
 
   /* Карта */
@@ -3222,500 +3490,4 @@ section {
 /* ===== Telegram Web App ===== */
 .telegram-app .hero {
   padding-top: 60px;
-}
-
-/* Легенда времени */
-.time-picker-legend {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 15px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid var(--medium-gray);
-}
-
-.time-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--light-gray);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.time-legend-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 4px;
-}
-
-.time-legend-dot.free {
-  background: rgba(0, 200, 100, 0.15);
-  border: 1px solid #00c864;
-}
-
-.time-legend-dot.busy {
-  background: rgba(255, 68, 68, 0.15);
-  border: 1px solid #ff4444;
-}
-
-/* Слот времени */
-.time-slot {
-  padding: 16px 8px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 700;
-  text-align: center;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 2px solid transparent;
-  letter-spacing: 1px;
-  position: relative;
-}
-
-/* Свободный час */
-.time-slot.free {
-  background: rgba(0, 200, 100, 0.08);
-  border-color: rgba(0, 200, 100, 0.25);
-  color: #00e676;
-  cursor: pointer;
-}
-
-.time-slot.free:hover {
-  background: rgba(0, 200, 100, 0.2);
-  border-color: #00e676;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 200, 100, 0.3);
-  color: #fff;
-}
-
-.time-slot.free:active {
-  transform: translateY(-1px) scale(0.98);
-}
-
-/* ⭐ Занятый час */
-.time-slot.busy {
-  background: rgba(255, 68, 68, 0.06);
-  border-color: rgba(255, 68, 68, 0.25);
-  color: #ff6666;
-  cursor: not-allowed;
-  opacity: 0.65;
-  position: relative;
-}
-
-.time-slot.busy::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 15%;
-  right: 15%;
-  height: 1.5px;
-  background: #ff4444;
-  transform: translateY(-50%) rotate(-6deg);
-  box-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
-}
-
-/* Выбранный час */
-.time-slot.selected {
-  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
-  border-color: transparent;
-  color: var(--white);
-  box-shadow:
-    0 0 25px rgba(168, 85, 247, 0.6),
-    0 0 50px rgba(236, 72, 153, 0.3);
-  transform: scale(1.05);
-  animation: timeSlotPulse 1.5s infinite;
-}
-
-@keyframes timeSlotPulse {
-  0%,
-  100% {
-    box-shadow:
-      0 0 25px rgba(168, 85, 247, 0.6),
-      0 0 50px rgba(236, 72, 153, 0.3);
-  }
-  50% {
-    box-shadow:
-      0 0 35px rgba(168, 85, 247, 0.9),
-      0 0 70px rgba(236, 72, 153, 0.5);
-  }
-}
-
-/* Мобильная адаптация */
-@media (max-width: 768px) {
-  .time-picker-legend {
-    gap: 12px;
-    margin-bottom: 12px;
-    padding-bottom: 12px;
-  }
-
-  .time-legend-item {
-    font-size: 10px;
-  }
-
-  .time-slot {
-    padding: 14px 6px;
-    font-size: 14px;
-    border-radius: 10px;
-  }
-}
-
-/* ===== Селектор количества часов в попапе ===== */
-.time-picker-duration {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 14px 15px;
-  background: rgba(168, 85, 247, 0.06);
-  border: 1px solid rgba(168, 85, 247, 0.2);
-  border-radius: 14px;
-  margin-bottom: 16px;
-}
-
-.time-picker-duration-label {
-  font-size: 12px;
-  color: var(--light-gray);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.time-picker-duration-label i {
-  color: var(--accent-purple);
-  font-size: 14px;
-}
-
-.time-picker-duration-options {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--accent-purple) transparent;
-}
-
-.time-picker-duration-options::-webkit-scrollbar {
-  height: 4px;
-}
-
-.time-picker-duration-options::-webkit-scrollbar-thumb {
-  background: var(--accent-purple);
-  border-radius: 2px;
-}
-
-.duration-btn {
-  flex-shrink: 0;
-  padding: 10px 18px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 2px solid rgba(255, 255, 255, 0.08);
-  color: var(--light-gray);
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  min-width: 55px;
-  text-align: center;
-}
-
-.duration-btn:hover {
-  border-color: rgba(168, 85, 247, 0.4);
-  color: var(--white);
-  background: rgba(168, 85, 247, 0.08);
-}
-
-.duration-btn.active {
-  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
-  border-color: transparent;
-  color: var(--white);
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
-  transform: scale(1.05);
-}
-
-/* Мобильная адаптация */
-@media (max-width: 768px) {
-  .time-picker-duration {
-    padding: 12px 14px;
-    margin-bottom: 12px;
-  }
-
-  .time-picker-duration-label {
-    font-size: 11px;
-    letter-spacing: 1px;
-  }
-
-  .duration-btn {
-    padding: 9px 14px;
-    font-size: 13px;
-    min-width: 48px;
-  }
-}
-
-/* Кнопка удаления даты (корзина) */
-.admin-remove {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(255, 68, 68, 0.12);
-  border: 1px solid rgba(255, 68, 68, 0.35);
-  color: #ff4444;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  flex-shrink: 0;
-}
-
-.admin-remove:hover {
-  background: #ff4444;
-  border-color: #ff4444;
-  color: var(--white);
-  transform: scale(1.1);
-  box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
-}
-
-.admin-remove:active {
-  transform: scale(0.95);
-}
-
-.admin-remove i {
-  pointer-events: none;
-}
-
-/* Мобильная адаптация */
-@media (max-width: 768px) {
-  .admin-remove {
-    width: 34px;
-    height: 34px;
-    font-size: 13px;
-  }
-}
-
-.admin-date-input {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.admin-date-input input {
-  width: 100%;
-  padding: 12px 15px;
-  background: var(--medium-gray);
-  border: 1px solid #333;
-  color: var(--white);
-  border-radius: 8px;
-  font-size: 16px;
-  letter-spacing: 1px;
-}
-
-.admin-date-input input:focus {
-  outline: none;
-  border-color: var(--accent-purple);
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
-}
-
-.admin-date-input button {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
-  color: var(--white);
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  transition: all 0.3s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.admin-date-input button:hover {
-  background: linear-gradient(135deg, var(--accent-dark), var(--accent-pink));
-  box-shadow: var(--neon-mixed-glow);
-  transform: translateY(-2px);
-}
-
-.time-slot {
-  padding: 16px 8px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 700;
-  text-align: center;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 2px solid transparent;
-  letter-spacing: 1px;
-  position: relative;
-  /* ⭐ Вот это — центрирует цифры */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 52px;
-}
-@media (max-width: 768px) {
-  .time-slot {
-    padding: 14px 6px;
-    font-size: 14px;
-    border-radius: 10px;
-    min-height: 46px;
-  }
-}
-
-.admin-login .admin-back {
-  margin-bottom: 20px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: rgba(10, 10, 10, 0.7);
-  border: 1px solid var(--medium-gray);
-  border-radius: 30px;
-  color: var(--white);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  text-decoration: none;
-  transition: all 0.3s;
-}
-
-.admin-login .admin-back:hover {
-  border-color: var(--accent-purple);
-  color: var(--accent-purple);
-  transform: translateX(-3px);
-}
-
-@media (max-width: 768px) {
-  .admin-login .admin-back {
-    font-size: 11px;
-    padding: 8px 15px;
-  }
-}
-
-.discount-badge {
-  display: none;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 15px;
-  background: rgba(168, 85, 247, 0.1);
-  border: 1px dashed var(--accent-purple);
-  border-radius: 10px;
-  margin: 15px 0;
-}
-
-.discount-badge .original-price {
-  font-size: 14px;
-  color: var(--light-gray);
-  text-decoration: line-through;
-}
-
-.discount-badge .discount-label {
-  font-size: 12px;
-  color: var(--accent-pink);
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-/* Обёртка для цены */
-.price-summary .price-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-
-/* Бейдж скидки */
-.price-discount {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--accent-pink);
-  background: rgba(236, 72, 153, 0.12);
-  border: 1px solid rgba(236, 72, 153, 0.35);
-  padding: 4px 10px;
-  border-radius: 20px;
-  animation: discountPulse 2s ease-in-out infinite;
-}
-
-.price-discount i {
-  font-size: 10px;
-  color: var(--accent-pink);
-}
-
-@keyframes discountPulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 rgba(236, 72, 153, 0);
-  }
-  50% {
-    box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
-  }
-}
-
-/* Мобильная адаптация */
-@media (max-width: 768px) {
-  .price-discount {
-    font-size: 10px;
-    padding: 3px 8px;
-    gap: 4px;
-  }
-
-  .price-discount i {
-    font-size: 9px;
-  }
-}
-
-.price-old {
-  font-size: 14px;
-  color: var(--light-gray);
-  text-decoration: line-through;
-  opacity: 0.7;
-}
-
-/* Обёртка для цены */
-.price-summary .price-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-
-/* Строка: старая цена + новая цена */
-.price-line {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* Зачёркнутая старая цена */
-.price-old {
-  font-size: 14px;
-  color: var(--light-gray);
-  text-decoration: line-through;
-  opacity: 0.7;
-}
-
-/* Мобильная адаптация */
-@media (max-width: 768px) {
-  .price-line {
-    gap: 8px;
-  }
-
-  .price-old {
-    font-size: 13px;
-  }
 }
