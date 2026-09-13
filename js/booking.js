@@ -615,6 +615,12 @@ function closeSuccess() {
 document.addEventListener("DOMContentLoaded", async () => {
   renderCalendar();
 
+  if (selectedServiceId) {
+    document.getElementById("serviceSelect").value = selectedServiceId;
+    updatePrice();
+    onServiceSelect(); // ⭐ ЭТО ОБЯЗАТЕЛЬНО
+  }
+
   // === ИМЯ ИЗ TELEGRAM ===
   if (telegramApp && telegramApp.isTelegram) {
     const tgName = telegramApp.getUserName();
