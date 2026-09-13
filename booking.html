@@ -90,7 +90,16 @@
 
             <div class="price-summary" id="priceSummary" style="display: none">
               <span>Итого:</span>
-              <strong id="totalPrice">0 ₽</strong>
+              <div class="price-right">
+                <strong id="totalPrice">0 ₽</strong>
+                <span
+                  class="price-discount"
+                  id="priceDiscount"
+                  style="display: none"
+                >
+                  <i class="fas fa-tag"></i> Скидка 30% на первый заказ
+                </span>
+              </div>
             </div>
 
             <button class="btn-book" onclick="submitBooking()">

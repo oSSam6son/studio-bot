@@ -406,6 +406,7 @@ function updatePrice() {
   const hours = parseInt(hoursSelect.value) || 1;
   const totalPriceElement = document.getElementById("totalPrice");
   const priceSummary = document.getElementById("priceSummary");
+  const priceDiscount = document.getElementById("priceDiscount");
   const service = services.find((s) => s.id === selectedId);
 
   if (service) {
@@ -417,13 +418,26 @@ function updatePrice() {
         originalPrice * (1 - DISCOUNT_PERCENT / 100),
       );
       totalPriceElement.textContent = `${discountedPrice.toLocaleString()} ₽`;
+
+      // ⭐ Показать бейдж скидки
+      if (priceDiscount) {
+        priceDiscount.style.display = "inline-flex";
+      }
     } else {
       totalPriceElement.textContent = `${originalPrice.toLocaleString()} ₽`;
+
+      if (priceDiscount) {
+        priceDiscount.style.display = "none";
+      }
     }
+
     priceSummary.style.display = "flex";
   } else {
     totalPriceElement.textContent = "0 ₽";
     priceSummary.style.display = "none";
+    if (priceDiscount) {
+      priceDiscount.style.display = "none";
+    }
   }
 }
 
