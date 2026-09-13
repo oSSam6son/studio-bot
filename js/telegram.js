@@ -42,15 +42,14 @@ class TelegramIntegration {
 
   getUserName() {
     if (!this.isTelegram) return null;
-
     const user = this.tg.initDataUnsafe?.user;
     if (!user) return null;
 
-    // Приоритет: first_name + last_name → иначе @username
-    const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
-
-    if (fullName) return fullName;
+    // Приоритет: @username → иначе имя + фамилия
     if (user.username) return `@${user.username}`;
+
+    const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
+    if (fullName) return fullName;
 
     return "Клиент";
   }
