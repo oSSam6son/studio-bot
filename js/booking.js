@@ -444,14 +444,7 @@ async function sendToTelegram(bookingData) {
 }
 
 async function loadBookedDatesInBackground() {
-  const cached = localStorage.getItem("bookedSlots");
-  if (cached) {
-    try {
-      bookedSlots = JSON.parse(cached);
-      renderCalendar();
-    } catch (e) {}
-  }
-
+  // ⭐ Загружаем с сервера
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
@@ -464,10 +457,22 @@ async function loadBookedDatesInBackground() {
     const data = await response.json();
     bookedSlots = data.bookings || {};
 
+    // Сохраняем кэш — только после успешной загрузки
     localStorage.setItem("bookedSlots", JSON.stringify(bookedSlots));
     renderCalendar();
+
+    console.log("bookedSlots загружен:", bookedSlots); // для отладки
   } catch (error) {
     console.warn("Ошибка загрузки дат:", error.message);
+
+    // Fallback: если сеть упала — берём из кэша
+    const cached = localStorage.getItem("bookedSlots");
+    if (cached) {
+      try {
+        bookedSlots = JSON.parse(cached);
+        renderCalendar();
+      } catch (e) {}
+    }
   }
 }
 
