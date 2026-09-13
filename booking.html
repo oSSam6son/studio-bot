@@ -36,7 +36,7 @@
           <div class="booking-form">
             <div class="form-group">
               <label>Выберите услугу</label>
-              <select id="serviceSelect" onchange="updatePrice()">
+              <select id="serviceSelect" onchange="onServiceSelect()">
                 <option value="">Выберите услугу...</option>
                 <option value="recording">Запись вокала — 2 500 ₽/час</option>
                 <option value="mixing">Сведение — 5 000 ₽</option>
@@ -48,31 +48,35 @@
               </select>
             </div>
 
-            <div class="form-group">
-              <label>Дата (ДД.ММ.ГГ)</label>
+            <!-- Дата (показывается для hourly и date-only) -->
+            <div class="form-group" id="dateField" style="display: none">
+              <label>Дата</label>
               <div class="date-input-wrapper">
                 <input
                   type="text"
                   id="bookingDate"
-                  placeholder="ДД.ММ.ГГ"
-                  maxlength="10"
-                  oninput="formatDateInput(this)"
+                  placeholder="Выберите дату"
+                  readonly
+                  onclick="openCalendar()"
                 />
-                <button class="calendar-toggle" onclick="toggleCalendar()">
+                <button class="calendar-toggle" onclick="toggleCalendar(event)">
                   <i class="fas fa-calendar-alt"></i>
                 </button>
               </div>
             </div>
 
-            <div class="form-group" id="timeField">
+            <!-- Время (только для hourly) -->
+            <div class="form-group" id="timeField" style="display: none">
               <label>Время начала</label>
               <div class="custom-time-picker" onclick="openTimePicker()">
                 <span id="timeDisplay">Выберите время...</span>
                 <i class="fas fa-clock"></i>
               </div>
               <input type="hidden" id="timeSelect" value="" />
-              <input type="hidden" id="hoursSelect" value="1" />
             </div>
+
+            <!-- Часы (скрыто, если defaultHours) -->
+            <input type="hidden" id="hoursSelect" value="1" />
 
             <div class="form-group" id="nameField">
               <label>Ваш Username в ТГ</label>
@@ -150,7 +154,7 @@
                 </div>
               </div>
 
-              <button class="calendar-close" onclick="toggleCalendar()">
+              <button class="calendar-close" onclick="toggleCalendar(event)">
                 <i class="fas fa-check"></i> Готово
               </button>
             </div>
@@ -194,8 +198,8 @@
           <span>Дата: <strong id="timePickerDate">—</strong></span>
         </div>
 
-        <!-- ⭐ Селектор количества часов -->
-        <div class="time-picker-duration">
+        <!-- Селектор количества часов -->
+        <div class="time-picker-duration" id="durationWrapper">
           <span class="time-picker-duration-label">
             <i class="fas fa-hourglass-half"></i> Сколько часов:
           </span>
@@ -230,7 +234,7 @@
         </div>
         <h3 class="success-title">Заявка отправлена!</h3>
         <p class="success-text">
-          Мы получили вашу заявку на <strong id="successDate"></strong>.<br />
+          Мы получили вашу заявку.<br />
           Ожидайте подтверждения от администратора — мы свяжемся с вами в
           ближайшее время.
         </p>

@@ -6,6 +6,7 @@ const services = [
     description: "Профессиональная запись с звукорежиссёром",
     price: 2500,
     icon: "fa-microphone",
+    bookingType: "hourly",
   },
   {
     id: "mixing",
@@ -13,6 +14,7 @@ const services = [
     description: "Многоканальное сведение трека",
     price: 5000,
     icon: "fa-sliders",
+    bookingType: "none",
   },
   {
     id: "mastering",
@@ -20,6 +22,7 @@ const services = [
     description: "Финальная обработка трека",
     price: 3000,
     icon: "fa-wave-square",
+    bookingType: "none",
   },
   {
     id: "full",
@@ -27,6 +30,8 @@ const services = [
     description: "Запись + сведение + мастеринг",
     price: 15000,
     icon: "fa-music",
+    bookingType: "hourly",
+    defaultHours: 2,
   },
   {
     id: "rehearsal",
@@ -34,17 +39,20 @@ const services = [
     description: "Аренда студии для репетиции",
     price: 1500,
     icon: "fa-guitar",
+    bookingType: "hourly",
   },
 ];
 
 // ===== НАСТРОЙКИ =====
 const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
 const DISCOUNT_PERCENT = 30;
+const TOTAL_HOURS = 24; // 00:00 - 23:00
 
 let currentDate = new Date();
 let selectedDate = null;
 let selectedTime = "";
 let bookedSlots = {}; // { "23.09.2026": ["12:00", "13:00"] }
+let currentBookingType = "hourly"; // hourly | none
 
 const urlParams = new URLSearchParams(window.location.search);
 const selectedServiceId = urlParams.get("service");
@@ -52,6 +60,7 @@ const selectedServiceId = urlParams.get("service");
 // ===== ВАЛИДАЦИЯ =====
 function validateField(fieldId, condition) {
   const field = document.getElementById(fieldId);
+  if (!field) return true;
   const formGroup = field.closest(".form-group");
   if (!condition) {
     formGroup.classList.add("error");
@@ -69,41 +78,27 @@ function clearErrorOnInput(fieldId) {
   field.addEventListener("change", clear);
 }
 
-// ===== ДАТА =====
-function formatDateInput(input) {
-  let value = input.value.replace(/\D/g, "");
-  if (value.length > 8) value = value.slice(0, 8);
-  if (value.length > 4) value = value.slice(0, 4) + "." + value.slice(4);
-  if (value.length > 2) value = value.slice(0, 2) + "." + value.slice(2);
-  input.value = value;
-  if (value.length === 10) validateManualDate(value);
+// ===== ВРЕМЯ =====
+function getAllHoursRange() {
+  const hours = [];
+  for (let h = 0; h < 24; h++) {
+    hours.push(`${h.toString().padStart(2, "0")}:00`);
+  }
+  return hours;
 }
 
-function validateManualDate(dateStr) {
-  const [day, month, year] = dateStr.split(".").map(Number);
-  const date = new Date(year, month - 1, day);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const field = document.getElementById("bookingDate");
-  if (date < today || year > 2026) {
-    field.closest(".form-group").classList.add("error");
-    field.value = "";
-    return;
+// ===== ДАТА =====
+function openCalendar() {
+  // На мобильном — открывает модалку
+  // На десктопе — модалка уже показана (справа)
+  if (window.innerWidth <= 768) {
+    const modal = document.getElementById("calendarModal");
+    if (modal) {
+      modal.classList.add("active");
+      renderCalendar();
+    }
   }
-
-  // Проверяем, полностью ли занят день
-  const occupiedHours = bookedSlots[dateStr] || [];
-  if (occupiedHours.length >= 13) {
-    field.closest(".form-group").classList.add("error");
-    field.value = "";
-    showError("Эта дата полностью занята");
-    return;
-  }
-
-  selectedDate = date;
-  field.closest(".form-group").classList.remove("error");
-  renderCalendar();
+  if (telegramApp) telegramApp.hapticFeedback("light");
 }
 
 // ===== КАЛЕНДАРЬ =====
@@ -153,7 +148,7 @@ function renderCalendar() {
 
     const dateStr = `${day.toString().padStart(2, "0")}.${(month + 1).toString().padStart(2, "0")}.${year}`;
     const occupiedHours = bookedSlots[dateStr] || [];
-    const isFullyBooked = occupiedHours.length >= 13;
+    const isFullyBooked = occupiedHours.length >= TOTAL_HOURS;
     const isPartiallyBooked = occupiedHours.length > 0 && !isFullyBooked;
     const isPast = date < today;
     const isFutureLimit = year > 2026 || (year === 2026 && month > 11);
@@ -198,8 +193,11 @@ function selectDate(date) {
   renderCalendar();
 
   const modal = document.getElementById("calendarModal");
-  if (modal && modal.classList.contains("active"))
-    modal.classList.remove("active");
+  if (modal && modal.classList.contains("active")) {
+    if (window.innerWidth <= 768) {
+      modal.classList.remove("active");
+    }
+  }
 
   if (telegramApp) telegramApp.hapticFeedback("light");
 }
@@ -212,15 +210,22 @@ function changeMonth(direction) {
   renderCalendar();
 }
 
-function toggleCalendar() {
+function toggleCalendar(event) {
+  if (event) event.stopPropagation();
   const modal = document.getElementById("calendarModal");
   if (!modal) return;
-  modal.classList.toggle("active");
-  if (modal.classList.contains("active")) renderCalendar();
+
+  // На мобильном — переключаем модалку
+  if (window.innerWidth <= 768) {
+    modal.classList.toggle("active");
+    if (modal.classList.contains("active")) renderCalendar();
+  }
+  // На десктопе — ничего (календарь уже справа)
 }
 
-// Закрытие по клику вне календаря
+// Закрытие по клику вне календаря (только на мобильном)
 document.addEventListener("click", (e) => {
+  if (window.innerWidth > 768) return;
   const modal = document.getElementById("calendarModal");
   if (!modal || !modal.classList.contains("active")) return;
 
@@ -229,8 +234,9 @@ document.addEventListener("click", (e) => {
 
   const isClickOutside = !modalContent.contains(e.target);
   const isToggleBtn = e.target.closest(".calendar-toggle");
+  const isDateInput = e.target.closest(".date-input-wrapper");
 
-  if (isClickOutside && !isToggleBtn) {
+  if (isClickOutside && !isToggleBtn && !isDateInput) {
     modal.classList.remove("active");
   }
 });
@@ -266,7 +272,20 @@ function openTimePicker() {
 
 function renderDurationOptions() {
   const container = document.getElementById("durationOptions");
-  if (!container) return;
+  const wrapper = document.getElementById("durationWrapper");
+  if (!container || !wrapper) return;
+
+  const serviceId = document.getElementById("serviceSelect").value;
+  const service = services.find((s) => s.id === serviceId);
+
+  // Если defaultHours — скрываем селектор, ставим значение
+  if (service && service.defaultHours) {
+    wrapper.style.display = "none";
+    document.getElementById("hoursSelect").value = service.defaultHours;
+    return;
+  }
+
+  wrapper.style.display = "flex";
 
   const durations = [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12];
   const current = parseInt(document.getElementById("hoursSelect").value) || 1;
@@ -296,7 +315,7 @@ function selectDuration(hours) {
   );
   if (activeBtn) activeBtn.classList.add("active");
 
-  // Сбрасываем выбранное время (могло стать недоступным)
+  // Сбрасываем выбранное время
   if (selectedTime) {
     resetSelectedTime();
   }
@@ -304,7 +323,7 @@ function selectDuration(hours) {
   // Обновляем цену
   updatePrice();
 
-  // Перерисовываем сетку часов (занятые слоты пересчитаются)
+  // Перерисовываем сетку часов
   const dateStr = document.getElementById("bookingDate").value;
   if (dateStr && dateStr.length === 10) {
     renderTimePicker(dateStr);
@@ -336,14 +355,14 @@ function renderTimePicker(dateStr) {
 
   grid.innerHTML = "";
 
-  for (let hour = 10; hour <= 22; hour++) {
+  for (let hour = 0; hour < 24; hour++) {
     const time = `${hour.toString().padStart(2, "0")}:00`;
 
     // Проверяем, можно ли забронировать
     let canBook = true;
 
-    // Хватает ли времени до конца дня
-    if (hour + requestedHours > 23) {
+    // Хватает ли времени до конца суток
+    if (hour + requestedHours > 24) {
       canBook = false;
     } else {
       for (let i = 0; i < requestedHours; i++) {
@@ -398,55 +417,51 @@ function resetSelectedTime() {
   const timeInput = document.getElementById("timeSelect");
   if (timeInput) timeInput.value = "";
 }
+
 // ===== ЦЕНА =====
 function updatePrice() {
   const serviceSelect = document.getElementById("serviceSelect");
   const hoursSelect = document.getElementById("hoursSelect");
   const selectedId = serviceSelect.value;
-  const hours = parseInt(hoursSelect.value) || 1;
+  const service = services.find((s) => s.id === selectedId);
   const totalPriceElement = document.getElementById("totalPrice");
   const priceSummary = document.getElementById("priceSummary");
   const priceDiscount = document.getElementById("priceDiscount");
   const priceOld = document.getElementById("priceOld");
-  const service = services.find((s) => s.id === selectedId);
 
-  if (service) {
-    const originalPrice = service.price * hours;
-    const discountActive = isDiscountActive();
-
-    if (discountActive) {
-      if (priceOld) {
-        priceOld.textContent = `${originalPrice.toLocaleString()} ₽`;
-        priceOld.style.display = "block";
-      }
-      const discountedPrice = Math.round(
-        originalPrice * (1 - DISCOUNT_PERCENT / 100),
-      );
-      totalPriceElement.textContent = `${discountedPrice.toLocaleString()} ₽`;
-
-      // ⭐ Показать бейдж скидки
-      if (priceDiscount) {
-        priceDiscount.style.display = "inline-flex";
-      }
-    } else {
-      totalPriceElement.textContent = `${originalPrice.toLocaleString()} ₽`;
-
-      if (priceDiscount) {
-        priceDiscount.style.display = "none";
-      }
-    }
-
-    priceSummary.style.display = "flex";
-  } else {
-    if (priceOld) {
-      priceOld.style.display = "none";
-    }
-    totalPriceElement.textContent = "0 ₽";
-    priceSummary.style.display = "none";
-    if (priceDiscount) {
-      priceDiscount.style.display = "none";
-    }
+  if (!service) {
+    if (priceOld) priceOld.style.display = "none";
+    if (totalPriceElement) totalPriceElement.textContent = "0 ₽";
+    if (priceSummary) priceSummary.style.display = "none";
+    if (priceDiscount) priceDiscount.style.display = "none";
+    return;
   }
+
+  // Для услуги без выбора часов — цена фиксированная
+  let hours = parseInt(hoursSelect.value) || 1;
+  if (service.bookingType === "none") hours = 1;
+  if (service.defaultHours) hours = service.defaultHours;
+
+  const originalPrice = service.price * hours;
+  const discountActive = isDiscountActive();
+
+  if (discountActive) {
+    if (priceOld) {
+      priceOld.textContent = `${originalPrice.toLocaleString()} ₽`;
+      priceOld.style.display = "inline";
+    }
+    const discountedPrice = Math.round(
+      originalPrice * (1 - DISCOUNT_PERCENT / 100),
+    );
+    totalPriceElement.textContent = `${discountedPrice.toLocaleString()} ₽`;
+    if (priceDiscount) priceDiscount.style.display = "inline-flex";
+  } else {
+    if (priceOld) priceOld.style.display = "none";
+    totalPriceElement.textContent = `${originalPrice.toLocaleString()} ₽`;
+    if (priceDiscount) priceDiscount.style.display = "none";
+  }
+
+  priceSummary.style.display = "flex";
 }
 
 // ===== ОТПРАВКА =====
@@ -466,7 +481,6 @@ async function sendToTelegram(bookingData) {
 }
 
 async function loadBookedDatesInBackground() {
-  // ⭐ Загружаем с сервера
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
@@ -479,15 +493,13 @@ async function loadBookedDatesInBackground() {
     const data = await response.json();
     bookedSlots = data.bookings || {};
 
-    // Сохраняем кэш — только после успешной загрузки
     localStorage.setItem("bookedSlots", JSON.stringify(bookedSlots));
     renderCalendar();
 
-    console.log("bookedSlots загружен:", bookedSlots); // для отладки
+    console.log("bookedSlots загружен:", bookedSlots);
   } catch (error) {
     console.warn("Ошибка загрузки дат:", error.message);
 
-    // Fallback: если сеть упала — берём из кэша
     const cached = localStorage.getItem("bookedSlots");
     if (cached) {
       try {
@@ -499,21 +511,38 @@ async function loadBookedDatesInBackground() {
 }
 
 async function submitBooking() {
-  const date = document.getElementById("bookingDate").value;
-  const time = document.getElementById("timeSelect").value;
-  const hours = document.getElementById("hoursSelect").value;
+  const serviceId = document.getElementById("serviceSelect").value;
+  const phone = document.getElementById("userPhone").value;
   const name =
     document.getElementById("userName").value ||
     (telegramApp?.isTelegram ? telegramApp.getUserName() : "") ||
     "";
-  const phone = document.getElementById("userPhone").value;
-  const serviceId = document.getElementById("serviceSelect").value;
 
+  const service = services.find((s) => s.id === serviceId);
+
+  // ===== ВАЛИДАЦИЯ =====
   let isValid = true;
+
   if (!validateField("serviceSelect", serviceId)) isValid = false;
-  if (!validateField("bookingDate", date && date.length === 10))
-    isValid = false;
-  if (!validateField("timeField", time && time.length > 0)) isValid = false;
+
+  // Если услуга требует дату (hourly)
+  if (service && service.bookingType !== "none") {
+    const date = document.getElementById("bookingDate").value;
+    if (!validateField("bookingDate", date && date.length === 10))
+      isValid = false;
+  }
+
+  // Если услуга hourly и БЕЗ defaultHours — требуется время
+  if (service && service.bookingType === "hourly" && !service.defaultHours) {
+    const time = document.getElementById("timeSelect").value;
+    if (!validateField("timeField", time && time.length > 0)) isValid = false;
+  }
+
+  // Если услуга hourly с defaultHours — время НЕ требуется, но занимается 2ч с указанного времени
+  if (service && service.bookingType === "hourly" && service.defaultHours) {
+    const time = document.getElementById("timeSelect").value;
+    if (!validateField("timeField", time && time.length > 0)) isValid = false;
+  }
 
   const nameField = document.getElementById("nameField");
   const isNameFieldVisible =
@@ -535,19 +564,33 @@ async function submitBooking() {
     return;
   }
 
-  const service = services.find((s) => s.id === serviceId);
+  // ===== СОБИРАЕМ ДАННЫЕ =====
+  const date = document.getElementById("bookingDate").value || "";
+  const time = document.getElementById("timeSelect").value || "";
+
+  let hours = "1";
+  if (service.bookingType === "none") {
+    hours = "0";
+  } else if (service.defaultHours) {
+    hours = String(service.defaultHours);
+  } else {
+    hours = document.getElementById("hoursSelect").value;
+  }
+
   const hoursNum = parseInt(hours);
-  const originalPrice = service.price * hoursNum;
-  const discountActive = localStorage.getItem("discountActive") === "true";
+  const originalPrice = service.price * (hoursNum || 1);
+  const discountActive = isDiscountActive();
   const finalPrice = discountActive
     ? Math.round(originalPrice * (1 - DISCOUNT_PERCENT / 100))
     : originalPrice;
 
   const bookingData = {
     userId: telegramApp?.getUserId() || null,
-    name: name || (telegramApp ? telegramApp.getUserName() : "Клиент"),
+    name: name || "Клиент",
     phone,
     serviceName: service.name,
+    serviceId: service.id,
+    bookingType: service.bookingType,
     date,
     time,
     hours,
@@ -571,7 +614,7 @@ async function submitBooking() {
     if (telegramApp && telegramApp.isTelegram) {
       telegramApp.hapticFeedback("success");
     }
-    showSuccess(date);
+    showSuccess(date || service.name);
     clearForm();
   } else {
     showError("Не удалось отправить. Попробуйте позже.");
@@ -591,6 +634,7 @@ function showError(message) {
 function clearForm() {
   document.getElementById("serviceSelect").value = "";
   document.getElementById("bookingDate").value = "";
+  document.getElementById("timeSelect").value = "";
   document.getElementById("hoursSelect").value = "1";
   document.getElementById("userPhone").value = "";
 
@@ -603,31 +647,73 @@ function clearForm() {
 
   selectedDate = null;
   updatePrice();
+
+  // Скрываем поля даты/времени
+  const dateField = document.getElementById("dateField");
+  const timeField = document.getElementById("timeField");
+  if (dateField) dateField.style.display = "none";
+  if (timeField) timeField.style.display = "none";
 }
 
 function onServiceSelect() {
   const serviceId = document.getElementById("serviceSelect").value;
   const bookingWrapper = document.getElementById("bookingWrapper");
+  const dateField = document.getElementById("dateField");
+  const timeField = document.getElementById("timeField");
+  const hoursSelect = document.getElementById("hoursSelect");
 
   if (!bookingWrapper) return;
 
-  if (serviceId) {
-    bookingWrapper.classList.add("has-calendar");
-    renderCalendar();
-    updatePrice();
-    if (telegramApp) telegramApp.hapticFeedback("light");
-  } else {
+  if (!serviceId) {
+    // Ничего не выбрано — скрываем всё
     bookingWrapper.classList.remove("has-calendar");
+    if (dateField) dateField.style.display = "none";
+    if (timeField) timeField.style.display = "none";
+    resetSelectedTime();
+    updatePrice();
+    return;
   }
+
+  const service = services.find((s) => s.id === serviceId);
+  if (!service) return;
+
+  currentBookingType = service.bookingType;
+
+  // Сбрасываем выбранные дату/время при смене услуги
+  document.getElementById("bookingDate").value = "";
+  resetSelectedTime();
+  selectedDate = null;
+
+  if (service.bookingType === "none") {
+    // Услуга без даты/времени — скрываем всё
+    bookingWrapper.classList.remove("has-calendar");
+    if (dateField) dateField.style.display = "none";
+    if (timeField) timeField.style.display = "none";
+  } else if (service.bookingType === "hourly") {
+    // Показываем дату и время
+    if (dateField) dateField.style.display = "block";
+    if (timeField) timeField.style.display = "block";
+    bookingWrapper.classList.add("has-calendar");
+
+    // Если есть defaultHours — ставим их
+    if (service.defaultHours) {
+      hoursSelect.value = service.defaultHours;
+    } else {
+      hoursSelect.value = "1";
+    }
+  }
+
+  renderCalendar();
+  updatePrice();
+
+  if (telegramApp) telegramApp.hapticFeedback("light");
 }
 
 // ===== УВЕДОМЛЕНИЕ ОБ УСПЕХЕ =====
-function showSuccess(date) {
+function showSuccess(text) {
   const overlay = document.getElementById("successOverlay");
-  const dateSpan = document.getElementById("successDate");
   if (!overlay) return;
 
-  if (dateSpan) dateSpan.textContent = date;
   overlay.classList.add("active");
   document.body.style.overflow = "hidden";
 }
@@ -677,9 +763,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // Если услуга пришла в URL
   if (selectedServiceId) {
     document.getElementById("serviceSelect").value = selectedServiceId;
-    updatePrice();
     onServiceSelect();
   }
 
@@ -693,25 +779,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (phoneInput) {
     phoneInput.addEventListener("input", (e) => {
       const input = e.target;
-
-      // Оставляем только цифры
       let digits = input.value.replace(/\D/g, "");
 
-      // Убираем ведущую 7 или 8
       if (digits.startsWith("7") || digits.startsWith("8")) {
         digits = digits.slice(1);
       }
 
       digits = digits.slice(0, 10);
 
-      // Если цифр нет — поле пустое
       if (digits.length === 0) {
         input.value = "";
         input.closest(".form-group")?.classList.remove("error");
         return;
       }
 
-      // Форматируем
       let formatted = "+7";
       if (digits.length > 0) formatted += " (" + digits.slice(0, 3);
       if (digits.length >= 3) formatted += ")";
@@ -723,28 +804,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       input.setSelectionRange(formatted.length, formatted.length);
       input.closest(".form-group")?.classList.remove("error");
     });
-
-    // ⭐ При Backspace — стираем цифру принудительно
-    phoneInput.addEventListener("keydown", (e) => {
-      if (e.key === "Backspace") {
-        const input = e.target;
-        const cursorPos = input.selectionStart;
-
-        // Если курсор стоит сразу после скобки или дефиса — сдвигаем на 1 назад
-        const charBefore = input.value[cursorPos - 1];
-        if (charBefore && /[\s\-\(\)]/.test(charBefore)) {
-          e.preventDefault();
-          // Удаляем символ перед курсором
-          input.value =
-            input.value.slice(0, cursorPos - 2) +
-            input.value.slice(cursorPos - 1);
-          // Триггерим input для переформатирования
-          input.dispatchEvent(new Event("input", { bubbles: true }));
-        }
-      }
-    });
   }
 
-  // ⭐ Фоновая загрузка дат — ПОСЛЕДНЕЙ, чтобы всё успело инициализироваться
+  // Фоновая загрузка дат
   loadBookedDatesInBackground();
 });
