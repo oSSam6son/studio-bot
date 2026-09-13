@@ -70,8 +70,24 @@ class TelegramIntegration {
   }
 
   hapticFeedback(type = "success") {
-    if (this.isTelegram && this.tg.HapticFeedback) {
-      this.tg.HapticFeedback.notificationOccurred(type);
+    if (!this.isTelegram || !this.tg.HapticFeedback) return;
+
+    // "light", "medium", "heavy", "rigid", "soft" — это impact
+    // "success", "error", "warning" — это notification
+    const impactStyles = ["light", "medium", "heavy", "rigid", "soft"];
+    const notificationTypes = ["success", "error", "warning"];
+
+    try {
+      if (impactStyles.includes(type)) {
+        this.tg.HapticFeedback.impactOccurred(type);
+      } else if (notificationTypes.includes(type)) {
+        this.tg.HapticFeedback.notificationOccurred(type);
+      } else {
+        // fallback
+        this.tg.HapticFeedback.impactOccurred("light");
+      }
+    } catch (e) {
+      // тихо игнорируем, если что-то не так
     }
   }
 }
