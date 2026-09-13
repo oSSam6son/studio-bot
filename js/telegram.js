@@ -34,17 +34,19 @@ class TelegramIntegration {
     }
   }
 
-  // Возвращает имя пользователя для отправки
   getUserName() {
     if (!this.isTelegram) return null;
+
     const user = this.tg.initDataUnsafe?.user;
     if (!user) return null;
 
-    // Приоритет: @username → имя
-    if (user.username) {
-      return `@${user.username}`;
-    }
-    return `${user.first_name || ""} ${user.last_name || ""}`.trim();
+    // Приоритет: first_name + last_name → иначе @username
+    const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
+
+    if (fullName) return fullName;
+    if (user.username) return `@${user.username}`;
+
+    return "Клиент";
   }
 
   sendData(data) {

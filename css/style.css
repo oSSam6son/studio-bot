@@ -2853,19 +2853,19 @@ section {
   }
 
   .gallery-slide.pos-left {
-    transform: translate(calc(-50% - 72vw), -50%) scale(0.6);
+    transform: translate(calc(-50% - 60vw), -50%) scale(0.6);
   }
 
   .gallery-slide.pos-right {
-    transform: translate(calc(-50% + 72vw), -50%) scale(0.6);
+    transform: translate(calc(-50% + 60vw), -50%) scale(0.6);
   }
 
   .gallery-slide.pos-hidden-left {
-    transform: translate(calc(-50% - 95vw), -50%) scale(0.4);
+    transform: translate(calc(-50% - 85vw), -50%) scale(0.4);
   }
 
   .gallery-slide.pos-hidden-right {
-    transform: translate(calc(-50% + 95vw), -50%) scale(0.4);
+    transform: translate(calc(-50% + 85vw), -50%) scale(0.4);
   }
 
   .gallery-slide.pos-hidden-left,
@@ -3494,5 +3494,109 @@ section {
     width: 34px;
     height: 34px;
     font-size: 13px;
+  }
+}
+
+.admin-date-input {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-date-input input {
+  width: 100%;
+  padding: 12px 15px;
+  background: var(--medium-gray);
+  border: 1px solid #333;
+  color: var(--white);
+  border-radius: 8px;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+.admin-date-input input:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+}
+
+.admin-date-input button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.admin-date-input button:hover {
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent-pink));
+  box-shadow: var(--neon-mixed-glow);
+  transform: translateY(-2px);
+}
+
+.time-slot {
+  padding: 16px 8px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  letter-spacing: 1px;
+  position: relative;
+  /* ⭐ Вот это — центрирует цифры */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+}
+@media (max-width: 768px) {
+  .time-slot {
+    padding: 14px 6px;
+    font-size: 14px;
+    border-radius: 10px;
+    min-height: 46px;
+  }
+}
+
+.admin-login .admin-back {
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(10, 10, 10, 0.7);
+  border: 1px solid var(--medium-gray);
+  border-radius: 30px;
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.admin-login .admin-back:hover {
+  border-color: var(--accent-purple);
+  color: var(--accent-purple);
+  transform: translateX(-3px);
+}
+
+@media (max-width: 768px) {
+  .admin-login .admin-back {
+    font-size: 11px;
+    padding: 8px 15px;
   }
 }

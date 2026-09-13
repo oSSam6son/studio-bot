@@ -475,7 +475,10 @@ async function submitBooking() {
   const date = document.getElementById("bookingDate").value;
   const time = document.getElementById("timeSelect").value;
   const hours = document.getElementById("hoursSelect").value;
-  const name = document.getElementById("userName").value;
+  const name =
+    document.getElementById("userName").value ||
+    (telegramApp?.isTelegram ? telegramApp.getUserName() : "") ||
+    "";
   const phone = document.getElementById("userPhone").value;
   const serviceId = document.getElementById("serviceSelect").value;
 
@@ -612,47 +615,81 @@ function closeSuccess() {
 document.addEventListener("DOMContentLoaded", async () => {
   renderCalendar();
 
-  // ===== ИМЯ ИЗ TELEGRAM =====
-  const nameField = document.getElementById("nameField");
-  const userNameInput = document.getElementById("userName");
-
+  // === ИМЯ ИЗ TELEGRAM ===
   if (telegramApp && telegramApp.isTelegram) {
     const tgName = telegramApp.getUserName();
-    if (tgName && nameField) {
-      nameField.classList.add("hidden-in-tg");
-      if (userNameInput) userNameInput.value = tgName;
 
-      const badge = document.createElement("div");
-      badge.className = "user-badge visible";
+    console.log("Telegram user:", telegramApp.tg.initDataUnsafe?.user);
+    console.log("Полученное имя:", tgName);
+
+    if (tgName && nameField && userNameInput) {
+      // Скрываем поле имени
+      nameField.classList.add("hidden-in-tg");
+
+      // Записываем имя в скрытый input (уйдёт в заявку)
+      userNameInput.value = tgName;
+
+      // Показываем бейдж (если ещё нет)
+      let badge = document.querySelector(".user-badge");
+      if (!badge) {
+        badge = document.createElement("div");
+        badge.className = "user-badge visible";
+        nameField.parentNode.insertBefore(badge, nameField);
+      }
       badge.innerHTML = `<i class="fas fa-user-check"></i><span>${tgName}</span>`;
-      nameField.parentNode.insertBefore(badge, nameField);
     }
   }
 
-  if (selectedServiceId) {
-    document.getElementById("serviceSelect").value = selectedServiceId;
-    updatePrice();
-    onServiceSelect();
-  }
-
-  ["serviceSelect", "bookingDate", "userName", "userPhone"].forEach(
-    clearErrorOnInput,
-  );
-
+  // === МАСКА ТЕЛЕФОНА (с корректным удалением) ===
   const phoneInput = document.getElementById("userPhone");
-  if (phoneInput) {
-    phoneInput.addEventListener("input", (e) => {
-      let value = e.target.value.replace(/\D/g, "");
-      if (value.startsWith("7") || value.startsWith("8"))
-        value = value.slice(1);
-      let formatted = "+7 (";
-      if (value.length > 0) formatted += value.slice(0, 3);
-      if (value.length >= 3) formatted += ") " + value.slice(3, 6);
-      if (value.length >= 6) formatted += "-" + value.slice(6, 8);
-      if (value.length >= 8) formatted += "-" + value.slice(8, 10);
-      e.target.value = formatted;
-    });
-  }
+
+  phoneInput.addEventListener("input", (e) => {
+    const input = e.target;
+    const cursorPos = input.selectionStart;
+    const oldValue = input.value;
+
+    // Определяем, удаляет ли пользователь
+    const isDeleting = e.inputType && e.inputType.startsWith("delete");
+
+    // Оставляем только цифры
+    let digits = input.value.replace(/\D/g, "");
+
+    // Убираем ведущую 7 или 8
+    if (digits.startsWith("7") || digits.startsWith("8")) {
+      digits = digits.slice(1);
+    }
+
+    // Ограничиваем 10 цифрами
+    digits = digits.slice(0, 10);
+
+    // Форматируем
+    let formatted = "";
+    if (digits.length > 0) {
+      formatted = "+7";
+      if (digits.length > 0) formatted += " (" + digits.slice(0, 3);
+      if (digits.length >= 3) formatted += ")";
+      if (digits.length > 3) formatted += " " + digits.slice(3, 6);
+      if (digits.length > 6) formatted += "-" + digits.slice(6, 8);
+      if (digits.length > 8) formatted += "-" + digits.slice(8, 10);
+    }
+
+    // Если поле пустое — очищаем полностью
+    if (digits.length === 0 && isDeleting) {
+      formatted = "";
+    }
+
+    input.value = formatted;
+
+    // Ставим курсор в конец (или сохраняем позицию)
+    if (!isDeleting && cursorPos < oldValue.length) {
+      input.setSelectionRange(cursorPos, cursorPos);
+    } else {
+      input.setSelectionRange(formatted.length, formatted.length);
+    }
+
+    // Очищаем ошибку при вводе
+    input.closest(".form-group")?.classList.remove("error");
+  });
 
   // Фоновая загрузка дат
   loadBookedDatesInBackground();
