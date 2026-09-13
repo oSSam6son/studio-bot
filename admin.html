@@ -60,9 +60,10 @@
           <a href="about.html" class="admin-back">
             <i class="fas fa-arrow-left"></i> На главную
           </a>
-          <!-- Добавление даты -->
+
+          <!-- Закрыть ВЕСЬ день -->
           <div class="admin-card">
-            <h3>Закрыть дату вручную</h3>
+            <h3>Закрыть весь день</h3>
             <div class="admin-date-input">
               <input
                 type="text"
@@ -71,8 +72,8 @@
                 maxlength="10"
                 oninput="formatAdminDate(this)"
               />
-              <button onclick="addDate()">
-                <i class="fas fa-plus"></i> Закрыть
+              <button onclick="closeDay()">
+                <i class="fas fa-lock"></i> Закрыть день
               </button>
             </div>
           </div>

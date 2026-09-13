@@ -561,6 +561,18 @@ section {
   transition: all 0.3s;
 }
 
+/* ВАЖНО: белый текст в селектах */
+.form-group select,
+.form-group select option {
+  color: var(--white);
+  background: var(--medium-gray);
+}
+
+.form-group select option:disabled {
+  color: #888;
+  font-style: italic;
+}
+
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
@@ -714,6 +726,7 @@ section {
   background: var(--medium-gray);
   border: 1px solid transparent;
   transition: all 0.2s;
+  position: relative;
 }
 
 .calendar-day:hover:not(.disabled):not(.empty) {
@@ -742,6 +755,117 @@ section {
   color: var(--white);
   font-weight: 700;
   box-shadow: var(--neon-mixed-glow);
+}
+
+/* ⭐ Полностью занятая дата */
+.calendar-day.booked {
+  background: rgba(255, 68, 68, 0.15);
+  border-color: rgba(255, 68, 68, 0.4);
+  position: relative;
+  opacity: 1;
+}
+
+.calendar-day.booked::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 1.5px;
+  background: #ff4444;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* ⭐ Частично занятая дата (точка в правом верхнем углу) */
+.calendar-day.partially-booked {
+  background: rgba(236, 72, 153, 0.15);
+  border-color: rgba(236, 72, 153, 0.4);
+}
+
+.calendar-day.partially-booked::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-pink);
+  box-shadow: 0 0 8px var(--accent-pink);
+  z-index: 2;
+}
+
+/* ===== Легенда календаря ===== */
+.calendar-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid var(--medium-gray);
+}
+
+.calendar-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--light-gray);
+  letter-spacing: 0.5px;
+}
+
+.calendar-legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.calendar-legend-dot.free {
+  background: var(--medium-gray);
+  border: 1px solid #333;
+}
+
+.calendar-legend-dot.partial {
+  background: rgba(236, 72, 153, 0.15);
+  border: 1px solid rgba(236, 72, 153, 0.4);
+}
+
+.calendar-legend-dot.partial::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-pink);
+  box-shadow: 0 0 6px var(--accent-pink);
+}
+
+.calendar-legend-dot.full {
+  background: rgba(255, 68, 68, 0.15);
+  border: 1px solid rgba(255, 68, 68, 0.4);
+  position: relative;
+}
+
+.calendar-legend-dot.full::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 1.5px;
+  background: #ff4444;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.calendar-legend-dot.past {
+  background: var(--dark-gray);
+  border: 1px solid #333;
+  opacity: 0.4;
 }
 
 .calendar-modal {
@@ -839,7 +963,307 @@ section {
   width: 20px;
 }
 
-/* ===== ГАЛЕРЕЯ-КАРУСЕЛЬ ===== */
+/* ===== Имя из Telegram ===== */
+.form-group.hidden-in-tg {
+  display: none;
+}
+
+.user-badge {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.user-badge.visible {
+  display: flex;
+}
+
+.user-badge i {
+  color: var(--accent-purple);
+  font-size: 18px;
+}
+
+.user-badge span {
+  color: var(--white);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ===== Кастомный выбор времени ===== */
+.custom-time-picker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 12px 15px;
+  background: var(--medium-gray);
+  border: 1px solid #333;
+  color: var(--white);
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.custom-time-picker:hover {
+  border-color: var(--accent-purple);
+}
+
+.custom-time-picker.active {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+}
+
+.custom-time-picker i {
+  color: var(--accent-purple);
+  font-size: 18px;
+}
+
+.custom-time-picker span {
+  color: var(--light-gray);
+}
+
+.custom-time-picker span.has-value {
+  color: var(--white);
+  font-weight: 600;
+}
+
+/* ===== Модалка выбора времени ===== */
+.time-picker-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.92);
+  backdrop-filter: blur(10px);
+  z-index: 2500;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: promoFadeIn 0.3s ease;
+}
+
+.time-picker-overlay.active {
+  display: flex;
+}
+
+.time-picker-modal {
+  background: linear-gradient(180deg, var(--dark) 0%, #0a0a0a 100%);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 24px;
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  animation: promoSlideDown 0.4s ease;
+  box-shadow:
+    0 0 60px rgba(168, 85, 247, 0.3),
+    0 20px 60px rgba(0, 0, 0, 0.7);
+  position: relative;
+  overflow: hidden;
+}
+
+.time-picker-modal::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink));
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.8);
+}
+
+.time-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.time-picker-header h3 {
+  font-size: 18px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.time-picker-hours-badge {
+  font-size: 12px;
+  padding: 4px 12px;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  color: var(--white);
+  border-radius: 12px;
+  letter-spacing: 1px;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+}
+
+.time-picker-close {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--light-gray);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.time-picker-close:hover {
+  background: var(--accent-pink);
+  border-color: var(--accent-pink);
+  color: var(--white);
+  transform: rotate(90deg);
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.6);
+}
+
+.time-picker-date-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px;
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 12px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  color: var(--light-gray);
+}
+
+.time-picker-date-info i {
+  color: var(--accent-purple);
+  font-size: 16px;
+}
+
+.time-picker-date-info strong {
+  color: var(--white);
+  letter-spacing: 1px;
+}
+
+.time-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+  gap: 10px;
+  overflow-y: auto;
+  padding: 4px 8px 4px 4px;
+  max-height: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-purple) transparent;
+}
+
+.time-picker-grid::-webkit-scrollbar {
+  width: 5px;
+}
+.time-picker-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 3px;
+}
+.time-picker-grid::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent-purple), var(--accent-pink));
+  border-radius: 3px;
+}
+
+.time-slot {
+  padding: 16px 8px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+.time-slot.free {
+  background: rgba(0, 200, 100, 0.08);
+  border-color: rgba(0, 200, 100, 0.25);
+  color: #00e676;
+}
+
+.time-slot.free:hover {
+  background: rgba(0, 200, 100, 0.2);
+  border-color: #00e676;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 200, 100, 0.3);
+  color: #fff;
+}
+
+.time-slot.free:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.time-slot.selected {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  border-color: transparent;
+  color: var(--white);
+  box-shadow:
+    0 0 25px rgba(168, 85, 247, 0.6),
+    0 0 50px rgba(236, 72, 153, 0.3);
+  transform: scale(1.05);
+  animation: timeSlotPulse 1.5s infinite;
+}
+
+@keyframes timeSlotPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 25px rgba(168, 85, 247, 0.6),
+      0 0 50px rgba(236, 72, 153, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 35px rgba(168, 85, 247, 0.9),
+      0 0 70px rgba(236, 72, 153, 0.5);
+  }
+}
+
+.time-picker-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--light-gray);
+}
+
+.time-picker-empty i {
+  font-size: 48px;
+  color: var(--accent-purple);
+  opacity: 0.5;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.time-picker-empty p {
+  font-size: 16px;
+  color: var(--white);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.time-picker-empty span {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+/* ===== Галерея-карусель ===== */
 .gallery-slider {
   position: relative;
   width: 100%;
@@ -1572,7 +1996,6 @@ section {
 .promo-overlay.active {
   display: flex;
 }
-
 .promo-overlay.closing {
   animation: promoFadeOut 0.3s ease forwards;
 }
@@ -1683,13 +2106,11 @@ section {
     opacity: 1;
   }
 }
-
 @keyframes promoFadeOut {
   to {
     opacity: 0;
   }
 }
-
 @keyframes promoSlideDown {
   from {
     transform: translateY(-50px);
@@ -1700,7 +2121,6 @@ section {
     opacity: 1;
   }
 }
-
 @keyframes promoPulse {
   0%,
   100% {
@@ -1709,363 +2129,6 @@ section {
   50% {
     box-shadow: 0 0 30px rgba(236, 72, 153, 0.8);
   }
-}
-
-/* ===== Анимации ===== */
-@keyframes heroZoom {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* ===== Десктоп: календарь справа ===== */
-@media (min-width: 769px) {
-  .booking-wrapper {
-    grid-template-columns: 1fr 1fr;
-    max-width: 1000px;
-    align-items: start;
-  }
-
-  .calendar-modal {
-    display: block;
-    position: static;
-    background: transparent;
-    z-index: auto;
-  }
-
-  .calendar-modal-content {
-    border-radius: 15px;
-    border: 1px solid var(--medium-gray);
-    animation: none;
-    padding: 25px;
-    max-width: none;
-  }
-
-  .calendar-close {
-    display: none;
-  }
-
-  .calendar-toggle {
-    display: none;
-  }
-}
-
-/* ===== Мобильная адаптация ===== */
-@media (max-width: 768px) {
-  .bg-layer::before {
-    width: 400px;
-    height: 400px;
-    top: -150px;
-    left: -150px;
-    filter: blur(60px);
-  }
-
-  .bg-layer::after {
-    width: 300px;
-    height: 300px;
-    right: -100px;
-    filter: blur(1px);
-  }
-
-  .bg-circle-purple {
-    width: 200px;
-    height: 200px;
-    filter: blur(50px);
-  }
-  .bg-circle-pink {
-    width: 250px;
-    height: 250px;
-    filter: blur(60px);
-  }
-  .bg-circle-cyan {
-    width: 150px;
-    height: 150px;
-    filter: blur(40px);
-  }
-  .bg-ring {
-    width: 150px;
-    height: 150px;
-  }
-
-  .bg-dot-3,
-  .bg-dot-4 {
-    display: none;
-  }
-
-  .bg-layer *,
-  .bg-layer::before,
-  .bg-layer::after {
-    animation: none !important;
-  }
-
-  .hero {
-    padding: 80px 15px 40px;
-  }
-
-  .hero-content,
-  .hero-stats {
-    border-radius: 15px;
-    background: rgba(10, 10, 10, 0.65);
-  }
-
-  .hero-content {
-    padding: 25px 15px;
-  }
-
-  .hero-stats {
-    padding: 15px;
-    gap: 15px;
-  }
-
-  .hero-title {
-    font-size: 28px;
-  }
-
-  .hero-title .outline {
-    filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5));
-  }
-
-  .hero-subtitle {
-    font-size: 14px;
-    letter-spacing: 1px;
-  }
-
-  .btn-primary,
-  .btn-outline {
-    padding: 12px 20px;
-    font-size: 13px;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .stat-number {
-    font-size: 22px;
-  }
-
-  /* Карусель на мобильных */
-  .gallery-slider {
-    height: 100vw;
-    padding: 0;
-    overflow: visible;
-  }
-
-  .gallery-slide {
-    width: 100vw;
-    height: 100vw;
-  }
-
-  .gallery-slide.pos-left {
-    transform: translate(calc(-50% - 85vw), -50%) scale(0.65);
-  }
-
-  .gallery-slide.pos-right {
-    transform: translate(calc(-50% + 85vw), -50%) scale(0.65);
-  }
-
-  .gallery-slide.pos-hidden-left {
-    transform: translate(calc(-50% - 110vw), -50%) scale(0.45);
-  }
-
-  .gallery-slide.pos-hidden-right {
-    transform: translate(calc(-50% + 110vw), -50%) scale(0.45);
-  }
-
-  .gallery-slide.pos-hidden-left,
-  .gallery-slide.pos-hidden-right {
-    pointer-events: none;
-    cursor: default;
-  }
-
-  .gallery-slide-title {
-    font-size: 13px;
-    padding: 15px;
-  }
-
-  .gallery-dot {
-    width: 8px;
-    height: 8px;
-  }
-  .gallery-dot.active {
-    width: 24px;
-  }
-
-  .booking-wrapper {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    max-width: 100%;
-  }
-
-  .booking-form {
-    padding: 20px 15px;
-  }
-  .calendar-day {
-    font-size: 12px;
-  }
-  .booking-info {
-    padding: 15px;
-  }
-  .booking-info ul {
-    grid-template-columns: 1fr;
-  }
-
-  .contacts {
-    padding: 50px 0;
-  }
-  .contacts-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  .contact-card {
-    padding: 18px;
-  }
-  .contact-icon {
-    width: 40px;
-    height: 40px;
-  }
-  .contact-icon i {
-    font-size: 16px;
-  }
-  .contact-value {
-    font-size: 15px;
-  }
-
-  section {
-    padding: 60px 0;
-  }
-  .section-title {
-    font-size: 28px;
-  }
-
-  .promo-overlay {
-    padding-top: 60px;
-  }
-
-  .promo-modal {
-    padding: 25px 20px;
-    border-radius: 15px;
-  }
-
-  .promo-icon {
-    width: 55px;
-    height: 55px;
-  }
-  .promo-icon i {
-    font-size: 24px;
-  }
-  .promo-title {
-    font-size: 22px;
-  }
-  .promo-subtitle {
-    font-size: 12px;
-  }
-  .promo-btn {
-    padding: 12px 25px;
-    font-size: 12px;
-  }
-
-  .about-content {
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-  .about-features {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-  .clients-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-
-  .feature {
-    padding: 15px;
-  }
-  .feature i {
-    font-size: 24px;
-  }
-  .feature span {
-    font-size: 11px;
-  }
-
-  .about-text-wrapper {
-    padding: 20px 15px;
-    border-radius: 15px;
-  }
-
-  .about-text-wrapper p {
-    font-size: 14px;
-  }
-
-  .about-artists {
-    padding: 15px;
-  }
-  .about-artists-label {
-    font-size: 12px;
-    letter-spacing: 1px;
-  }
-  .about-artists-names {
-    gap: 8px;
-  }
-  .about-artists-names span {
-    padding: 8px 15px;
-    font-size: 11px;
-  }
-}
-
-@media (max-width: 480px) {
-  .bg-circle-pink,
-  .bg-circle-cyan,
-  .bg-ring,
-  .bg-dot {
-    display: none;
-  }
-
-  .bg-layer::before {
-    filter: blur(40px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bg-layer *,
-  .bg-layer::before,
-  .bg-layer::after {
-    animation: none !important;
-  }
-}
-
-/* ===== Telegram Web App ===== */
-.telegram-app .hero {
-  padding-top: 60px;
-}
-
-.calendar-day.booked {
-  background: rgba(255, 68, 68, 0.2);
-  border-color: #ff4444;
-  cursor: not-allowed;
-  position: relative;
-}
-
-.calendar-day.booked::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  background: #ff4444;
-  transform: rotate(-45deg);
 }
 
 /* ===== Уведомление об успехе ===== */
@@ -2169,25 +2232,6 @@ section {
   }
   50% {
     box-shadow: 0 0 40px rgba(236, 72, 153, 0.9);
-  }
-}
-
-@media (max-width: 768px) {
-  .success-modal {
-    padding: 28px 22px;
-  }
-  .success-icon {
-    width: 65px;
-    height: 65px;
-  }
-  .success-icon i {
-    font-size: 30px;
-  }
-  .success-title {
-    font-size: 20px;
-  }
-  .success-text {
-    font-size: 13px;
   }
 }
 
@@ -2332,54 +2376,136 @@ section {
 }
 
 .admin-date-item {
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.admin-date-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 14px 18px;
-  background: rgba(168, 85, 247, 0.1);
-  border: 1px solid rgba(168, 85, 247, 0.3);
-  border-radius: 10px;
-  transition: all 0.3s;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.admin-date-item:hover {
-  border-color: var(--accent-purple);
-  background: rgba(168, 85, 247, 0.15);
+.admin-date-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.admin-date-item span {
+.admin-date-info i {
+  color: var(--accent-purple);
+  font-size: 16px;
+}
+
+.admin-date-info span:first-of-type {
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 2px;
   color: var(--white);
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
 
-.admin-date-item span i {
-  color: var(--accent-purple);
+.admin-date-status {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
 }
 
-.admin-remove {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
+.admin-date-status.full {
   background: rgba(255, 68, 68, 0.15);
-  border: 1px solid rgba(255, 68, 68, 0.4);
   color: #ff4444;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  transition: all 0.3s;
+  border: 1px solid rgba(255, 68, 68, 0.4);
 }
 
-.admin-remove:hover {
-  background: #ff4444;
+.admin-date-status.partial {
+  background: rgba(236, 72, 153, 0.15);
+  color: var(--accent-pink);
+  border: 1px solid rgba(236, 72, 153, 0.4);
+}
+
+.admin-date-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-toggle-hours {
+  padding: 8px 14px;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: var(--accent-purple);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-toggle-hours:hover {
+  background: var(--accent-purple);
   color: var(--white);
-  transform: scale(1.1);
+}
+
+.admin-hours-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  background: rgba(10, 10, 10, 0.3);
+}
+
+.admin-hours-panel.active {
+  max-height: 500px;
+  padding: 15px;
+}
+
+.admin-hours-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 8px;
+}
+
+.admin-hour-btn {
+  padding: 8px 4px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+  text-align: center;
+}
+
+.admin-hour-btn.free {
+  background: rgba(0, 200, 100, 0.1);
+  border-color: rgba(0, 200, 100, 0.3);
+  color: #00c864;
+}
+
+.admin-hour-btn.free:hover {
+  background: rgba(0, 200, 100, 0.25);
+  border-color: #00c864;
+}
+
+.admin-hour-btn.busy {
+  background: rgba(255, 68, 68, 0.15);
+  border-color: rgba(255, 68, 68, 0.4);
+  color: #ff4444;
+}
+
+.admin-hour-btn.busy:hover {
+  background: rgba(255, 68, 68, 0.3);
+  border-color: #ff4444;
 }
 
 .admin-empty {
@@ -2413,19 +2539,6 @@ section {
   color: var(--accent-pink);
 }
 
-@media (max-width: 768px) {
-  .admin-page {
-    padding: 80px 0 40px;
-  }
-  .admin-card {
-    padding: 20px 15px;
-  }
-  .admin-date-item span {
-    font-size: 13px;
-    letter-spacing: 1px;
-  }
-}
-
 /* ===== Скрытая кнопка админа ===== */
 .admin-lock {
   display: inline-flex;
@@ -2439,7 +2552,6 @@ section {
   opacity: 0.3;
   transition: all 0.4s ease;
   cursor: pointer;
-  position: relative;
   border-radius: 50%;
   text-decoration: none;
 }
@@ -2456,7 +2568,6 @@ section {
   pointer-events: none;
 }
 
-/* Кнопка "На главную" в админке */
 .admin-back {
   margin-bottom: 20px;
   display: inline-flex;
@@ -2482,54 +2593,7 @@ section {
   transform: translateX(-3px);
 }
 
-@media (max-width: 768px) {
-  .admin-back {
-    font-size: 11px;
-    padding: 8px 15px;
-  }
-}
-
-@media (max-width: 768px) {
-  /* Обёртка поля даты */
-  .date-input-wrapper {
-    position: relative;
-    display: block;
-    width: 100%;
-  }
-
-  .date-input-wrapper input {
-    width: 100%;
-    padding: 12px 45px 12px 15px; /* справа отступ под иконку */
-    font-size: 14px;
-  }
-
-  /* Иконка календаря */
-  .calendar-toggle {
-    position: absolute;
-    top: 50%;
-    right: 6px;
-    transform: translateY(-50%);
-    width: 38px;
-    height: 38px;
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    color: var(--accent-purple);
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .calendar-toggle:hover,
-  .calendar-toggle:active {
-    background: rgba(168, 85, 247, 0.15);
-  }
-}
-
-/* ===== Карта с превью-заглушкой ===== */
+/* ===== Карта ===== */
 .map-container {
   position: relative;
   border-radius: 15px;
@@ -2624,7 +2688,6 @@ section {
   }
 }
 
-/* Активный iframe карты */
 .map-container iframe {
   width: 100%;
   height: 450px;
@@ -2633,26 +2696,803 @@ section {
   border-radius: 15px;
 }
 
-/* Мобильная адаптация */
+/* ===== Анимации ===== */
+@keyframes heroZoom {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ===== Десктоп ===== */
+@media (min-width: 769px) {
+  .booking-wrapper {
+    grid-template-columns: 1fr 1fr;
+    max-width: 1000px;
+    align-items: start;
+  }
+
+  .calendar-modal {
+    display: block;
+    position: static;
+    background: transparent;
+    z-index: auto;
+  }
+
+  .calendar-modal-content {
+    border-radius: 15px;
+    border: 1px solid var(--medium-gray);
+    animation: none;
+    padding: 25px;
+    max-width: none;
+  }
+
+  .calendar-close {
+    display: none;
+  }
+  .calendar-toggle {
+    display: none;
+  }
+}
+
+/* ===== Мобильная адаптация ===== */
 @media (max-width: 768px) {
+  .bg-layer::before {
+    width: 400px;
+    height: 400px;
+    top: -150px;
+    left: -150px;
+    filter: blur(60px);
+  }
+
+  .bg-layer::after {
+    width: 300px;
+    height: 300px;
+    right: -100px;
+    filter: blur(1px);
+  }
+
+  .bg-circle-purple {
+    width: 200px;
+    height: 200px;
+    filter: blur(50px);
+  }
+  .bg-circle-pink {
+    width: 250px;
+    height: 250px;
+    filter: blur(60px);
+  }
+  .bg-circle-cyan {
+    width: 150px;
+    height: 150px;
+    filter: blur(40px);
+  }
+  .bg-ring {
+    width: 150px;
+    height: 150px;
+  }
+
+  .bg-dot-3,
+  .bg-dot-4 {
+    display: none;
+  }
+
+  .bg-layer *,
+  .bg-layer::before,
+  .bg-layer::after {
+    animation: none !important;
+  }
+
+  .hero {
+    padding: 80px 15px 40px;
+  }
+
+  .hero-content,
+  .hero-stats {
+    border-radius: 15px;
+    background: rgba(10, 10, 10, 0.65);
+  }
+
+  .hero-content {
+    padding: 25px 15px;
+  }
+  .hero-stats {
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .hero-title {
+    font-size: 28px;
+  }
+
+  .hero-title .outline {
+    filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5));
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  .btn-primary,
+  .btn-outline {
+    padding: 12px 20px;
+    font-size: 13px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stat-number {
+    font-size: 22px;
+  }
+
+  /* Карусель на мобильных — уменьшена */
+  .gallery-slider {
+    height: 85vw;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .gallery-slide {
+    width: 85vw;
+    height: 85vw;
+  }
+
+  .gallery-slide.pos-left {
+    transform: translate(calc(-50% - 72vw), -50%) scale(0.6);
+  }
+
+  .gallery-slide.pos-right {
+    transform: translate(calc(-50% + 72vw), -50%) scale(0.6);
+  }
+
+  .gallery-slide.pos-hidden-left {
+    transform: translate(calc(-50% - 95vw), -50%) scale(0.4);
+  }
+
+  .gallery-slide.pos-hidden-right {
+    transform: translate(calc(-50% + 95vw), -50%) scale(0.4);
+  }
+
+  .gallery-slide.pos-hidden-left,
+  .gallery-slide.pos-hidden-right {
+    pointer-events: none;
+    cursor: default;
+  }
+
+  .gallery-slide-title {
+    font-size: 13px;
+    padding: 15px;
+  }
+
+  .gallery-dot {
+    width: 8px;
+    height: 8px;
+  }
+  .gallery-dot.active {
+    width: 24px;
+  }
+
+  .booking-wrapper {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    max-width: 100%;
+  }
+
+  .booking-form {
+    padding: 20px 15px;
+  }
+  .calendar-day {
+    font-size: 12px;
+  }
+  .booking-info {
+    padding: 15px;
+  }
+  .booking-info ul {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-legend {
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 12px;
+  }
+
+  .calendar-legend-item {
+    font-size: 10px;
+    gap: 6px;
+  }
+  .calendar-legend-dot {
+    width: 12px;
+    height: 12px;
+  }
+
+  .contacts {
+    padding: 50px 0;
+  }
+  .contacts-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .contact-card {
+    padding: 18px;
+  }
+  .contact-icon {
+    width: 40px;
+    height: 40px;
+  }
+  .contact-icon i {
+    font-size: 16px;
+  }
+  .contact-value {
+    font-size: 15px;
+  }
+
+  section {
+    padding: 60px 0;
+  }
+  .section-title {
+    font-size: 28px;
+  }
+
+  .promo-overlay {
+    padding-top: 60px;
+  }
+
+  .promo-modal {
+    padding: 25px 20px;
+    border-radius: 15px;
+  }
+  .promo-icon {
+    width: 55px;
+    height: 55px;
+  }
+  .promo-icon i {
+    font-size: 24px;
+  }
+  .promo-title {
+    font-size: 22px;
+  }
+  .promo-subtitle {
+    font-size: 12px;
+  }
+  .promo-btn {
+    padding: 12px 25px;
+    font-size: 12px;
+  }
+
+  .success-modal {
+    padding: 28px 22px;
+  }
+  .success-icon {
+    width: 65px;
+    height: 65px;
+  }
+  .success-icon i {
+    font-size: 30px;
+  }
+  .success-title {
+    font-size: 20px;
+  }
+  .success-text {
+    font-size: 13px;
+  }
+
+  .about-content {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .about-features {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .clients-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .feature {
+    padding: 15px;
+  }
+  .feature i {
+    font-size: 24px;
+  }
+  .feature span {
+    font-size: 11px;
+  }
+
+  .about-text-wrapper {
+    padding: 20px 15px;
+    border-radius: 15px;
+  }
+  .about-text-wrapper p {
+    font-size: 14px;
+  }
+
+  .about-artists {
+    padding: 15px;
+  }
+  .about-artists-label {
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+  .about-artists-names {
+    gap: 8px;
+  }
+  .about-artists-names span {
+    padding: 8px 15px;
+    font-size: 11px;
+  }
+
+  .admin-page {
+    padding: 80px 0 40px;
+  }
+  .admin-card {
+    padding: 20px 15px;
+  }
+  .admin-date-item span {
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+  .admin-date-header {
+    padding: 12px 14px;
+  }
+  .admin-date-info span:first-of-type {
+    font-size: 13px;
+  }
+  .admin-date-status {
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+  .admin-toggle-hours {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  .admin-hours-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .admin-hour-btn {
+    font-size: 11px;
+    padding: 6px 2px;
+  }
+  .admin-back {
+    font-size: 11px;
+    padding: 8px 15px;
+  }
+
+  /* Поле даты на телефоне */
+  .date-input-wrapper {
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+
+  .date-input-wrapper input {
+    width: 100%;
+    padding: 12px 45px 12px 15px;
+    font-size: 14px;
+  }
+
+  .calendar-toggle {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 38px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--accent-purple);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .calendar-toggle:hover,
+  .calendar-toggle:active {
+    background: rgba(168, 85, 247, 0.15);
+  }
+
+  /* Модалка выбора времени на телефоне */
+  .time-picker-overlay {
+    padding: 15px;
+    align-items: flex-end;
+  }
+
+  .time-picker-modal {
+    padding: 22px 18px;
+    max-height: 82vh;
+    border-radius: 20px 20px 0 0;
+    animation: slideUpModal 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideUpModal {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .time-picker-header h3 {
+    font-size: 15px;
+    letter-spacing: 1px;
+  }
+  .time-picker-hours-badge {
+    font-size: 10px;
+    padding: 3px 10px;
+  }
+  .time-picker-close {
+    width: 34px;
+    height: 34px;
+  }
+  .time-picker-date-info {
+    font-size: 12px;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+  }
+  .time-picker-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .time-slot {
+    padding: 14px 6px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+  .time-picker-empty i {
+    font-size: 38px;
+  }
+  .time-picker-empty p {
+    font-size: 14px;
+  }
+  .time-picker-empty span {
+    font-size: 11px;
+  }
+
+  /* Карта */
   .map-container {
     min-height: 300px;
   }
-
   .map-preview {
     height: 300px;
   }
-
   .map-container iframe {
     height: 300px;
   }
-
   .map-preview-btn {
     padding: 14px 20px;
     font-size: 12px;
   }
-
   .map-preview-btn i {
     font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bg-circle-pink,
+  .bg-circle-cyan,
+  .bg-ring,
+  .bg-dot {
+    display: none;
+  }
+  .bg-layer::before {
+    filter: blur(40px);
+  }
+
+  .time-picker-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .time-slot {
+    padding: 12px 5px;
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-layer *,
+  .bg-layer::before,
+  .bg-layer::after {
+    animation: none !important;
+  }
+}
+
+/* ===== Telegram Web App ===== */
+.telegram-app .hero {
+  padding-top: 60px;
+}
+
+/* Легенда времени */
+.time-picker-legend {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--medium-gray);
+}
+
+.time-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--light-gray);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.time-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+
+.time-legend-dot.free {
+  background: rgba(0, 200, 100, 0.15);
+  border: 1px solid #00c864;
+}
+
+.time-legend-dot.busy {
+  background: rgba(255, 68, 68, 0.15);
+  border: 1px solid #ff4444;
+}
+
+/* Слот времени */
+.time-slot {
+  padding: 16px 8px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  letter-spacing: 1px;
+  position: relative;
+}
+
+/* Свободный час */
+.time-slot.free {
+  background: rgba(0, 200, 100, 0.08);
+  border-color: rgba(0, 200, 100, 0.25);
+  color: #00e676;
+  cursor: pointer;
+}
+
+.time-slot.free:hover {
+  background: rgba(0, 200, 100, 0.2);
+  border-color: #00e676;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 200, 100, 0.3);
+  color: #fff;
+}
+
+.time-slot.free:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+/* ⭐ Занятый час */
+.time-slot.busy {
+  background: rgba(255, 68, 68, 0.06);
+  border-color: rgba(255, 68, 68, 0.25);
+  color: #ff6666;
+  cursor: not-allowed;
+  opacity: 0.65;
+  position: relative;
+}
+
+.time-slot.busy::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 15%;
+  right: 15%;
+  height: 1.5px;
+  background: #ff4444;
+  transform: translateY(-50%) rotate(-6deg);
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
+}
+
+/* Выбранный час */
+.time-slot.selected {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  border-color: transparent;
+  color: var(--white);
+  box-shadow:
+    0 0 25px rgba(168, 85, 247, 0.6),
+    0 0 50px rgba(236, 72, 153, 0.3);
+  transform: scale(1.05);
+  animation: timeSlotPulse 1.5s infinite;
+}
+
+@keyframes timeSlotPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 25px rgba(168, 85, 247, 0.6),
+      0 0 50px rgba(236, 72, 153, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 35px rgba(168, 85, 247, 0.9),
+      0 0 70px rgba(236, 72, 153, 0.5);
+  }
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  .time-picker-legend {
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+  }
+
+  .time-legend-item {
+    font-size: 10px;
+  }
+
+  .time-slot {
+    padding: 14px 6px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+}
+
+/* ===== Селектор количества часов в попапе ===== */
+.time-picker-duration {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 15px;
+  background: rgba(168, 85, 247, 0.06);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 14px;
+  margin-bottom: 16px;
+}
+
+.time-picker-duration-label {
+  font-size: 12px;
+  color: var(--light-gray);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-picker-duration-label i {
+  color: var(--accent-purple);
+  font-size: 14px;
+}
+
+.time-picker-duration-options {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-purple) transparent;
+}
+
+.time-picker-duration-options::-webkit-scrollbar {
+  height: 4px;
+}
+
+.time-picker-duration-options::-webkit-scrollbar-thumb {
+  background: var(--accent-purple);
+  border-radius: 2px;
+}
+
+.duration-btn {
+  flex-shrink: 0;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  color: var(--light-gray);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  min-width: 55px;
+  text-align: center;
+}
+
+.duration-btn:hover {
+  border-color: rgba(168, 85, 247, 0.4);
+  color: var(--white);
+  background: rgba(168, 85, 247, 0.08);
+}
+
+.duration-btn.active {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  border-color: transparent;
+  color: var(--white);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+  transform: scale(1.05);
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  .time-picker-duration {
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+
+  .time-picker-duration-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .duration-btn {
+    padding: 9px 14px;
+    font-size: 13px;
+    min-width: 48px;
+  }
+}
+
+/* Кнопка удаления даты (корзина) */
+.admin-remove {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 68, 68, 0.12);
+  border: 1px solid rgba(255, 68, 68, 0.35);
+  color: #ff4444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.admin-remove:hover {
+  background: #ff4444;
+  border-color: #ff4444;
+  color: var(--white);
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+}
+
+.admin-remove:active {
+  transform: scale(0.95);
+}
+
+.admin-remove i {
+  pointer-events: none;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  .admin-remove {
+    width: 34px;
+    height: 34px;
+    font-size: 13px;
   }
 }

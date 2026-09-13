@@ -43,7 +43,8 @@ const DISCOUNT_PERCENT = 30;
 
 let currentDate = new Date();
 let selectedDate = null;
-let bookedDates = [];
+let selectedTime = "";
+let bookedSlots = {}; // { "23.09.2026": ["12:00", "13:00"] }
 
 const urlParams = new URLSearchParams(window.location.search);
 const selectedServiceId = urlParams.get("service");
@@ -62,24 +63,10 @@ function validateField(fieldId, condition) {
 
 function clearErrorOnInput(fieldId) {
   const field = document.getElementById(fieldId);
-  const clear = () => field.closest(".form-group").classList.remove("error");
+  if (!field) return;
+  const clear = () => field.closest(".form-group")?.classList.remove("error");
   field.addEventListener("input", clear);
   field.addEventListener("change", clear);
-}
-
-// ===== ВРЕМЯ =====
-function fillTimeSlots() {
-  const timeSelect = document.getElementById("timeSelect");
-  timeSelect.innerHTML = '<option value="">Выберите время...</option>';
-  for (let hour = 10; hour <= 22; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) {
-      const time = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
-      const option = document.createElement("option");
-      option.value = time;
-      option.textContent = time;
-      timeSelect.appendChild(option);
-    }
-  }
 }
 
 // ===== ДАТА =====
@@ -104,12 +91,16 @@ function validateManualDate(dateStr) {
     field.value = "";
     return;
   }
-  if (bookedDates.includes(dateStr)) {
+
+  // Проверяем, полностью ли занят день
+  const occupiedHours = bookedSlots[dateStr] || [];
+  if (occupiedHours.length >= 13) {
     field.closest(".form-group").classList.add("error");
     field.value = "";
-    showError("Эта дата уже занята");
+    showError("Эта дата полностью занята");
     return;
   }
+
   selectedDate = date;
   field.closest(".form-group").classList.remove("error");
   renderCalendar();
@@ -119,6 +110,8 @@ function validateManualDate(dateStr) {
 function renderCalendar() {
   const calendarDays = document.getElementById("calendarDays");
   const calendarMonthYear = document.getElementById("calendarMonthYear");
+  if (!calendarDays || !calendarMonthYear) return;
+
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const months = [
@@ -159,13 +152,16 @@ function renderCalendar() {
     dayElement.textContent = day;
 
     const dateStr = `${day.toString().padStart(2, "0")}.${(month + 1).toString().padStart(2, "0")}.${year}`;
-    const isBooked = bookedDates.includes(dateStr);
+    const occupiedHours = bookedSlots[dateStr] || [];
+    const isFullyBooked = occupiedHours.length >= 13;
+    const isPartiallyBooked = occupiedHours.length > 0 && !isFullyBooked;
     const isPast = date < today;
     const isFutureLimit = year > 2026 || (year === 2026 && month > 11);
 
-    if (isPast || isFutureLimit || isBooked)
+    if (isPast || isFutureLimit || isFullyBooked)
       dayElement.classList.add("disabled");
-    if (isBooked) dayElement.classList.add("booked");
+    if (isFullyBooked) dayElement.classList.add("booked");
+    if (isPartiallyBooked) dayElement.classList.add("partially-booked");
     if (date.getTime() === today.getTime()) dayElement.classList.add("today");
 
     if (
@@ -191,14 +187,19 @@ function selectDate(date) {
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const year = date.getFullYear().toString();
 
+  const dateStr = `${day}.${month}.${year}`;
   const dateInput = document.getElementById("bookingDate");
-  dateInput.value = `${day}.${month}.${year}`;
+  dateInput.value = dateStr;
   dateInput.closest(".form-group").classList.remove("error");
+
+  // Сбрасываем выбранное время при смене даты
+  resetSelectedTime();
 
   renderCalendar();
 
   const modal = document.getElementById("calendarModal");
-  if (modal.classList.contains("active")) modal.classList.remove("active");
+  if (modal && modal.classList.contains("active"))
+    modal.classList.remove("active");
 
   if (telegramApp) telegramApp.hapticFeedback("light");
 }
@@ -213,10 +214,190 @@ function changeMonth(direction) {
 
 function toggleCalendar() {
   const modal = document.getElementById("calendarModal");
+  if (!modal) return;
   modal.classList.toggle("active");
   if (modal.classList.contains("active")) renderCalendar();
 }
 
+// Закрытие по клику вне календаря
+document.addEventListener("click", (e) => {
+  const modal = document.getElementById("calendarModal");
+  if (!modal || !modal.classList.contains("active")) return;
+
+  const modalContent = modal.querySelector(".calendar-modal-content");
+  if (!modalContent) return;
+
+  const isClickOutside = !modalContent.contains(e.target);
+  const isToggleBtn = e.target.closest(".calendar-toggle");
+
+  if (isClickOutside && !isToggleBtn) {
+    modal.classList.remove("active");
+  }
+});
+
+// ===== ВЫБОР ВРЕМЕНИ =====
+function openTimePicker() {
+  const dateStr = document.getElementById("bookingDate").value;
+
+  if (!dateStr || dateStr.length !== 10) {
+    showError("Сначала выберите дату");
+    return;
+  }
+
+  const serviceId = document.getElementById("serviceSelect").value;
+  if (!serviceId) {
+    showError("Сначала выберите услугу");
+    return;
+  }
+
+  // Рисуем селектор часов
+  renderDurationOptions();
+
+  // Рисуем сетку часов
+  renderTimePicker(dateStr);
+
+  const overlay = document.getElementById("timePickerOverlay");
+  if (!overlay) return;
+  overlay.classList.add("active");
+  document.body.style.overflow = "hidden";
+
+  if (telegramApp) telegramApp.hapticFeedback("light");
+}
+
+function renderDurationOptions() {
+  const container = document.getElementById("durationOptions");
+  if (!container) return;
+
+  const durations = [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12];
+  const current = parseInt(document.getElementById("hoursSelect").value) || 1;
+
+  container.innerHTML = "";
+
+  durations.forEach((h) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "duration-btn" + (h === current ? " active" : "");
+    btn.textContent = `${h} ч`;
+    btn.onclick = () => selectDuration(h);
+    container.appendChild(btn);
+  });
+}
+
+function selectDuration(hours) {
+  const hoursInput = document.getElementById("hoursSelect");
+  hoursInput.value = hours;
+
+  // Обновляем активную кнопку
+  document.querySelectorAll(".duration-btn").forEach((btn) => {
+    btn.classList.remove("active");
+  });
+  const activeBtn = Array.from(document.querySelectorAll(".duration-btn")).find(
+    (btn) => btn.textContent === `${hours} ч`,
+  );
+  if (activeBtn) activeBtn.classList.add("active");
+
+  // Сбрасываем выбранное время (могло стать недоступным)
+  if (selectedTime) {
+    resetSelectedTime();
+  }
+
+  // Обновляем цену
+  updatePrice();
+
+  // Перерисовываем сетку часов (занятые слоты пересчитаются)
+  const dateStr = document.getElementById("bookingDate").value;
+  if (dateStr && dateStr.length === 10) {
+    renderTimePicker(dateStr);
+  }
+
+  if (telegramApp) telegramApp.hapticFeedback("light");
+}
+
+function closeTimePicker(event, force = false) {
+  if (!force && event && event.target !== event.currentTarget) return;
+
+  const overlay = document.getElementById("timePickerOverlay");
+  if (!overlay) return;
+  overlay.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+function renderTimePicker(dateStr) {
+  const grid = document.getElementById("timePickerGrid");
+  if (!grid) return;
+
+  const occupiedHours = bookedSlots[dateStr] || [];
+  const hoursSelect = document.getElementById("hoursSelect");
+  const requestedHours = parseInt(hoursSelect.value) || 1;
+
+  // Обновляем дату в шапке
+  const dateInfo = document.getElementById("timePickerDate");
+  if (dateInfo) dateInfo.textContent = dateStr;
+
+  grid.innerHTML = "";
+
+  for (let hour = 10; hour <= 22; hour++) {
+    const time = `${hour.toString().padStart(2, "0")}:00`;
+
+    // Проверяем, можно ли забронировать
+    let canBook = true;
+
+    // Хватает ли времени до конца дня
+    if (hour + requestedHours > 23) {
+      canBook = false;
+    } else {
+      for (let i = 0; i < requestedHours; i++) {
+        const checkHour = (hour + i).toString().padStart(2, "0") + ":00";
+        if (occupiedHours.includes(checkHour)) {
+          canBook = false;
+          break;
+        }
+      }
+    }
+
+    const slot = document.createElement("div");
+    slot.className = "time-slot " + (canBook ? "free" : "busy");
+    slot.textContent = time;
+
+    if (canBook) {
+      if (time === selectedTime) slot.classList.add("selected");
+      slot.onclick = () => selectTime(time);
+    }
+
+    grid.appendChild(slot);
+  }
+}
+
+function selectTime(time) {
+  selectedTime = time;
+
+  const timeDisplay = document.getElementById("timeDisplay");
+  if (timeDisplay) {
+    timeDisplay.textContent = time;
+    timeDisplay.classList.add("has-value");
+  }
+
+  const timeInput = document.getElementById("timeSelect");
+  if (timeInput) timeInput.value = time;
+
+  const timeField = document.getElementById("timeField");
+  if (timeField) timeField.classList.remove("error");
+
+  closeTimePicker(null, true);
+
+  if (telegramApp) telegramApp.hapticFeedback("light");
+}
+
+function resetSelectedTime() {
+  selectedTime = "";
+  const timeDisplay = document.getElementById("timeDisplay");
+  if (timeDisplay) {
+    timeDisplay.textContent = "Выберите время...";
+    timeDisplay.classList.remove("has-value");
+  }
+  const timeInput = document.getElementById("timeSelect");
+  if (timeInput) timeInput.value = "";
+}
 // ===== ЦЕНА =====
 function updatePrice() {
   const serviceSelect = document.getElementById("serviceSelect");
@@ -262,13 +443,31 @@ async function sendToTelegram(bookingData) {
   }
 }
 
-async function loadBookedDates() {
+async function loadBookedDatesInBackground() {
+  const cached = localStorage.getItem("bookedSlots");
+  if (cached) {
+    try {
+      bookedSlots = JSON.parse(cached);
+      renderCalendar();
+    } catch (e) {}
+  }
+
   try {
-    const response = await fetch(`${WORKER_URL}/api/booked-dates`);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    const response = await fetch(`${WORKER_URL}/api/booked-dates`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
     const data = await response.json();
-    return data.dates || [];
+    bookedSlots = data.bookings || {};
+
+    localStorage.setItem("bookedSlots", JSON.stringify(bookedSlots));
+    renderCalendar();
   } catch (error) {
-    return [];
+    console.warn("Ошибка загрузки дат:", error.message);
   }
 }
 
@@ -284,8 +483,18 @@ async function submitBooking() {
   if (!validateField("serviceSelect", serviceId)) isValid = false;
   if (!validateField("bookingDate", date && date.length === 10))
     isValid = false;
-  if (!validateField("timeSelect", time)) isValid = false;
-  if (!validateField("userName", name && name.length >= 2)) isValid = false;
+  if (!validateField("timeField", time && time.length > 0)) isValid = false;
+
+  const nameField = document.getElementById("nameField");
+  const isNameFieldVisible =
+    nameField && !nameField.classList.contains("hidden-in-tg");
+  if (
+    isNameFieldVisible &&
+    !validateField("userName", name && name.length >= 2)
+  ) {
+    isValid = false;
+  }
+
   if (!validateField("userPhone", phone && phone.length >= 10)) isValid = false;
 
   if (!isValid) {
@@ -305,7 +514,7 @@ async function submitBooking() {
     : originalPrice;
 
   const bookingData = {
-    name,
+    name: name || (telegramApp ? telegramApp.getUserName() : "Клиент"),
     phone,
     serviceName: service.name,
     date,
@@ -348,72 +557,38 @@ function showError(message) {
   }
 }
 
-function toggleCalendar() {
-  const modal = document.getElementById("calendarModal");
-  modal.classList.toggle("active");
-  if (modal.classList.contains("active")) {
-    renderCalendar();
-  }
-}
-
-document.addEventListener("click", (e) => {
-  const modal = document.getElementById("calendarModal");
-  if (!modal || !modal.classList.contains("active")) return;
-
-  const modalContent = modal.querySelector(".calendar-modal-content");
-  if (!modalContent) return;
-
-  // Если клик НЕ внутри содержимого и НЕ по кнопке открытия календаря
-  const isClickOutside = !modalContent.contains(e.target);
-  const isToggleBtn = e.target.closest(".calendar-toggle");
-
-  if (isClickOutside && !isToggleBtn) {
-    modal.classList.remove("active");
-  }
-});
-
 function clearForm() {
   document.getElementById("serviceSelect").value = "";
   document.getElementById("bookingDate").value = "";
-  document.getElementById("timeSelect").value = "";
   document.getElementById("hoursSelect").value = "1";
   document.getElementById("userPhone").value = "";
+
+  resetSelectedTime();
+
+  const nameField = document.getElementById("nameField");
+  if (nameField && !nameField.classList.contains("hidden-in-tg")) {
+    document.getElementById("userName").value = "";
+  }
+
   selectedDate = null;
   updatePrice();
 }
 
-// ===== ИНИЦИАЛИЗАЦИЯ =====
-document.addEventListener("DOMContentLoaded", async () => {
-  fillTimeSlots();
+function onServiceSelect() {
+  const serviceId = document.getElementById("serviceSelect").value;
+  const bookingWrapper = document.getElementById("bookingWrapper");
 
-  bookedDates = await loadBookedDates();
-  renderCalendar();
+  if (!bookingWrapper) return;
 
-  if (selectedServiceId) {
-    document.getElementById("serviceSelect").value = selectedServiceId;
+  if (serviceId) {
+    bookingWrapper.classList.add("has-calendar");
+    renderCalendar();
     updatePrice();
+    if (telegramApp) telegramApp.hapticFeedback("light");
+  } else {
+    bookingWrapper.classList.remove("has-calendar");
   }
-
-  [
-    "serviceSelect",
-    "bookingDate",
-    "timeSelect",
-    "userName",
-    "userPhone",
-  ].forEach(clearErrorOnInput);
-
-  const phoneInput = document.getElementById("userPhone");
-  phoneInput.addEventListener("input", (e) => {
-    let value = e.target.value.replace(/\D/g, "");
-    if (value.startsWith("7") || value.startsWith("8")) value = value.slice(1);
-    let formatted = "+7 (";
-    if (value.length > 0) formatted += value.slice(0, 3);
-    if (value.length >= 3) formatted += ") " + value.slice(3, 6);
-    if (value.length >= 6) formatted += "-" + value.slice(6, 8);
-    if (value.length >= 8) formatted += "-" + value.slice(8, 10);
-    e.target.value = formatted;
-  });
-});
+}
 
 // ===== УВЕДОМЛЕНИЕ ОБ УСПЕХЕ =====
 function showSuccess(date) {
@@ -432,3 +607,53 @@ function closeSuccess() {
   overlay.classList.remove("active");
   document.body.style.overflow = "";
 }
+
+// ===== ИНИЦИАЛИЗАЦИЯ =====
+document.addEventListener("DOMContentLoaded", async () => {
+  renderCalendar();
+
+  // ===== ИМЯ ИЗ TELEGRAM =====
+  const nameField = document.getElementById("nameField");
+  const userNameInput = document.getElementById("userName");
+
+  if (telegramApp && telegramApp.isTelegram) {
+    const tgName = telegramApp.getUserName();
+    if (tgName && nameField) {
+      nameField.classList.add("hidden-in-tg");
+      if (userNameInput) userNameInput.value = tgName;
+
+      const badge = document.createElement("div");
+      badge.className = "user-badge visible";
+      badge.innerHTML = `<i class="fas fa-user-check"></i><span>${tgName}</span>`;
+      nameField.parentNode.insertBefore(badge, nameField);
+    }
+  }
+
+  if (selectedServiceId) {
+    document.getElementById("serviceSelect").value = selectedServiceId;
+    updatePrice();
+    onServiceSelect();
+  }
+
+  ["serviceSelect", "bookingDate", "userName", "userPhone"].forEach(
+    clearErrorOnInput,
+  );
+
+  const phoneInput = document.getElementById("userPhone");
+  if (phoneInput) {
+    phoneInput.addEventListener("input", (e) => {
+      let value = e.target.value.replace(/\D/g, "");
+      if (value.startsWith("7") || value.startsWith("8"))
+        value = value.slice(1);
+      let formatted = "+7 (";
+      if (value.length > 0) formatted += value.slice(0, 3);
+      if (value.length >= 3) formatted += ") " + value.slice(3, 6);
+      if (value.length >= 6) formatted += "-" + value.slice(6, 8);
+      if (value.length >= 8) formatted += "-" + value.slice(8, 10);
+      e.target.value = formatted;
+    });
+  }
+
+  // Фоновая загрузка дат
+  loadBookedDatesInBackground();
+});

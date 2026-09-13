@@ -1,5 +1,5 @@
 const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
-const ADMIN_PASSWORD = "1234";
+const ADMIN_PASSWORD = "flstudio2026";
 
 // ===== АВТОРИЗАЦИЯ =====
 function checkPassword() {
@@ -33,7 +33,6 @@ function showPanel() {
   loadDates();
 }
 
-// Enter для входа
 document.addEventListener("DOMContentLoaded", () => {
   if (sessionStorage.getItem("adminAuth") === "true") {
     showPanel();
@@ -47,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// ===== ДАТЫ =====
+// ===== СПИСОК ЗАНЯТЫХ ДАТ =====
 async function loadDates() {
   const list = document.getElementById("adminDatesList");
   list.innerHTML = '<p class="admin-empty">Загрузка...</p>';
@@ -55,14 +54,15 @@ async function loadDates() {
   try {
     const response = await fetch(`${WORKER_URL}/api/booked-dates`);
     const data = await response.json();
-    const dates = data.dates || [];
+    const bookings = data.bookings || {};
+    const dates = Object.keys(bookings);
 
     if (dates.length === 0) {
       list.innerHTML = '<p class="admin-empty">Нет занятых дат</p>';
       return;
     }
 
-    // Сортируем по дате
+    // Сортируем даты
     dates.sort((a, b) => {
       const [d1, m1, y1] = a.split(".").map(Number);
       const [d2, m2, y2] = b.split(".").map(Number);
@@ -70,15 +70,63 @@ async function loadDates() {
     });
 
     list.innerHTML = "";
+
+    // Все возможные часы
+    const ALL_HOURS = [];
+    for (let h = 10; h <= 22; h++) {
+      ALL_HOURS.push(`${h.toString().padStart(2, "0")}:00`);
+    }
+
     dates.forEach((date) => {
+      const busyHours = bookings[date] || [];
+      const freeHours = ALL_HOURS.filter((h) => !busyHours.includes(h));
+      const isFullDay = freeHours.length === 0;
+
       const item = document.createElement("div");
       item.className = "admin-date-item";
-      item.innerHTML = `
-        <span><i class="fas fa-calendar-check"></i> ${date}</span>
-        <button onclick="removeDate('${date}')" class="admin-remove">
-          <i class="fas fa-trash"></i>
-        </button>
+
+      // Заголовок
+      const header = document.createElement("div");
+      header.className = "admin-date-header";
+      header.innerHTML = `
+        <div class="admin-date-info">
+          <i class="fas fa-calendar-check"></i>
+          <span>${date}</span>
+          <span class="admin-date-status ${isFullDay ? "full" : "partial"}">
+            ${isFullDay ? "Полностью закрыта" : `Занято ${busyHours.length} ч.`}
+          </span>
+        </div>
+        <div class="admin-date-actions">
+          <button class="admin-toggle-hours" onclick="toggleHours('${date}')">
+            <i class="fas fa-clock"></i> Часы
+          </button>
+          <button class="admin-remove" onclick="removeDate('${date}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
       `;
+      item.appendChild(header);
+
+      // Список часов (скрыт по умолчанию)
+      const hoursPanel = document.createElement("div");
+      hoursPanel.className = "admin-hours-panel";
+      hoursPanel.id = `hours-${date}`;
+
+      const hoursGrid = document.createElement("div");
+      hoursGrid.className = "admin-hours-grid";
+
+      ALL_HOURS.forEach((hour) => {
+        const isBusy = busyHours.includes(hour);
+        const btn = document.createElement("button");
+        btn.className = `admin-hour-btn ${isBusy ? "busy" : "free"}`;
+        btn.textContent = hour;
+        btn.onclick = () => toggleHour(date, hour, isBusy);
+        hoursGrid.appendChild(btn);
+      });
+
+      hoursPanel.appendChild(hoursGrid);
+      item.appendChild(hoursPanel);
+
       list.appendChild(item);
     });
   } catch (error) {
@@ -87,7 +135,37 @@ async function loadDates() {
   }
 }
 
-async function addDate() {
+// Показать/скрыть панель часов
+function toggleHours(date) {
+  const panel = document.getElementById(`hours-${date}`);
+  if (panel) panel.classList.toggle("active");
+}
+
+// Переключить конкретный час
+async function toggleHour(date, hour, isBusy) {
+  const endpoint = isBusy ? "open-hours" : "close-hours";
+
+  try {
+    const response = await fetch(`${WORKER_URL}/api/admin/${endpoint}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date, hours: [hour] }),
+    });
+    const data = await response.json();
+
+    if (data.ok) {
+      loadDates(); // перезагружаем список
+    } else {
+      alert("Ошибка: " + (data.error || "неизвестно"));
+    }
+  } catch (error) {
+    alert("Ошибка сети");
+    console.error(error);
+  }
+}
+
+// Закрыть весь день
+async function closeDay() {
   const input = document.getElementById("adminDate");
   const date = input.value.trim();
 
@@ -97,7 +175,7 @@ async function addDate() {
   }
 
   try {
-    const response = await fetch(`${WORKER_URL}/api/admin/add-date`, {
+    const response = await fetch(`${WORKER_URL}/api/admin/close-day`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ date }),
@@ -116,13 +194,9 @@ async function addDate() {
   }
 }
 
+// Удалить дату полностью
 async function removeDate(date) {
-  if (
-    !confirm(
-      `Удалить дату ${date}? Она снова станет доступной для бронирования.`,
-    )
-  )
-    return;
+  if (!confirm(`Удалить ВСЕ брони на ${date}?`)) return;
 
   try {
     const response = await fetch(`${WORKER_URL}/api/admin/remove-date`, {
@@ -143,6 +217,7 @@ async function removeDate(date) {
   }
 }
 
+// Форматирование даты
 function formatAdminDate(input) {
   let value = input.value.replace(/\D/g, "");
   if (value.length > 8) value = value.slice(0, 8);

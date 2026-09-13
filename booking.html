@@ -42,7 +42,7 @@
         <h2 class="section-title">ЗАПИСЬ</h2>
         <p class="section-subtitle">Заполните форму бронирования</p>
 
-        <div class="booking-wrapper">
+        <div class="booking-wrapper" id="bookingWrapper">
           <!-- Форма бронирования -->
           <div class="booking-form">
             <div class="form-group">
@@ -75,31 +75,19 @@
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" id="timeField">
               <label>Время начала</label>
-              <select id="timeSelect">
-                <option value="">Выберите время...</option>
-              </select>
+              <div class="custom-time-picker" onclick="openTimePicker()">
+                <span id="timeDisplay">Выберите время...</span>
+                <i class="fas fa-clock"></i>
+              </div>
+              <input type="hidden" id="timeSelect" value="" />
+              <input type="hidden" id="hoursSelect" value="1" />
             </div>
 
-            <div class="form-group">
-              <label>Количество часов</label>
-              <select id="hoursSelect" onchange="updatePrice()">
-                <option value="1">1 час</option>
-                <option value="2">2 часа</option>
-                <option value="3">3 часа</option>
-                <option value="4">4 часа</option>
-                <option value="5">5 часов</option>
-                <option value="6">6 часов</option>
-                <option value="8">8 часов</option>
-                <option value="10">10 часов</option>
-                <option value="12">12 часов</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Ваше имя</label>
-              <input type="text" id="userName" placeholder="Иван Иванов" />
+            <div class="form-group" id="nameField">
+              <label>Ваш Username в ТГ</label>
+              <input type="text" id="userName" placeholder="@example" />
             </div>
 
             <div class="form-group">
@@ -138,6 +126,27 @@
                 ><span>Пт</span><span>Сб</span><span>Вс</span>
               </div>
               <div class="calendar-days" id="calendarDays"></div>
+
+              <!-- Легенда календаря -->
+              <div class="calendar-legend">
+                <div class="calendar-legend-item">
+                  <div class="calendar-legend-dot free"></div>
+                  <span>Свободно</span>
+                </div>
+                <div class="calendar-legend-item">
+                  <div class="calendar-legend-dot partial"></div>
+                  <span>Есть занятые часы</span>
+                </div>
+                <div class="calendar-legend-item">
+                  <div class="calendar-legend-dot full"></div>
+                  <span>Закрыто</span>
+                </div>
+                <div class="calendar-legend-item">
+                  <div class="calendar-legend-dot past"></div>
+                  <span>Прошло</span>
+                </div>
+              </div>
+
               <button class="calendar-close" onclick="toggleCalendar()">
                 <i class="fas fa-check"></i> Готово
               </button>
@@ -159,6 +168,53 @@
         </div>
       </div>
     </section>
+
+    <!-- Попап выбора времени -->
+    <div
+      class="time-picker-overlay"
+      id="timePickerOverlay"
+      onclick="closeTimePicker(event)"
+    >
+      <div class="time-picker-modal">
+        <div class="time-picker-header">
+          <h3>Выберите время</h3>
+          <button
+            class="time-picker-close"
+            onclick="closeTimePicker(event, true)"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="time-picker-date-info">
+          <i class="fas fa-calendar-day"></i>
+          <span>Дата: <strong id="timePickerDate">—</strong></span>
+        </div>
+
+        <!-- ⭐ Селектор количества часов -->
+        <div class="time-picker-duration">
+          <span class="time-picker-duration-label">
+            <i class="fas fa-hourglass-half"></i> Сколько часов:
+          </span>
+          <div class="time-picker-duration-options" id="durationOptions">
+            <!-- Заполняется через JS -->
+          </div>
+        </div>
+
+        <div class="time-picker-legend">
+          <div class="time-legend-item">
+            <div class="time-legend-dot free"></div>
+            <span>Свободно</span>
+          </div>
+          <div class="time-legend-item">
+            <div class="time-legend-dot busy"></div>
+            <span>Занято</span>
+          </div>
+        </div>
+
+        <div class="time-picker-grid" id="timePickerGrid"></div>
+      </div>
+    </div>
 
     <script src="js/telegram.js"></script>
     <script src="js/booking.js"></script>

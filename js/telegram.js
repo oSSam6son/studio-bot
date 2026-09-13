@@ -34,6 +34,19 @@ class TelegramIntegration {
     }
   }
 
+  // Возвращает имя пользователя для отправки
+  getUserName() {
+    if (!this.isTelegram) return null;
+    const user = this.tg.initDataUnsafe?.user;
+    if (!user) return null;
+
+    // Приоритет: @username → имя
+    if (user.username) {
+      return `@${user.username}`;
+    }
+    return `${user.first_name || ""} ${user.last_name || ""}`.trim();
+  }
+
   sendData(data) {
     if (this.isTelegram) {
       this.tg.sendData(JSON.stringify(data));
@@ -78,7 +91,7 @@ function toggleMenu() {
   if (nav) nav.classList.toggle("active");
 }
 
-// ===== ПРОМО-УВЕДОМЛЕНИЕ =====
+// ===== ПРОМО =====
 function showPromo() {
   const promo = document.getElementById("promoOverlay");
   if (!promo) return;
@@ -98,10 +111,9 @@ function closePromo() {
   }, 300);
 }
 
-// Закрытие при клике вне модалки (только если промо есть на странице)
 document.addEventListener("click", (e) => {
   const promo = document.getElementById("promoOverlay");
-  if (!promo) return; // ← ключевая проверка
+  if (!promo) return;
 
   const promoModal = promo.querySelector(".promo-modal");
   if (!promoModal) return;
@@ -111,7 +123,6 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// Показ через 1 секунду (только если промо есть и не показывали раньше)
 document.addEventListener("DOMContentLoaded", () => {
   const promo = document.getElementById("promoOverlay");
   if (!promo) return;
@@ -121,25 +132,3 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(showPromo, 1000);
   }
 });
-
-function activateMap() {
-  const container = document.getElementById("mapContainer");
-  if (!container) return;
-
-  // Заменяем превью на iframe
-  container.innerHTML = `
-    <iframe 
-      src="https://yandex.ru/map-widget/v1/?um=constructor%3Aae60f981a2c749c8354a4d79823571d4148a1af4ce5c24639e861c8b1c67a195&source=constructor"
-      width="100%"
-      height="450"
-      frameborder="0"
-      allowfullscreen
-      loading="lazy">
-    </iframe>
-  `;
-
-  // Haptic в Telegram
-  if (telegramApp && telegramApp.isTelegram) {
-    telegramApp.hapticFeedback("light");
-  }
-}
