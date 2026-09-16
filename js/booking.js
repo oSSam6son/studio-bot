@@ -844,15 +844,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Маска телефона
+  // ===== МАСКА ТЕЛЕФОНА =====
+  // ===== МАСКА ТЕЛЕФОНА =====
   const phoneInput = document.getElementById("userPhone");
+
   if (phoneInput) {
     phoneInput.addEventListener("input", (e) => {
       const input = e.target;
-      let digits = input.value.replace(/\D/g, "");
+      const inputType = e.inputType || "";
 
-      if (digits.startsWith("7") || digits.startsWith("8"))
-        digits = digits.slice(1);
-      digits = digits.slice(0, 10);
+      // Если это удаление — не форматируем, даём юзеру стереть
+      if (inputType.startsWith("delete")) {
+        return;
+      }
+
+      // Только цифры
+      let digits = input.value.replace(/\D/g, "").slice(0, 15);
 
       if (digits.length === 0) {
         input.value = "";
@@ -860,12 +867,24 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      let formatted = "+7";
-      if (digits.length > 0) formatted += " (" + digits.slice(0, 3);
-      if (digits.length >= 3) formatted += ")";
-      if (digits.length > 3) formatted += " " + digits.slice(3, 6);
-      if (digits.length > 6) formatted += "-" + digits.slice(6, 8);
-      if (digits.length > 8) formatted += "-" + digits.slice(8, 10);
+      // Форматируем
+      let formatted = "+" + digits[0];
+
+      if (digits.length > 1) {
+        formatted += " (" + digits.slice(1, 4);
+      }
+      if (digits.length >= 4) {
+        formatted += ")";
+      }
+      if (digits.length > 4) {
+        formatted += " " + digits.slice(4, 7);
+      }
+      if (digits.length > 7) {
+        formatted += "-" + digits.slice(7, 9);
+      }
+      if (digits.length > 9) {
+        formatted += "-" + digits.slice(9, 11);
+      }
 
       input.value = formatted;
       input.setSelectionRange(formatted.length, formatted.length);
