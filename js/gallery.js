@@ -290,3 +290,42 @@ document.addEventListener("DOMContentLoaded", () => {
   initGallery();
   initSwipe();
 });
+
+// ===== iOS FIX: блокируем горизонтальный скролл страницы при свайпе по галерее =====
+document.addEventListener("DOMContentLoaded", () => {
+  const gallerySlider = document.querySelector(".gallery-slider");
+  if (!gallerySlider) return;
+
+  let startX = 0;
+  let startY = 0;
+  let isHorizontalSwipe = null;
+
+  gallerySlider.addEventListener(
+    "touchstart",
+    (e) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      isHorizontalSwipe = null;
+    },
+    { passive: true },
+  );
+
+  gallerySlider.addEventListener(
+    "touchmove",
+    (e) => {
+      if (isHorizontalSwipe === null) {
+        const diffX = Math.abs(e.touches[0].clientX - startX);
+        const diffY = Math.abs(e.touches[0].clientY - startY);
+
+        // Определяем направление свайпа
+        isHorizontalSwipe = diffX > diffY;
+      }
+
+      // Если жест горизонтальный — блокируем скролл страницы
+      if (isHorizontalSwipe) {
+        e.preventDefault();
+      }
+    },
+    { passive: false }, // ⚠️ важно! Иначе preventDefault не сработает
+  );
+});

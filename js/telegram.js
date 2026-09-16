@@ -2,11 +2,27 @@
 class TelegramIntegration {
   constructor() {
     this.tg = window.Telegram?.WebApp;
-    this.isTelegram = !!this.tg;
+
+    // ⭐ Проверяем что мы РЕАЛЬНО в Telegram
+    this.isTelegram = !!(
+      this.tg &&
+      this.tg.initData &&
+      this.tg.initData.length > 0
+    );
 
     if (this.isTelegram) {
       this.initTelegram();
     }
+  }
+
+  setupTheme() {
+    try {
+      if (this.tg.setHeaderColor) this.tg.setHeaderColor("#0a0a0a");
+      if (this.tg.setBackgroundColor) this.tg.setBackgroundColor("#0a0a0a");
+      if (this.tg.setBottomBarColor && this.tg.isVersionAtLeast("7.10")) {
+        this.tg.setBottomBarColor("#0a0a0a");
+      }
+    } catch (e) {}
   }
 
   initTelegram() {
@@ -70,7 +86,13 @@ class TelegramIntegration {
   }
 
   hapticFeedback(type = "success") {
-    if (!this.isTelegram || !this.tg.HapticFeedback) return;
+    if (!this.isTelegram) return;
+    if (!this.tg.HapticFeedback) return;
+
+    // Проверка версии
+    if (this.tg.isVersionAtLeast && !this.tg.isVersionAtLeast("6.1")) {
+      return;
+    }
 
     const impactStyles = ["light", "medium", "heavy", "rigid", "soft"];
     const notificationTypes = ["success", "error", "warning"];
@@ -83,9 +105,7 @@ class TelegramIntegration {
       } else {
         this.tg.HapticFeedback.impactOccurred("light");
       }
-    } catch (e) {
-      // тихо игнорируем
-    }
+    } catch (e) {}
   }
 }
 

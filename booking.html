@@ -32,7 +32,6 @@
         <p class="section-subtitle">Заполните форму бронирования</p>
 
         <div class="booking-wrapper" id="bookingWrapper">
-          <!-- Форма бронирования -->
           <div class="booking-form">
             <div class="form-group">
               <label>Выберите услугу</label>
@@ -48,7 +47,6 @@
               </select>
             </div>
 
-            <!-- Дата (показывается для hourly и date-only) -->
             <div class="form-group" id="dateField" style="display: none">
               <label>Дата</label>
               <div class="date-input-wrapper">
@@ -65,7 +63,6 @@
               </div>
             </div>
 
-            <!-- Время (только для hourly) -->
             <div class="form-group" id="timeField" style="display: none">
               <label>Время бронирования</label>
               <div class="custom-time-picker" onclick="openTimePicker()">
@@ -75,7 +72,6 @@
               <input type="hidden" id="timeSelect" value="" />
             </div>
 
-            <!-- Часы (скрыто, если defaultHours) -->
             <input type="hidden" id="hoursSelect" value="1" />
 
             <div class="form-group" id="nameField">
@@ -116,7 +112,6 @@
             </button>
           </div>
 
-          <!-- Календарь -->
           <div class="calendar-modal" id="calendarModal">
             <div class="calendar-modal-content">
               <div class="calendar-header">
@@ -134,7 +129,6 @@
               </div>
               <div class="calendar-days" id="calendarDays"></div>
 
-              <!-- Легенда календаря -->
               <div class="calendar-legend">
                 <div class="calendar-legend-item">
                   <div class="calendar-legend-dot free"></div>
@@ -157,7 +151,6 @@
           </div>
         </div>
 
-        <!-- Блок информации -->
         <div class="booking-info">
           <h3>Информация</h3>
           <ul>
@@ -213,7 +206,6 @@
 
         <div class="time-picker-grid" id="timePickerGrid"></div>
 
-        <!-- ⭐ Кнопка Готово -->
         <button
           class="time-picker-done"
           id="timePickerDone"
@@ -224,9 +216,6 @@
         </button>
       </div>
     </div>
-
-    <script src="js/telegram.js"></script>
-    <script src="js/booking.js"></script>
 
     <!-- Уведомление об успехе -->
     <div class="success-overlay" id="successOverlay">
@@ -243,5 +232,20 @@
         <button class="success-btn" onclick="closeSuccess()">Понятно</button>
       </div>
     </div>
+
+    <!-- Уведомление об ошибке -->
+    <div class="error-overlay" id="errorOverlay">
+      <div class="error-modal">
+        <div class="error-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="error-title">Ошибка</h3>
+        <p class="error-text" id="errorText"></p>
+        <button class="error-btn" onclick="closeError()">Понятно</button>
+      </div>
+    </div>
+
+    <script src="js/telegram.js"></script>
+    <script src="js/booking.js"></script>
   </body>
 </html>

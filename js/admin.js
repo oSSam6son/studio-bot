@@ -1,5 +1,11 @@
 const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
-const ADMIN_PASSWORD = "flstudio2026";
+const ADMIN_PASSWORD = "1234";
+
+// Все 24 часа (00:00 - 23:00)
+const ALL_HOURS = [];
+for (let h = 0; h < 24; h++) {
+  ALL_HOURS.push(`${h.toString().padStart(2, "0")}:00`);
+}
 
 // ===== АВТОРИЗАЦИЯ =====
 function checkPassword() {
@@ -62,7 +68,7 @@ async function loadDates() {
       return;
     }
 
-    // Сортируем даты
+    // Сортировка дат
     dates.sort((a, b) => {
       const [d1, m1, y1] = a.split(".").map(Number);
       const [d2, m2, y2] = b.split(".").map(Number);
@@ -70,12 +76,6 @@ async function loadDates() {
     });
 
     list.innerHTML = "";
-
-    // Все возможные часы
-    const ALL_HOURS = [];
-    for (let h = 10; h <= 22; h++) {
-      ALL_HOURS.push(`${h.toString().padStart(2, "0")}:00`);
-    }
 
     dates.forEach((date) => {
       const busyHours = bookings[date] || [];
@@ -107,7 +107,7 @@ async function loadDates() {
       `;
       item.appendChild(header);
 
-      // Список часов (скрыт по умолчанию)
+      // Панель часов
       const hoursPanel = document.createElement("div");
       hoursPanel.className = "admin-hours-panel";
       hoursPanel.id = `hours-${date}`;
@@ -141,7 +141,7 @@ function toggleHours(date) {
   if (panel) panel.classList.toggle("active");
 }
 
-// Переключить конкретный час
+// Переключить час (закрыть/открыть)
 async function toggleHour(date, hour, isBusy) {
   const endpoint = isBusy ? "open-hours" : "close-hours";
 
@@ -154,7 +154,7 @@ async function toggleHour(date, hour, isBusy) {
     const data = await response.json();
 
     if (data.ok) {
-      loadDates(); // перезагружаем список
+      loadDates();
     } else {
       alert("Ошибка: " + (data.error || "неизвестно"));
     }
@@ -184,7 +184,8 @@ async function closeDay() {
 
     if (data.ok) {
       input.value = "";
-      loadDates();
+      // ⭐ Загружаем список заново — дата сразу появится в списке
+      await loadDates();
     } else {
       alert("Ошибка: " + (data.error || "неизвестно"));
     }
@@ -217,7 +218,7 @@ async function removeDate(date) {
   }
 }
 
-// Форматирование даты
+// Форматирование даты в input
 function formatAdminDate(input) {
   let value = input.value.replace(/\D/g, "");
   if (value.length > 8) value = value.slice(0, 8);

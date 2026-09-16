@@ -34,6 +34,10 @@ body {
   color: var(--white);
   line-height: 1.6;
   overflow-x: hidden;
+
+  /* ⭐ iOS fix — запрещаем горизонтальный bounce */
+  overscroll-behavior-x: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .container {
@@ -130,6 +134,383 @@ a {
   );
   filter: blur(110px);
   animation-name: floatSlowReverse;
+}
+
+/* ===== Уведомление об ошибке ===== */
+.error-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 6500;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: promoFadeIn 0.3s ease;
+}
+
+.error-overlay.active {
+  display: flex;
+}
+
+.error-modal {
+  background: var(--dark);
+  border: 1px solid #ff4444;
+  border-radius: 20px;
+  padding: 35px 30px;
+  text-align: center;
+  width: 100%;
+  max-width: 420px;
+  box-shadow:
+    0 0 60px rgba(255, 68, 68, 0.4),
+    0 20px 60px rgba(0, 0, 0, 0.7);
+  animation: errorShake 0.4s ease;
+  position: relative;
+}
+
+@keyframes errorShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-8px);
+  }
+  50% {
+    transform: translateX(8px);
+  }
+  75% {
+    transform: translateX(-4px);
+  }
+}
+
+.error-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  animation: errorPulse 1.5s infinite;
+}
+
+.error-icon i {
+  font-size: 38px;
+  color: var(--white);
+}
+
+/* ===== Фильтр истории ===== */
+.admin-filter {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-filter-btn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--medium-gray);
+  color: var(--light-gray);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.admin-filter-btn:hover {
+  border-color: var(--accent-purple);
+  color: var(--white);
+}
+
+.admin-filter-btn.active {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  border-color: transparent;
+  color: var(--white);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+}
+
+.admin-history-count {
+  display: inline-block;
+  padding: 2px 10px;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  border-radius: 12px;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+/* ===== История заявок ===== */
+.admin-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-history-item {
+  background: rgba(168, 85, 247, 0.05);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 12px;
+  padding: 15px;
+  transition: all 0.2s;
+}
+
+.admin-history-item:hover {
+  border-color: var(--accent-purple);
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.admin-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-history-service {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-history-service i {
+  color: var(--accent-purple);
+}
+
+.admin-history-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.admin-history-status.confirmed {
+  background: rgba(0, 200, 100, 0.15);
+  color: #00c864;
+  border: 1px solid rgba(0, 200, 100, 0.4);
+}
+
+.admin-history-status.pending {
+  background: rgba(255, 165, 0, 0.15);
+  color: #ffa500;
+  border: 1px solid rgba(255, 165, 0, 0.4);
+}
+
+.admin-history-status.cancelled {
+  background: rgba(255, 68, 68, 0.15);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.4);
+}
+
+.admin-history-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.admin-history-row {
+  font-size: 13px;
+  color: var(--light-gray);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-history-row i {
+  color: var(--accent-purple);
+  width: 16px;
+  font-size: 12px;
+}
+
+.admin-history-user,
+.admin-history-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--white);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.admin-history-user:hover,
+.admin-history-phone:hover {
+  color: var(--accent-purple);
+}
+
+.admin-history-user i,
+.admin-history-phone i {
+  color: var(--accent-purple);
+  width: 16px;
+  font-size: 12px;
+}
+
+.admin-history-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(168, 85, 247, 0.15);
+  flex-wrap: wrap;
+}
+
+.admin-history-price {
+  font-size: 14px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-history-date {
+  font-size: 11px;
+  color: var(--light-gray);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  .admin-filter {
+    gap: 6px;
+  }
+
+  .admin-filter-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+
+  .admin-history-item {
+    padding: 12px;
+  }
+
+  .admin-history-service {
+    font-size: 13px;
+  }
+
+  .admin-history-status {
+    font-size: 10px;
+    padding: 3px 10px;
+  }
+
+  .admin-history-row,
+  .admin-history-user,
+  .admin-history-phone {
+    font-size: 12px;
+  }
+
+  .admin-history-price {
+    font-size: 13px;
+  }
+
+  .admin-history-date {
+    font-size: 10px;
+  }
+}
+
+.admin-history-link {
+  background: linear-gradient(
+    135deg,
+    var(--accent-purple),
+    var(--accent-pink)
+  ) !important;
+  border: none !important;
+  color: var(--white) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+.admin-history-link:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.7) !important;
+}
+
+@keyframes errorPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255, 68, 68, 0.9);
+  }
+}
+
+.error-title {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ff4444;
+  margin-bottom: 12px;
+}
+
+.error-text {
+  font-size: 15px;
+  color: var(--light-gray);
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.error-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  color: var(--white);
+  border: none;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.error-btn:hover {
+  background: linear-gradient(135deg, #ff6666, #dd0000);
+  transform: translateY(-3px);
+  box-shadow: 0 0 25px rgba(255, 68, 68, 0.7);
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  .error-modal {
+    padding: 28px 22px;
+  }
+  .error-icon {
+    width: 65px;
+    height: 65px;
+  }
+  .error-icon i {
+    font-size: 30px;
+  }
+  .error-title {
+    font-size: 20px;
+  }
+  .error-text {
+    font-size: 13px;
+  }
 }
 
 .bg-circle-cyan {
@@ -1444,6 +1825,12 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  /* ⭐ iOS fix — жесты работают только внутри */
+  touch-action: pan-y; /* разрешаем вертикальный скролл, блокируем горизонтальный на странице */
+  -webkit-user-select: none; /* запрещаем выделение при свайпе */
+  user-select: none;
+  overscroll-behavior-x: contain; /* запрещаем "резиновый" отскок страницы */
 }
 
 .gallery-track {
@@ -1453,6 +1840,11 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  /* ⭐ iOS fix */
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .gallery-slide {
@@ -1517,6 +1909,11 @@ section {
   object-fit: cover;
   display: block;
   pointer-events: none;
+
+  /* ⭐ iOS fix */
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-touch-callout: none; /* не показывать меню "сохранить изображение" при долгом тапе */
 }
 
 .gallery-slide-title {
@@ -3535,4 +3932,8 @@ section {
     margin-top: 14px;
     border-radius: 12px;
   }
+}
+
+.error-overlay.active {
+  display: flex !important;
 }
