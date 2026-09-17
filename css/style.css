@@ -3897,6 +3897,19 @@ section {
   transform: translateZ(0);
 }
 
+.photo-modal img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  border-radius: 8px;
+  transition: opacity 0.15s ease;
+
+  /* ⭐ iOS fix */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
 .map-preview-img {
   width: 100%;
   height: 100%;

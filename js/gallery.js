@@ -147,12 +147,28 @@ function openPhotoModal() {
 
   if (!modal || !modalImage) return;
 
+  // ⭐ Открываем модалку СРАЗУ
   modal.classList.add("active");
-  modalImage.src = galleryData[currentGalleryIndex].url;
 
-  if (modalCounter) {
-    modalCounter.textContent = `${currentGalleryIndex + 1} / ${galleryData.length}`;
-  }
+  // ⭐ Устанавливаем src и ждём загрузки
+  const url = galleryData[currentGalleryIndex].url;
+
+  // Проверяем, загружено ли уже
+  const preloader = new Image();
+  preloader.onload = () => {
+    modalImage.src = url;
+    modalImage.style.opacity = "1";
+  };
+  preloader.onerror = () => {
+    modalImage.src = url; // fallback
+  };
+  preloader.src = url;
+
+  // Пока грузится — прозрачный
+  modalImage.style.opacity = "0";
+  modalImage.style.transition = "opacity 0.3s ease";
+
+  modalCounter.textContent = `${currentGalleryIndex + 1} / ${galleryData.length}`;
 
   if (telegramApp) telegramApp.hapticFeedback("light");
 }
@@ -172,17 +188,18 @@ function changeModalImage(direction) {
 
   if (!modalImage) return;
 
-  // Мгновенная смена с лёгким fade
-  modalImage.style.opacity = "0";
+  const url = galleryData[currentGalleryIndex].url;
 
-  setTimeout(() => {
-    modalImage.src = galleryData[currentGalleryIndex].url;
+  // ⭐ Предзагрузка перед сменой
+  const preloader = new Image();
+  preloader.onload = () => {
+    modalImage.src = url;
     if (modalCounter) {
       modalCounter.textContent = `${currentGalleryIndex + 1} / ${galleryData.length}`;
     }
-    modalImage.style.opacity = "1";
     updateGallery();
-  }, 150);
+  };
+  preloader.src = url;
 
   if (telegramApp) telegramApp.hapticFeedback("light");
 }
