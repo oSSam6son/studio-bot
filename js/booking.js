@@ -524,8 +524,10 @@ function confirmTimePicker() {
 
 // ===== ЦЕНА =====
 function updatePrice() {
-  const serviceId = document.getElementById("serviceSelect").value;
-  const service = services.find((s) => s.id === serviceId);
+  const serviceSelect = document.getElementById("serviceSelect");
+  const hoursSelect = document.getElementById("hoursSelect");
+  const selectedId = serviceSelect.value;
+  const service = services.find((s) => s.id === selectedId);
   const totalPriceElement = document.getElementById("totalPrice");
   const priceSummary = document.getElementById("priceSummary");
   const priceDiscount = document.getElementById("priceDiscount");
@@ -539,7 +541,23 @@ function updatePrice() {
     return;
   }
 
-  const originalPrice = service.price;
+  // ⭐ Считаем цену:
+  // - Если defaultHours (Под ключ) — фиксированная, hours НЕ умножаем
+  // - Иначе (Запись вокала, Репетиция) — price × hours
+  let originalPrice;
+
+  if (service.defaultHours) {
+    // Под ключ: цена фиксированная
+    originalPrice = service.price;
+  } else if (service.bookingType === "none") {
+    // Сведение, Мастеринг: фиксированная
+    originalPrice = service.price;
+  } else {
+    // Запись вокала, Репетиция: price × hours
+    const hours = parseInt(hoursSelect.value) || 1;
+    originalPrice = service.price * hours;
+  }
+
   const discountActive = isDiscountActive();
 
   if (discountActive) {
@@ -680,7 +698,18 @@ async function submitBooking() {
     }
   }
 
-  const originalPrice = service.price;
+  // ⭐ Считаем цену так же, как в updatePrice
+  let originalPrice;
+
+  if (service.defaultHours) {
+    originalPrice = service.price;
+  } else if (service.bookingType === "none") {
+    originalPrice = service.price;
+  } else {
+    const hoursNum = parseInt(hours) || 1;
+    originalPrice = service.price * hoursNum;
+  }
+
   const discountActive = isDiscountActive();
   const finalPrice = discountActive
     ? Math.round(originalPrice * (1 - DISCOUNT_PERCENT / 100))

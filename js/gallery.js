@@ -287,6 +287,12 @@ document.addEventListener("keydown", (e) => {
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 document.addEventListener("DOMContentLoaded", () => {
+  // ⭐ Предзагрузка всех фото в кеш браузера
+  galleryData.forEach((image) => {
+    const img = new Image();
+    img.src = image.url;
+  });
+
   initGallery();
   initSwipe();
 });

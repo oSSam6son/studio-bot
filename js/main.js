@@ -66,6 +66,24 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+function activateMap() {
+  const container = document.getElementById("mapContainer");
+  if (!container) return;
+
+  container.innerHTML = `
+    <iframe 
+      src="https://yandex.ru/map-widget/v1/?um=constructor%3Aae60f981a2c749c8354a4d79823571d4148a1af4ce5c24639e861c8b1c67a195&amp;source=constructor"
+      width="100%"
+      height="450"
+      frameborder="0"
+      allowfullscreen
+      loading="lazy">
+    </iframe>
+  `;
+
+  if (telegramApp) telegramApp.hapticFeedback("light");
+}
+
 // Галерея
 function openLightbox(index) {
   currentImageIndex = index;
