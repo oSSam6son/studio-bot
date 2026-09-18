@@ -2,7 +2,21 @@ const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
 let allBookings = [];
 let currentFilter = "all";
 
+// ⭐ Заголовки с паролем админа
+function adminHeaders(extra = {}) {
+  return {
+    "Content-Type": "application/json",
+    "X-Admin-Password": sessionStorage.getItem("adminPassword") || "",
+    ...extra,
+  };
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  // ⭐ Проверка авторизации — если не залогинен, кидаем на admin.html
+  if (sessionStorage.getItem("adminAuth") !== "true") {
+    window.location.href = "admin.html";
+    return;
+  }
   loadHistory();
 });
 
@@ -11,7 +25,18 @@ async function loadHistory() {
   list.innerHTML = '<p class="admin-empty">Загрузка...</p>';
 
   try {
-    const response = await fetch(`${WORKER_URL}/api/admin/bookings-history`);
+    const response = await fetch(`${WORKER_URL}/api/admin/bookings-history`, {
+      headers: adminHeaders(),
+    });
+
+    if (response.status === 401) {
+      // Сессия протухла — выкидываем на логин
+      sessionStorage.removeItem("adminAuth");
+      sessionStorage.removeItem("adminPassword");
+      window.location.href = "admin.html";
+      return;
+    }
+
     const data = await response.json();
     allBookings = data.bookings || [];
     renderHistory();
@@ -19,14 +44,6 @@ async function loadHistory() {
     list.innerHTML = '<p class="admin-empty">Ошибка загрузки</p>';
     console.error(error);
   }
-}
-
-function setFilter(filter) {
-  currentFilter = filter;
-  document.querySelectorAll(".admin-filter-btn").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.filter === filter);
-  });
-  renderHistory();
 }
 
 function renderHistory() {

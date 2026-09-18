@@ -129,18 +129,25 @@ function clearErrorOnInput(fieldId) {
 }
 
 // ===== ОШИБКИ / УСПЕХ =====
-function showError(message) {
+function showError(message, showContacts = false) {
   const overlay = document.getElementById("errorOverlay");
   const textEl = document.getElementById("errorText");
+  const contacts = document.querySelector(".error-contacts");
 
   if (overlay && textEl) {
     textEl.textContent = message;
     overlay.classList.add("active");
     document.body.style.overflow = "hidden";
+
+    // ⭐ Показываем кнопки связи только при сетевых ошибках
+    if (contacts) {
+      contacts.style.display = showContacts ? "block" : "none";
+    }
   }
 
-  if (telegramApp && telegramApp.isTelegram)
+  if (telegramApp && telegramApp.isTelegram) {
     telegramApp.hapticFeedback("error");
+  }
 }
 
 function closeError() {
@@ -590,9 +597,13 @@ function isDiscountActive() {
 // ===== ОТПРАВКА =====
 async function sendToTelegram(bookingData) {
   try {
+    const headers = { "Content-Type": "application/json" };
+    const initData = telegramApp?.getInitData?.();
+    if (initData) headers["X-Telegram-Init-Data"] = initData;
+
     const response = await fetch(`${WORKER_URL}/api/booking`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(bookingData),
     });
     const data = await response.json();
@@ -736,19 +747,32 @@ async function submitBooking() {
   btnBook.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
   btnBook.disabled = true;
 
+  // ⭐ Таймаут на UI — если через 20 сек нет ответа, показываем ошибку
+  const uiTimeout = setTimeout(() => {
+    btnBook.innerHTML = originalText;
+    btnBook.disabled = false;
+    showError(
+      "Превышено время ожидания. Проверьте подключение к интернету или попробуйте другой VPN/прокси.",
+    );
+  }, 15000);
+
   const sent = await sendToTelegram(bookingData);
+  clearTimeout(uiTimeout);
 
   btnBook.innerHTML = originalText;
   btnBook.disabled = false;
 
   if (sent) {
-    if (telegramApp && telegramApp.isTelegram)
-      telegramApp.hapticFeedback("success");
+    // ⭐ УСПЕХ: модалка, очистка формы, обновление календаря
     showSuccess();
     clearForm();
+    if (telegramApp) telegramApp.hapticFeedback("success");
+    loadBookedDatesInBackground();
   } else {
-    showError("Не удалось отправить. Попробуйте позже.");
-    localStorage.setItem("lastBooking", JSON.stringify(bookingData));
+    showError(
+      "Не удалось отправить заявку. Попробуйте ещё раз или свяжитесь с нами напрямую.",
+      true,
+    );
   }
 }
 
@@ -771,11 +795,13 @@ function clearForm() {
 
   document.getElementById("dateField").style.display = "none";
   document.getElementById("timeField").style.display = "none";
-  document
-    .getElementById("bookingWrapper")
-    .classList.remove("has-calendar", "no-calendar");
 
-  // ⭐ Снимаем ошибки
+  // ⭐ FIX: защита от отсутствия элемента
+  const wrapper = document.getElementById("bookingWrapper");
+  if (wrapper) {
+    wrapper.classList.remove("has-calendar", "no-calendar");
+  }
+
   document.getElementById("dateField")?.classList.remove("error");
   document.getElementById("timeField")?.classList.remove("error");
 }

@@ -1,5 +1,4 @@
 const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
-const ADMIN_PASSWORD = "1234";
 
 // Все 24 часа (00:00 - 23:00)
 const ALL_HOURS = [];
@@ -8,16 +7,52 @@ for (let h = 0; h < 24; h++) {
 }
 
 // ===== АВТОРИЗАЦИЯ =====
-function checkPassword() {
+// ⭐ Пароль НЕ хранится в коде. Вводится → sessionStorage → шлётся в заголовке.
+
+function getAdminPassword() {
+  return sessionStorage.getItem("adminPassword") || "";
+}
+
+function adminHeaders(extra = {}) {
+  return {
+    "Content-Type": "application/json",
+    "X-Admin-Password": getAdminPassword(),
+    ...extra,
+  };
+}
+
+async function checkPassword() {
   const input = document.getElementById("adminPassword");
   const password = input.value.trim();
 
-  if (password === ADMIN_PASSWORD) {
-    sessionStorage.setItem("adminAuth", "true");
-    showPanel();
-  } else {
+  if (!password) return;
+
+  // ⭐ Проверяем пароль запросом к воркеру
+  try {
+    const response = await fetch(`${WORKER_URL}/api/admin/bookings-history`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Admin-Password": password,
+      },
+    });
+
+    if (response.ok) {
+      sessionStorage.setItem("adminPassword", password);
+      sessionStorage.setItem("adminAuth", "true");
+      showPanel();
+    } else {
+      input.value = "";
+      input.placeholder = "Неверный пароль!";
+      input.style.borderColor = "#ff4444";
+      setTimeout(() => {
+        input.placeholder = "Введите пароль";
+        input.style.borderColor = "";
+      }, 2000);
+    }
+  } catch (e) {
     input.value = "";
-    input.placeholder = "Неверный пароль!";
+    input.placeholder = "Ошибка сети";
     input.style.borderColor = "#ff4444";
     setTimeout(() => {
       input.placeholder = "Введите пароль";
@@ -28,6 +63,7 @@ function checkPassword() {
 
 function logout() {
   sessionStorage.removeItem("adminAuth");
+  sessionStorage.removeItem("adminPassword");
   document.getElementById("adminPanel").style.display = "none";
   document.getElementById("adminLogin").style.display = "block";
   document.getElementById("adminPassword").value = "";
@@ -58,6 +94,7 @@ async function loadDates() {
   list.innerHTML = '<p class="admin-empty">Загрузка...</p>';
 
   try {
+    // Публичный эндпоинт — заголовок не обязателен, но не мешает
     const response = await fetch(`${WORKER_URL}/api/booked-dates`);
     const data = await response.json();
     const bookings = data.bookings || {};
@@ -148,9 +185,17 @@ async function toggleHour(date, hour, isBusy) {
   try {
     const response = await fetch(`${WORKER_URL}/api/admin/${endpoint}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders(),
       body: JSON.stringify({ date, hours: [hour] }),
     });
+
+    if (response.status === 401) {
+      sessionStorage.removeItem("adminAuth");
+      sessionStorage.removeItem("adminPassword");
+      window.location.href = "admin.html";
+      return;
+    }
+
     const data = await response.json();
 
     if (data.ok) {
@@ -177,14 +222,21 @@ async function closeDay() {
   try {
     const response = await fetch(`${WORKER_URL}/api/admin/close-day`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders(),
       body: JSON.stringify({ date }),
     });
+
+    if (response.status === 401) {
+      sessionStorage.removeItem("adminAuth");
+      sessionStorage.removeItem("adminPassword");
+      window.location.href = "admin.html";
+      return;
+    }
+
     const data = await response.json();
 
     if (data.ok) {
       input.value = "";
-      // ⭐ Загружаем список заново — дата сразу появится в списке
       await loadDates();
     } else {
       alert("Ошибка: " + (data.error || "неизвестно"));
@@ -202,9 +254,17 @@ async function removeDate(date) {
   try {
     const response = await fetch(`${WORKER_URL}/api/admin/remove-date`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders(),
       body: JSON.stringify({ date }),
     });
+
+    if (response.status === 401) {
+      sessionStorage.removeItem("adminAuth");
+      sessionStorage.removeItem("adminPassword");
+      window.location.href = "admin.html";
+      return;
+    }
+
     const data = await response.json();
 
     if (data.ok) {

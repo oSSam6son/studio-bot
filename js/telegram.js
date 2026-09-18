@@ -15,11 +15,12 @@ class TelegramIntegration {
     }
   }
 
+  // ⭐ ЕДИНСТВЕННЫЙ setupTheme (был дубликат — убран)
   setupTheme() {
     try {
       if (this.tg.setHeaderColor) this.tg.setHeaderColor("#0a0a0a");
       if (this.tg.setBackgroundColor) this.tg.setBackgroundColor("#0a0a0a");
-      if (this.tg.setBottomBarColor && this.tg.isVersionAtLeast("7.10")) {
+      if (this.tg.setBottomBarColor && this.tg.isVersionAtLeast?.("7.10")) {
         this.tg.setBottomBarColor("#0a0a0a");
       }
     } catch (e) {}
@@ -33,12 +34,6 @@ class TelegramIntegration {
     document.body.classList.add("telegram-app");
   }
 
-  setupTheme() {
-    this.tg.setHeaderColor("#0a0a0a");
-    this.tg.setBackgroundColor("#0a0a0a");
-    this.tg.setBottomBarColor("#0a0a0a");
-  }
-
   getUserData() {
     const user = this.tg.initDataUnsafe?.user;
     if (user) {
@@ -48,6 +43,12 @@ class TelegramIntegration {
           user.first_name + (user.last_name ? " " + user.last_name : "");
       }
     }
+  }
+
+  // ⭐ Возвращает подписанный initData для отправки на воркер
+  getInitData() {
+    if (!this.isTelegram) return "";
+    return this.tg.initData || "";
   }
 
   // Возвращает @username или имя
@@ -64,7 +65,7 @@ class TelegramIntegration {
     return "Клиент";
   }
 
-  // Возвращает ID юзера
+  // Возвращает ID юзера (для UI-логики, НЕ для доверия на сервере)
   getUserId() {
     if (!this.isTelegram) return null;
     const user = this.tg.initDataUnsafe?.user;
@@ -89,7 +90,6 @@ class TelegramIntegration {
     if (!this.isTelegram) return;
     if (!this.tg.HapticFeedback) return;
 
-    // Проверка версии
     if (this.tg.isVersionAtLeast && !this.tg.isVersionAtLeast("6.1")) {
       return;
     }
@@ -138,8 +138,6 @@ function showPromo() {
   if (!promo) return;
   promo.classList.add("active");
   document.body.style.overflow = "hidden";
-
-  // Fallback: запоминаем для браузера
   localStorage.setItem("promoShown", "true");
 }
 
@@ -155,7 +153,6 @@ function closePromo() {
   }, 300);
 }
 
-// Закрытие при клике вне модалки
 document.addEventListener("click", (e) => {
   const promo = document.getElementById("promoOverlay");
   if (!promo) return;
@@ -172,7 +169,7 @@ document.addEventListener("click", (e) => {
 document.addEventListener("DOMContentLoaded", async () => {
   const promo = document.getElementById("promoOverlay");
   const userId = telegramApp?.getUserId();
-  const WORKER = "https://flstudio-bot.flstudio.workers.dev"; // ← локальная константа
+  const WORKER = "https://flstudio-bot.flstudio.workers.dev";
 
   if (!userId) {
     if (promo && !localStorage.getItem("promoShown")) {
@@ -182,10 +179,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   try {
+    const headers = { "Content-Type": "application/json" };
+    const initData = telegramApp?.getInitData?.();
+    if (initData) headers["X-Telegram-Init-Data"] = initData;
+
     const response = await fetch(`${WORKER}/api/check-promo`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
+      headers,
+      body: JSON.stringify({ userId }), // userId больше не доверяется сервером, но оставим для совместимости
     });
     const data = await response.json();
 

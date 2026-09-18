@@ -23,6 +23,88 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* ===== Контакты в модалке ошибки ===== */
+.error-contacts {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 68, 68, 0.2);
+}
+
+.error-contacts-label {
+  font-size: 12px;
+  color: var(--light-gray);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.error-contacts-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.error-contact-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 15px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-decoration: none;
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+
+.error-contact-btn i {
+  font-size: 16px;
+}
+
+.error-contact-btn.telegram {
+  background: #229ed9;
+  color: var(--white);
+}
+
+.error-contact-btn.telegram:hover {
+  background: #1e8dbf;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(34, 158, 217, 0.4);
+}
+
+.error-contact-btn.phone {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  color: var(--white);
+}
+
+.error-contact-btn.phone:hover {
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent-pink));
+  transform: translateY(-2px);
+  box-shadow: var(--neon-mixed-glow);
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  .error-contact-btn {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .error-contact-btn i {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 380px) {
+  .error-contacts-buttons {
+    grid-template-columns: 1fr;
+  }
+}
+
 body {
   font-family:
     "Inter",
