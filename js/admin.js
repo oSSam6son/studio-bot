@@ -7,7 +7,7 @@ for (let h = 0; h < 24; h++) {
 }
 
 // ===== АВТОРИЗАЦИЯ =====
-// ⭐ Пароль НЕ хранится в коде. Вводится → localStorage → шлётся в заголовке.
+// ⭐ Пароль НЕ хранится в коде. Вводится → localStorage → шлётся в заголовке.f
 
 function getAdminPassword() {
   return localStorage.getItem("adminPassword") || "";
