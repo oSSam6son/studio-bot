@@ -6,14 +6,14 @@ let currentFilter = "all";
 function adminHeaders(extra = {}) {
   return {
     "Content-Type": "application/json",
-    "X-Admin-Password": sessionStorage.getItem("adminPassword") || "",
+    "X-Admin-Password": localStorage.getItem("adminPassword") || "",
     ...extra,
   };
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   // ⭐ Проверка авторизации — если не залогинен, кидаем на admin.html
-  if (sessionStorage.getItem("adminAuth") !== "true") {
+  if (localStorage.getItem("adminAuth") !== "true") {
     window.location.href = "admin.html";
     return;
   }
@@ -31,8 +31,8 @@ async function loadHistory() {
 
     if (response.status === 401) {
       // Сессия протухла — выкидываем на логин
-      sessionStorage.removeItem("adminAuth");
-      sessionStorage.removeItem("adminPassword");
+      localStorage.removeItem("adminAuth");
+      localStorage.removeItem("adminPassword");
       window.location.href = "admin.html";
       return;
     }

@@ -7,16 +7,16 @@ for (let h = 0; h < 24; h++) {
 }
 
 // ===== АВТОРИЗАЦИЯ =====
-// ⭐ Пароль НЕ хранится в коде. Вводится → sessionStorage → шлётся в заголовке.
+// ⭐ Пароль НЕ хранится в коде. Вводится → localStorage → шлётся в заголовке.
 
 function getAdminPassword() {
-  return sessionStorage.getItem("adminPassword") || "";
+  return localStorage.getItem("adminPassword") || "";
 }
 
 function adminHeaders(extra = {}) {
   return {
     "Content-Type": "application/json",
-    "X-Admin-Password": getAdminPassword(),
+    "X-Admin-Password": localStorage.getItem("adminPassword") || "",
     ...extra,
   };
 }
@@ -38,8 +38,8 @@ async function checkPassword() {
     });
 
     if (response.ok) {
-      sessionStorage.setItem("adminPassword", password);
-      sessionStorage.setItem("adminAuth", "true");
+      localStorage.setItem("adminPassword", password);
+      localStorage.setItem("adminAuth", "true");
       showPanel();
     } else {
       input.value = "";
@@ -62,8 +62,8 @@ async function checkPassword() {
 }
 
 function logout() {
-  sessionStorage.removeItem("adminAuth");
-  sessionStorage.removeItem("adminPassword");
+  localStorage.removeItem("adminAuth");
+  localStorage.removeItem("adminPassword");
   document.getElementById("adminPanel").style.display = "none";
   document.getElementById("adminLogin").style.display = "block";
   document.getElementById("adminPassword").value = "";
@@ -76,7 +76,7 @@ function showPanel() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (sessionStorage.getItem("adminAuth") === "true") {
+  if (localStorage.getItem("adminAuth") === "true") {
     showPanel();
   }
 
@@ -190,8 +190,8 @@ async function toggleHour(date, hour, isBusy) {
     });
 
     if (response.status === 401) {
-      sessionStorage.removeItem("adminAuth");
-      sessionStorage.removeItem("adminPassword");
+      localStorage.removeItem("adminAuth");
+      localStorage.removeItem("adminPassword");
       window.location.href = "admin.html";
       return;
     }
@@ -227,8 +227,8 @@ async function closeDay() {
     });
 
     if (response.status === 401) {
-      sessionStorage.removeItem("adminAuth");
-      sessionStorage.removeItem("adminPassword");
+      localStorage.removeItem("adminAuth");
+      localStorage.removeItem("adminPassword");
       window.location.href = "admin.html";
       return;
     }
@@ -259,8 +259,8 @@ async function removeDate(date) {
     });
 
     if (response.status === 401) {
-      sessionStorage.removeItem("adminAuth");
-      sessionStorage.removeItem("adminPassword");
+      localStorage.removeItem("adminAuth");
+      localStorage.removeItem("adminPassword");
       window.location.href = "admin.html";
       return;
     }
