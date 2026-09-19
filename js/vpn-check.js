@@ -2,7 +2,7 @@
 // Если воркер недоступен (нет VPN / блокировка) — показываем предупреждение
 
 (function () {
-  const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
+  const WORKER_URL = "";
   const CHECK_TIMEOUT = 5000;
 
   function showVpnBanner() {

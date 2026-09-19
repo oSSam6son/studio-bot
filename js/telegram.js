@@ -169,7 +169,7 @@ document.addEventListener("click", (e) => {
 document.addEventListener("DOMContentLoaded", async () => {
   const promo = document.getElementById("promoOverlay");
   const userId = telegramApp?.getUserId();
-  const WORKER = "https://flstudio-bot.flstudio.workers.dev";
+  const WORKER = "";
 
   if (!userId) {
     if (promo && !localStorage.getItem("promoShown")) {

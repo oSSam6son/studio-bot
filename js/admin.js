@@ -1,4 +1,4 @@
-const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
+const WORKER_URL = "";
 
 // Все 24 часа (00:00 - 23:00)
 const ALL_HOURS = [];

@@ -44,7 +44,7 @@ const services = [
 ];
 
 // ===== НАСТРОЙКИ =====
-const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
+const WORKER_URL = "";
 const DISCOUNT_PERCENT = 30;
 const TOTAL_HOURS = 24;
 
