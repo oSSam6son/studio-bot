@@ -3069,6 +3069,10 @@ section {
   margin-left: 8px;
 }
 
+.admin-history-count span {
+  color: white;
+}
+
 /* ===== История заявок ===== */
 .admin-history-list {
   display: flex;
@@ -3226,6 +3230,7 @@ section {
   color: var(--white) !important;
   font-weight: 700 !important;
   box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  margin-bottom: 14px;
 }
 
 .admin-history-link:hover {
