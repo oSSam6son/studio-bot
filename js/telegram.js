@@ -15,7 +15,6 @@ class TelegramIntegration {
     }
   }
 
-  // ⭐ ЕДИНСТВЕННЫЙ setupTheme (был дубликат — убран)
   setupTheme() {
     try {
       if (this.tg.setHeaderColor) this.tg.setHeaderColor("#0a0a0a");
@@ -51,7 +50,7 @@ class TelegramIntegration {
     return this.tg.initData || "";
   }
 
-  // Возвращает @username или имя
+  // Возвращает @username или имя (для отображения)
   getUserName() {
     if (!this.isTelegram) return null;
     const user = this.tg.initDataUnsafe?.user;
@@ -65,7 +64,7 @@ class TelegramIntegration {
     return "Клиент";
   }
 
-  // Возвращает ID юзера (для UI-логики, НЕ для доверия на сервере)
+  // ⭐ Возвращает ID юзера — используется для скидок
   getUserId() {
     if (!this.isTelegram) return null;
     const user = this.tg.initDataUnsafe?.user;
@@ -165,16 +164,15 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// ⭐ Логика показа промо: показываем только тем, кто НЕ ПОДТВЕРЖДЁН админом
+// ⭐ Логика показа промо: только тем, кто НЕ подтверждён админом
+// Ключевой фактор — userId (Telegram ID)
 document.addEventListener("DOMContentLoaded", async () => {
   const promo = document.getElementById("promoOverlay");
   const userId = telegramApp?.getUserId();
-  const WORKER = "";
+  const WORKER = "https://flstudio-bot.flstudio.workers.dev";
 
+  // ⭐ Если нет userId — не в TG, промо не показываем
   if (!userId) {
-    if (promo && !localStorage.getItem("promoShown")) {
-      setTimeout(showPromo, 1000);
-    }
     return;
   }
 
@@ -186,10 +184,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const response = await fetch(`${WORKER}/api/check-promo`, {
       method: "POST",
       headers,
-      body: JSON.stringify({
-        userId,
-        username: telegramApp?.getUserName?.() || null, // ⭐ НОВОЕ
-      }),
+      body: JSON.stringify({}), // userId теперь на воркере из initData
     });
     const data = await response.json();
 
@@ -203,6 +198,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   } catch (error) {
     console.warn("Проверка промо не удалась:", error);
+    // При ошибке — показываем промо (лучше показать лишний раз, чем скрыть)
     if (promo && !localStorage.getItem("promoShown")) {
       setTimeout(showPromo, 1000);
     }

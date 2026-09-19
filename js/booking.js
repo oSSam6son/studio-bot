@@ -44,7 +44,7 @@ const services = [
 ];
 
 // ===== НАСТРОЙКИ =====
-const WORKER_URL = "";
+const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
 const DISCOUNT_PERCENT = 30;
 const TOTAL_HOURS = 24;
 
@@ -139,7 +139,6 @@ function showError(message, showContacts = false) {
     overlay.classList.add("active");
     document.body.style.overflow = "hidden";
 
-    // ⭐ Показываем кнопки связи только при сетевых ошибках
     if (contacts) {
       contacts.style.display = showContacts ? "block" : "none";
     }
@@ -257,7 +256,6 @@ function selectDate(date) {
   const dateInput = document.getElementById("bookingDate");
   dateInput.value = dateStr;
 
-  // ⭐ Снимаем ошибку с поля даты
   const dateField = document.getElementById("dateField");
   if (dateField) dateField.classList.remove("error");
   dateInput.closest(".form-group")?.classList.remove("error");
@@ -323,7 +321,6 @@ document.addEventListener("click", (e) => {
 function openTimePicker() {
   const dateStr = document.getElementById("bookingDate").value;
 
-  // ⭐ Если дата не выбрана — подсвечиваем поле даты красным
   if (!dateStr || dateStr.length !== 10) {
     const dateField = document.getElementById("dateField");
     if (dateField) {
@@ -548,19 +545,13 @@ function updatePrice() {
     return;
   }
 
-  // ⭐ Считаем цену:
-  // - Если defaultHours (Под ключ) — фиксированная, hours НЕ умножаем
-  // - Иначе (Запись вокала, Репетиция) — price × hours
   let originalPrice;
 
   if (service.defaultHours) {
-    // Под ключ: цена фиксированная
     originalPrice = service.price;
   } else if (service.bookingType === "none") {
-    // Сведение, Мастеринг: фиксированная
     originalPrice = service.price;
   } else {
-    // Запись вокала, Репетиция: price × hours
     const hours = parseInt(hoursSelect.value) || 1;
     originalPrice = service.price * hours;
   }
@@ -586,12 +577,11 @@ function updatePrice() {
   priceSummary.style.display = "flex";
 }
 
+// ⭐ Скидка только по userId
 function isDiscountActive() {
   const userId = telegramApp?.getUserId();
-  if (userId) {
-    return localStorage.getItem(`user_confirmed_${userId}`) !== "true";
-  }
-  return localStorage.getItem("discountActive") === "true";
+  if (!userId) return false;
+  return localStorage.getItem(`user_confirmed_${userId}`) !== "true";
 }
 
 // ===== ОТПРАВКА =====
@@ -709,7 +699,6 @@ async function submitBooking() {
     }
   }
 
-  // ⭐ Считаем цену так же, как в updatePrice
   let originalPrice;
 
   if (service.defaultHours) {
@@ -726,9 +715,10 @@ async function submitBooking() {
     ? Math.round(originalPrice * (1 - DISCOUNT_PERCENT / 100))
     : originalPrice;
 
+  // ⭐ userId и username для отображения в уведомлении
   const bookingData = {
     userId: telegramApp?.getUserId() || null,
-    username: telegramApp?.getUserName() || null, // ⭐ НОВОЕ
+    username: telegramApp?.getUserName() || null,
     name: name || "Клиент",
     phone,
     serviceName: service.name,
@@ -748,7 +738,6 @@ async function submitBooking() {
   btnBook.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
   btnBook.disabled = true;
 
-  // ⭐ Таймаут на UI — если через 20 сек нет ответа, показываем ошибку
   const uiTimeout = setTimeout(() => {
     btnBook.innerHTML = originalText;
     btnBook.disabled = false;
@@ -764,7 +753,6 @@ async function submitBooking() {
   btnBook.disabled = false;
 
   if (sent) {
-    // ⭐ УСПЕХ: модалка, очистка формы, обновление календаря
     showSuccess();
     clearForm();
     if (telegramApp) telegramApp.hapticFeedback("success");
@@ -797,7 +785,6 @@ function clearForm() {
   document.getElementById("dateField").style.display = "none";
   document.getElementById("timeField").style.display = "none";
 
-  // ⭐ FIX: защита от отсутствия элемента
   const wrapper = document.getElementById("bookingWrapper");
   if (wrapper) {
     wrapper.classList.remove("has-calendar", "no-calendar");
@@ -832,7 +819,6 @@ function onServiceSelect() {
   resetSelectedTime();
   selectedDate = null;
 
-  // ⭐ Снимаем ошибки при смене услуги
   dateField.classList.remove("error");
   timeField.classList.remove("error");
 
@@ -887,7 +873,6 @@ document.addEventListener("DOMContentLoaded", () => {
     clearErrorOnInput,
   );
 
-  // ⭐ Снимаем ошибку с dateField при вводе даты
   const dateInput = document.getElementById("bookingDate");
   const dateField = document.getElementById("dateField");
   if (dateInput && dateField) {
@@ -899,9 +884,6 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
-  // Маска телефона
-  // ===== МАСКА ТЕЛЕФОНА =====
-  // ===== МАСКА ТЕЛЕФОНА =====
   const phoneInput = document.getElementById("userPhone");
 
   if (phoneInput) {
@@ -909,12 +891,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const input = e.target;
       const inputType = e.inputType || "";
 
-      // Если это удаление — не форматируем, даём юзеру стереть
       if (inputType.startsWith("delete")) {
         return;
       }
 
-      // Только цифры
       let digits = input.value.replace(/\D/g, "").slice(0, 15);
 
       if (digits.length === 0) {
@@ -923,7 +903,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Форматируем
       let formatted = "+" + digits[0];
 
       if (digits.length > 1) {
