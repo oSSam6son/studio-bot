@@ -1,18 +1,16 @@
 const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
 let allBookings = [];
 let currentFilter = "all";
+let showAll = false;
+const PREVIEW_COUNT = 10;
 
-// ⭐ Заголовки с паролем админа
-function adminHeaders(extra = {}) {
-  return {
-    "Content-Type": "application/json",
-    "X-Admin-Password": localStorage.getItem("adminPassword") || "",
-    ...extra,
-  };
+// ⭐ Пароль в query string — простой GET без preflight
+function adminGet(path) {
+  const pass = localStorage.getItem("adminPassword") || "";
+  return fetch(`${WORKER_URL}${path}?password=${encodeURIComponent(pass)}`);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // ⭐ Проверка авторизации — если не залогинен, кидаем на admin.html
   if (localStorage.getItem("adminAuth") !== "true") {
     window.location.href = "admin.html";
     return;
@@ -25,12 +23,9 @@ async function loadHistory() {
   list.innerHTML = '<p class="admin-empty">Загрузка...</p>';
 
   try {
-    const response = await fetch(`${WORKER_URL}/api/admin/bookings-history`, {
-      headers: adminHeaders(),
-    });
+    const response = await adminGet("/api/admin/bookings-history");
 
     if (response.status === 401) {
-      // Сессия протухла — выкидываем на логин
       localStorage.removeItem("adminAuth");
       localStorage.removeItem("adminPassword");
       window.location.href = "admin.html";
@@ -46,11 +41,24 @@ async function loadHistory() {
   }
 }
 
+function setFilter(filter) {
+  currentFilter = filter;
+  showAll = false; // ⭐ сбрасываем показ при смене фильтра
+  document.querySelectorAll(".admin-filter-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.filter === filter);
+  });
+  renderHistory();
+}
+
+function toggleShowAll() {
+  showAll = !showAll;
+  renderHistory();
+}
+
 function renderHistory() {
   const list = document.getElementById("historyList");
   const countEl = document.getElementById("historyCount");
 
-  // Фильтрация
   let filtered = allBookings;
   if (currentFilter !== "all") {
     filtered = allBookings.filter((b) => b.status === currentFilter);
@@ -63,13 +71,16 @@ function renderHistory() {
     return;
   }
 
+  // ⭐ Ограничиваем показ
+  const visible = showAll ? filtered : filtered.slice(0, PREVIEW_COUNT);
+  const hasMore = filtered.length > PREVIEW_COUNT;
+
   list.innerHTML = "";
 
-  filtered.forEach((booking) => {
+  visible.forEach((booking) => {
     const item = document.createElement("div");
     item.className = "admin-history-item";
 
-    // Иконка статуса
     let statusClass = "pending";
     let statusIcon = "fa-clock";
     let statusText = "Ожидает";
@@ -84,7 +95,6 @@ function renderHistory() {
       statusText = "Отменено";
     }
 
-    // Дата создания
     const createdDate = booking.createdAt
       ? new Date(booking.createdAt).toLocaleString("ru-RU", {
           day: "2-digit",
@@ -95,7 +105,6 @@ function renderHistory() {
         })
       : "—";
 
-    // Информация о брони
     let scheduleInfo = "";
     if (booking.bookingType === "none") {
       scheduleInfo = `<div class="admin-history-row"><i class="fas fa-info-circle"></i> Без записи на время</div>`;
@@ -108,7 +117,6 @@ function renderHistory() {
       `;
     }
 
-    // Ссылка на клиента
     const userLink = booking.userId
       ? `<a href="tg://user?id=${booking.userId}" class="admin-history-user">
            <i class="fas fa-user"></i> ${booking.name || "Клиент"}
@@ -144,4 +152,20 @@ function renderHistory() {
 
     list.appendChild(item);
   });
+
+  // ⭐ Кнопка «Показать все» / «Свернуть»
+  if (hasMore) {
+    const btnWrap = document.createElement("div");
+    btnWrap.className = "admin-history-showall-wrap";
+
+    const btn = document.createElement("button");
+    btn.className = "admin-history-showall";
+    btn.innerHTML = showAll
+      ? `<i class="fas fa-chevron-up"></i> Свернуть`
+      : `<i class="fas fa-chevron-down"></i> Показать все (${filtered.length})`;
+    btn.onclick = toggleShowAll;
+
+    btnWrap.appendChild(btn);
+    list.appendChild(btnWrap);
+  }
 }

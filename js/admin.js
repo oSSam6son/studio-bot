@@ -7,18 +7,29 @@ for (let h = 0; h < 24; h++) {
 }
 
 // ===== АВТОРИЗАЦИЯ =====
-// ⭐ Пароль НЕ хранится в коде. Вводится → localStorage → шлётся в заголовке.f
+// ⭐ Пароль шлём В BODY (не в заголовке) → нет preflight → работает без VPN
 
 function getAdminPassword() {
   return localStorage.getItem("adminPassword") || "";
 }
 
-function adminHeaders(extra = {}) {
-  return {
-    "Content-Type": "application/json",
-    "X-Admin-Password": localStorage.getItem("adminPassword") || "",
-    ...extra,
-  };
+// ⭐ Универсальный POST без кастомных заголовков (Content-Type: text/plain — простой запрос)
+async function adminPost(path, payload) {
+  const response = await fetch(`${WORKER_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({
+      ...payload,
+      password: getAdminPassword(),
+    }),
+  });
+  return response;
+}
+
+// ⭐ Универсальный GET — пароль в query string
+async function adminGet(path) {
+  const url = `${WORKER_URL}${path}?password=${encodeURIComponent(getAdminPassword())}`;
+  return fetch(url);
 }
 
 async function checkPassword() {
@@ -27,15 +38,10 @@ async function checkPassword() {
 
   if (!password) return;
 
-  // ⭐ Проверяем пароль запросом к воркеру
   try {
-    const response = await fetch(`${WORKER_URL}/api/admin/bookings-history`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Admin-Password": password,
-      },
-    });
+    const response = await fetch(
+      `${WORKER_URL}/api/admin/check?password=${encodeURIComponent(password)}`,
+    );
 
     if (response.ok) {
       localStorage.setItem("adminPassword", password);
@@ -94,7 +100,7 @@ async function loadDates() {
   list.innerHTML = '<p class="admin-empty">Загрузка...</p>';
 
   try {
-    // Публичный эндпоинт — заголовок не обязателен, но не мешает
+    // Публичный эндпоинт
     const response = await fetch(`${WORKER_URL}/api/booked-dates`);
     const data = await response.json();
     const bookings = data.bookings || {};
@@ -105,7 +111,6 @@ async function loadDates() {
       return;
     }
 
-    // Сортировка дат
     dates.sort((a, b) => {
       const [d1, m1, y1] = a.split(".").map(Number);
       const [d2, m2, y2] = b.split(".").map(Number);
@@ -122,7 +127,6 @@ async function loadDates() {
       const item = document.createElement("div");
       item.className = "admin-date-item";
 
-      // Заголовок
       const header = document.createElement("div");
       header.className = "admin-date-header";
       header.innerHTML = `
@@ -144,7 +148,6 @@ async function loadDates() {
       `;
       item.appendChild(header);
 
-      // Панель часов
       const hoursPanel = document.createElement("div");
       hoursPanel.className = "admin-hours-panel";
       hoursPanel.id = `hours-${date}`;
@@ -172,21 +175,18 @@ async function loadDates() {
   }
 }
 
-// Показать/скрыть панель часов
 function toggleHours(date) {
   const panel = document.getElementById(`hours-${date}`);
   if (panel) panel.classList.toggle("active");
 }
 
-// Переключить час (закрыть/открыть)
 async function toggleHour(date, hour, isBusy) {
   const endpoint = isBusy ? "open-hours" : "close-hours";
 
   try {
-    const response = await fetch(`${WORKER_URL}/api/admin/${endpoint}`, {
-      method: "POST",
-      headers: adminHeaders(),
-      body: JSON.stringify({ date, hours: [hour] }),
+    const response = await adminPost(`/api/admin/${endpoint}`, {
+      date,
+      hours: [hour],
     });
 
     if (response.status === 401) {
@@ -209,7 +209,6 @@ async function toggleHour(date, hour, isBusy) {
   }
 }
 
-// Закрыть весь день
 async function closeDay() {
   const input = document.getElementById("adminDate");
   const date = input.value.trim();
@@ -220,11 +219,7 @@ async function closeDay() {
   }
 
   try {
-    const response = await fetch(`${WORKER_URL}/api/admin/close-day`, {
-      method: "POST",
-      headers: adminHeaders(),
-      body: JSON.stringify({ date }),
-    });
+    const response = await adminPost("/api/admin/close-day", { date });
 
     if (response.status === 401) {
       localStorage.removeItem("adminAuth");
@@ -247,16 +242,11 @@ async function closeDay() {
   }
 }
 
-// Удалить дату полностью
 async function removeDate(date) {
   if (!confirm(`Удалить ВСЕ брони на ${date}?`)) return;
 
   try {
-    const response = await fetch(`${WORKER_URL}/api/admin/remove-date`, {
-      method: "POST",
-      headers: adminHeaders(),
-      body: JSON.stringify({ date }),
-    });
+    const response = await adminPost("/api/admin/remove-date", { date });
 
     if (response.status === 401) {
       localStorage.removeItem("adminAuth");
@@ -278,7 +268,6 @@ async function removeDate(date) {
   }
 }
 
-// Форматирование даты в input
 function formatAdminDate(input) {
   let value = input.value.replace(/\D/g, "");
   if (value.length > 8) value = value.slice(0, 8);
