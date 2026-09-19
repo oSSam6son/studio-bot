@@ -587,13 +587,9 @@ function isDiscountActive() {
 // ===== ОТПРАВКА =====
 async function sendToTelegram(bookingData) {
   try {
-    const headers = { "Content-Type": "application/json" };
-    const initData = telegramApp?.getInitData?.();
-    if (initData) headers["X-Telegram-Init-Data"] = initData;
-
     const response = await fetch(`${WORKER_URL}/api/booking`, {
       method: "POST",
-      headers,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(bookingData),
     });
     const data = await response.json();
@@ -715,7 +711,6 @@ async function submitBooking() {
     ? Math.round(originalPrice * (1 - DISCOUNT_PERCENT / 100))
     : originalPrice;
 
-  // ⭐ userId и username для отображения в уведомлении
   const bookingData = {
     userId: telegramApp?.getUserId() || null,
     username: telegramApp?.getUserName() || null,

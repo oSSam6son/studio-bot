@@ -1,10 +1,9 @@
-const WORKER_URL = "";
+const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
 let allBookings = [];
 let currentFilter = "all";
 let showAll = false;
 const PREVIEW_COUNT = 10;
 
-// ⭐ Пароль в query string — простой GET без preflight
 function adminGet(path) {
   const pass = localStorage.getItem("adminPassword") || "";
   return fetch(`${WORKER_URL}${path}?password=${encodeURIComponent(pass)}`);
@@ -43,7 +42,7 @@ async function loadHistory() {
 
 function setFilter(filter) {
   currentFilter = filter;
-  showAll = false; // ⭐ сбрасываем показ при смене фильтра
+  showAll = false;
   document.querySelectorAll(".admin-filter-btn").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.filter === filter);
   });
@@ -71,7 +70,6 @@ function renderHistory() {
     return;
   }
 
-  // ⭐ Ограничиваем показ
   const visible = showAll ? filtered : filtered.slice(0, PREVIEW_COUNT);
   const hasMore = filtered.length > PREVIEW_COUNT;
 
@@ -153,7 +151,6 @@ function renderHistory() {
     list.appendChild(item);
   });
 
-  // ⭐ Кнопка «Показать все» / «Свернуть»
   if (hasMore) {
     const btnWrap = document.createElement("div");
     btnWrap.className = "admin-history-showall-wrap";

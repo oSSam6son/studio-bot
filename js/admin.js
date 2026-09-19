@@ -1,19 +1,15 @@
-const WORKER_URL = "";
+const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
 
-// Все 24 часа (00:00 - 23:00)
 const ALL_HOURS = [];
 for (let h = 0; h < 24; h++) {
   ALL_HOURS.push(`${h.toString().padStart(2, "0")}:00`);
 }
 
 // ===== АВТОРИЗАЦИЯ =====
-// ⭐ Пароль шлём В BODY (не в заголовке) → нет preflight → работает без VPN
-
 function getAdminPassword() {
   return localStorage.getItem("adminPassword") || "";
 }
 
-// ⭐ Универсальный POST без кастомных заголовков (Content-Type: text/plain — простой запрос)
 async function adminPost(path, payload) {
   const response = await fetch(`${WORKER_URL}${path}`, {
     method: "POST",
@@ -26,7 +22,6 @@ async function adminPost(path, payload) {
   return response;
 }
 
-// ⭐ Универсальный GET — пароль в query string
 async function adminGet(path) {
   const url = `${WORKER_URL}${path}?password=${encodeURIComponent(getAdminPassword())}`;
   return fetch(url);
@@ -40,7 +35,7 @@ async function checkPassword() {
 
   try {
     const response = await fetch(
-      `${WORKER_URL}/api/admin/check?password=${encodeURIComponent(password)}`,
+      `${WORKER_URL}/api/admin/check?password=${encodeURIComponent(password)}`
     );
 
     if (response.ok) {
@@ -100,7 +95,6 @@ async function loadDates() {
   list.innerHTML = '<p class="admin-empty">Загрузка...</p>';
 
   try {
-    // Публичный эндпоинт
     const response = await fetch(`${WORKER_URL}/api/booked-dates`);
     const data = await response.json();
     const bookings = data.bookings || {};

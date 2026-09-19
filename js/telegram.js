@@ -3,7 +3,6 @@ class TelegramIntegration {
   constructor() {
     this.tg = window.Telegram?.WebApp;
 
-    // ⭐ Проверяем что мы РЕАЛЬНО в Telegram
     this.isTelegram = !!(
       this.tg &&
       this.tg.initData &&
@@ -44,12 +43,6 @@ class TelegramIntegration {
     }
   }
 
-  // ⭐ Возвращает подписанный initData для отправки на воркер
-  getInitData() {
-    if (!this.isTelegram) return "";
-    return this.tg.initData || "";
-  }
-
   // Возвращает @username или имя (для отображения)
   getUserName() {
     if (!this.isTelegram) return null;
@@ -64,7 +57,7 @@ class TelegramIntegration {
     return "Клиент";
   }
 
-  // ⭐ Возвращает ID юзера — используется для скидок
+  // Возвращает ID юзера — используется для скидок
   getUserId() {
     if (!this.isTelegram) return null;
     const user = this.tg.initDataUnsafe?.user;
@@ -164,27 +157,22 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// ⭐ Логика показа промо: только тем, кто НЕ подтверждён админом
-// Ключевой фактор — userId (Telegram ID)
+// ⭐ Логика показа промо: проверяем по userId + username (без HMAC)
 document.addEventListener("DOMContentLoaded", async () => {
   const promo = document.getElementById("promoOverlay");
   const userId = telegramApp?.getUserId();
+  const username = telegramApp?.getUserName?.();
   const WORKER = "https://flstudio-bot.flstudio.workers.dev";
 
-  // ⭐ Если нет userId — не в TG, промо не показываем
   if (!userId) {
-    return;
+    return; // Не в TG — не показываем
   }
 
   try {
-    const headers = { "Content-Type": "application/json" };
-    const initData = telegramApp?.getInitData?.();
-    if (initData) headers["X-Telegram-Init-Data"] = initData;
-
     const response = await fetch(`${WORKER}/api/check-promo`, {
       method: "POST",
-      headers,
-      body: JSON.stringify({}), // userId теперь на воркере из initData
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, username }),
     });
     const data = await response.json();
 
@@ -198,7 +186,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   } catch (error) {
     console.warn("Проверка промо не удалась:", error);
-    // При ошибке — показываем промо (лучше показать лишний раз, чем скрыть)
     if (promo && !localStorage.getItem("promoShown")) {
       setTimeout(showPromo, 1000);
     }

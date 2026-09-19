@@ -1,12 +1,9 @@
 // ===== ПРОВЕРКА ДОСТУПНОСТИ ВОРКЕРА =====
-// Если воркер недоступен (нет VPN / блокировка) — показываем предупреждение
-
 (function () {
-  const WORKER_URL = "";
+  const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
   const CHECK_TIMEOUT = 5000;
 
   function showVpnBanner() {
-    // Не показываем дважды
     if (document.getElementById("vpnBanner")) return;
 
     const banner = document.createElement("div");
@@ -22,10 +19,7 @@
       </div>
     `;
 
-    // Вставляем после body
     document.body.insertBefore(banner, document.body.firstChild);
-
-    // Автоматически анимируем появление
     setTimeout(() => banner.classList.add("visible"), 50);
   }
 
@@ -45,14 +39,14 @@
         showVpnBanner();
       }
     } catch (e) {
-      // Сеть не работает / таймаут / заблокировано
       showVpnBanner();
     }
   }
 
-  // Проверяем на всех страницах после загрузки
   document.addEventListener("DOMContentLoaded", () => {
-    // Небольшая задержка, чтобы не мешать остальным скриптам
+    const isTelegram = !!(window.Telegram?.WebApp?.initData?.length);
+    if (isTelegram) return;
+
     setTimeout(checkWorker, 500);
   });
 })();
