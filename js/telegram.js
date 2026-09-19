@@ -186,7 +186,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const response = await fetch(`${WORKER}/api/check-promo`, {
       method: "POST",
       headers,
-      body: JSON.stringify({ userId }), // userId больше не доверяется сервером, но оставим для совместимости
+      body: JSON.stringify({
+        userId,
+        username: telegramApp?.getUserName?.() || null, // ⭐ НОВОЕ
+      }),
     });
     const data = await response.json();
 
