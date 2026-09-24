@@ -592,10 +592,17 @@ async function sendToTelegram(bookingData) {
       headers: { "Content-Type": "text/plain" },
       body: JSON.stringify(bookingData),
     });
+
+    if (!response.ok) {
+      console.error("Booking failed:", response.status);
+      return false;
+    }
+
     const data = await response.json();
-    return data.ok;
+    return data.ok === true;
   } catch (error) {
-    console.error("Ошибка:", error);
+    // ⭐ Сюда попадаем при "fetch failed" — сеть/соединение оборвалось
+    console.error("Booking fetch failed:", error);
     return false;
   }
 }
@@ -733,16 +740,8 @@ async function submitBooking() {
   btnBook.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
   btnBook.disabled = true;
 
-  const uiTimeout = setTimeout(() => {
-    btnBook.innerHTML = originalText;
-    btnBook.disabled = false;
-    showError(
-      "Превышено время ожидания. Проверьте подключение к интернету или попробуйте другой VPN/прокси.",
-    );
-  }, 15000);
-
+  // ⭐ Ждём завершения fetch — успех или ошибка, без таймаута
   const sent = await sendToTelegram(bookingData);
-  clearTimeout(uiTimeout);
 
   btnBook.innerHTML = originalText;
   btnBook.disabled = false;
