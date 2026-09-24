@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const promo = document.getElementById("promoOverlay");
   const userId = telegramApp?.getUserId();
   const username = telegramApp?.getUserName?.();
-  const WORKER = "https://flstudio-bot.flstudio.workers.dev";
+  const WORKER = "";
 
   if (!userId) {
     return; // Не в TG — не показываем

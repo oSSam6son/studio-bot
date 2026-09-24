@@ -2,30 +2,29 @@
 const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
 
 export async function proxyToWorker(req, res, workerPath) {
-    try {
-        const initData = req.headers["x-telegram-init-data"] || "";
+  try {
+    const headers = {
+      "Content-Type": "text/plain", // ⭐ text/plain → воркер парсит вручную
+    };
 
-        const headers = {
-            "Content-Type": "application/json",
-        };
-        if (initData) headers["X-Telegram-Init-Data"] = initData;
+    const fetchOptions = {
+      method: req.method,
+      headers,
+    };
 
-        const fetchOptions = {
-            method: req.method,
-            headers,
-        };
-
-        // Для POST/PUT — пробрасываем body
-        if (req.method === "POST" || req.method === "PUT") {
-            fetchOptions.body = JSON.stringify(req.body);
-        }
-
-        const response = await fetch(`${WORKER_URL}${workerPath}`, fetchOptions);
-        const data = await response.json();
-
-        res.status(response.status).json(data);
-    } catch (e) {
-        console.error("Proxy error:", e);
-        res.status(500).json({ ok: false, error: e.message });
+    if (req.method === "POST" || req.method === "PUT") {
+      fetchOptions.body =
+        typeof req.body === "string" ? req.body : JSON.stringify(req.body);
     }
+
+    const response = await fetch(`${WORKER_URL}${workerPath}`, fetchOptions);
+    const text = await response.text();
+
+    res.status(response.status);
+    res.setHeader("Content-Type", "application/json");
+    res.send(text);
+  } catch (e) {
+    console.error("Proxy error:", e);
+    res.status(500).json({ ok: false, error: e.message });
+  }
 }

@@ -1,4 +1,4 @@
-const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
+const WORKER_URL = "";
 
 const ALL_HOURS = [];
 for (let h = 0; h < 24; h++) {

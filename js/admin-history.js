@@ -1,4 +1,4 @@
-const WORKER_URL = "https://flstudio-bot.flstudio.workers.dev";
+const WORKER_URL = "";
 let allBookings = [];
 let currentFilter = "all";
 let showAll = false;
