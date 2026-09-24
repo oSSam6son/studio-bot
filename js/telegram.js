@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const response = await fetch(`${WORKER}/api/check-promo`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain" },
       body: JSON.stringify({ userId, username }),
     });
     const data = await response.json();

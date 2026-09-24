@@ -589,7 +589,7 @@ async function sendToTelegram(bookingData) {
   try {
     const response = await fetch(`${WORKER_URL}/api/booking`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain" },
       body: JSON.stringify(bookingData),
     });
     const data = await response.json();
